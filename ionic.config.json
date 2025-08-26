@@ -1,0 +1,7 @@
+{
+  "name": "nutrijournal",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
