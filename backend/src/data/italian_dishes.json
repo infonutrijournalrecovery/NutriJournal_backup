@@ -1,0 +1,515 @@
+{
+  "traditional_dishes": {
+    "pasta": {
+      "spaghetti_carbonara": {
+        "name_it": "Spaghetti alla Carbonara",
+        "region": "Lazio",
+        "category": "Primi piatti",
+        "ingredients": [
+          "Spaghetti (400g)",
+          "Guanciale (150g)", 
+          "Uova (4 tuorli + 1 intero)",
+          "Pecorino Romano (100g)",
+          "Pepe nero",
+          "Sale"
+        ],
+        "nutrition_per_100g": {
+          "calories": 185,
+          "proteins": 9.2,
+          "carbohydrates": 22.1,
+          "fats": 7.8,
+          "fiber": 1.2,
+          "sodium": 380
+        },
+        "allergens": ["gluten", "eggs", "milk"],
+        "preparation_time": 20,
+        "difficulty": "Media",
+        "traditional": true
+      },
+      "spaghetti_aglio_olio": {
+        "name_it": "Spaghetti Aglio, Olio e Peperoncino",
+        "region": "Campania/Lazio",
+        "category": "Primi piatti",
+        "ingredients": [
+          "Spaghetti (400g)",
+          "Aglio (4 spicchi)",
+          "Olio extravergine oliva (80ml)",
+          "Peperoncino",
+          "Prezzemolo",
+          "Sale"
+        ],
+        "nutrition_per_100g": {
+          "calories": 165,
+          "proteins": 5.8,
+          "carbohydrates": 28.2,
+          "fats": 4.2,
+          "fiber": 1.8,
+          "sodium": 200
+        },
+        "allergens": ["gluten"],
+        "preparation_time": 15,
+        "difficulty": "Facile",
+        "traditional": true,
+        "vegan": true
+      },
+      "pasta_amatriciana": {
+        "name_it": "Pasta all'Amatriciana",
+        "region": "Lazio/Abruzzo",
+        "category": "Primi piatti", 
+        "ingredients": [
+          "Spaghetti o Bucatini (400g)",
+          "Guanciale (150g)",
+          "Pomodori San Marzano (400g)",
+          "Pecorino Romano (80g)",
+          "Peperoncino",
+          "Vino bianco (50ml)"
+        ],
+        "nutrition_per_100g": {
+          "calories": 175,
+          "proteins": 8.5,
+          "carbohydrates": 24.8,
+          "fats": 5.9,
+          "fiber": 2.1,
+          "sodium": 420
+        },
+        "allergens": ["gluten", "milk"],
+        "preparation_time": 30,
+        "difficulty": "Media",
+        "traditional": true
+      },
+      "pasta_puttanesca": {
+        "name_it": "Pasta alla Puttanesca",
+        "region": "Campania",
+        "category": "Primi piatti",
+        "ingredients": [
+          "Spaghetti (400g)",
+          "Pomodori pelati (400g)",
+          "Olive nere (100g)",
+          "Capperi (30g)",
+          "Acciughe (50g)",
+          "Aglio (3 spicchi)",
+          "Olio extravergine (60ml)",
+          "Prezzemolo"
+        ],
+        "nutrition_per_100g": {
+          "calories": 158,
+          "proteins": 7.2,
+          "carbohydrates": 25.1,
+          "fats": 4.8,
+          "fiber": 2.8,
+          "sodium": 680
+        },
+        "allergens": ["gluten", "fish"],
+        "preparation_time": 25,
+        "difficulty": "Facile",
+        "traditional": true
+      }
+    },
+    "pizza": {
+      "pizza_margherita": {
+        "name_it": "Pizza Margherita",
+        "region": "Campania",
+        "category": "Pizza",
+        "ingredients": [
+          "Impasto pizza (250g)",
+          "Passata di pomodoro (80g)",
+          "Mozzarella di bufala (125g)",
+          "Basilico fresco",
+          "Olio extravergine (15ml)",
+          "Sale"
+        ],
+        "nutrition_per_100g": {
+          "calories": 270,
+          "proteins": 12.8,
+          "carbohydrates": 33.2,
+          "fats": 9.8,
+          "fiber": 2.2,
+          "sodium": 590
+        },
+        "allergens": ["gluten", "milk"],
+        "preparation_time": 120,
+        "difficulty": "Media",
+        "traditional": true,
+        "unesco_heritage": true
+      },
+      "pizza_marinara": {
+        "name_it": "Pizza Marinara",
+        "region": "Campania",
+        "category": "Pizza",
+        "ingredients": [
+          "Impasto pizza (250g)",
+          "Passata di pomodoro (100g)",
+          "Aglio (2 spicchi)",
+          "Origano",
+          "Olio extravergine (20ml)",
+          "Sale"
+        ],
+        "nutrition_per_100g": {
+          "calories": 235,
+          "proteins": 7.8,
+          "carbohydrates": 38.5,
+          "fats": 6.2,
+          "fiber": 2.8,
+          "sodium": 480
+        },
+        "allergens": ["gluten"],
+        "preparation_time": 120,
+        "difficulty": "Media",
+        "traditional": true,
+        "vegan": true
+      },
+      "pizza_quattro_stagioni": {
+        "name_it": "Pizza Quattro Stagioni",
+        "region": "Lazio",
+        "category": "Pizza",
+        "ingredients": [
+          "Impasto pizza (250g)",
+          "Passata di pomodoro (80g)",
+          "Mozzarella (100g)",
+          "Prosciutto cotto (50g)",
+          "Funghi champignon (60g)",
+          "Carciofi (50g)",
+          "Olive nere (30g)",
+          "Olio extravergine (15ml)"
+        ],
+        "nutrition_per_100g": {
+          "calories": 285,
+          "proteins": 15.2,
+          "carbohydrates": 32.1,
+          "fats": 11.5,
+          "fiber": 2.8,
+          "sodium": 720
+        },
+        "allergens": ["gluten", "milk"],
+        "preparation_time": 130,
+        "difficulty": "Media",
+        "traditional": true
+      }
+    },
+    "risotti": {
+      "risotto_milanese": {
+        "name_it": "Risotto alla Milanese",
+        "region": "Lombardia",
+        "category": "Primi piatti",
+        "ingredients": [
+          "Riso Carnaroli (320g)",
+          "Brodo di carne (1L)",
+          "Cipolla (80g)",
+          "Vino bianco (100ml)",
+          "Burro (80g)",
+          "Parmigiano Reggiano (80g)",
+          "Zafferano (0.5g)",
+          "Midollo di bue (50g)"
+        ],
+        "nutrition_per_100g": {
+          "calories": 195,
+          "proteins": 6.8,
+          "carbohydrates": 28.5,
+          "fats": 6.2,
+          "fiber": 0.8,
+          "sodium": 380
+        },
+        "allergens": ["milk"],
+        "preparation_time": 45,
+        "difficulty": "Difficile",
+        "traditional": true
+      },
+      "risotto_ai_porcini": {
+        "name_it": "Risotto ai Funghi Porcini",
+        "region": "Piemonte/Lombardia",
+        "category": "Primi piatti",
+        "ingredients": [
+          "Riso Carnaroli (320g)",
+          "Funghi porcini (200g)",
+          "Brodo vegetale (1L)",
+          "Cipolla (60g)",
+          "Vino bianco (80ml)",
+          "Burro (60g)",
+          "Parmigiano (60g)",
+          "Prezzemolo",
+          "Aglio (1 spicchio)"
+        ],
+        "nutrition_per_100g": {
+          "calories": 185,
+          "proteins": 6.2,
+          "carbohydrates": 29.8,
+          "fats": 4.8,
+          "fiber": 1.5,
+          "sodium": 320
+        },
+        "allergens": ["milk"],
+        "preparation_time": 40,
+        "difficulty": "Media",
+        "traditional": true
+      }
+    },
+    "secondi": {
+      "osso_buco": {
+        "name_it": "Osso Buco alla Milanese",
+        "region": "Lombardia",
+        "category": "Secondi piatti",
+        "ingredients": [
+          "Osso buco di vitello (1kg)",
+          "Carote (100g)",
+          "Sedano (80g)",
+          "Cipolla (100g)",
+          "Concentrato pomodoro (30g)",
+          "Vino bianco (200ml)",
+          "Brodo di carne (500ml)",
+          "Farina (50g)",
+          "Burro (40g)",
+          "Gremolata (limone, aglio, prezzemolo)"
+        ],
+        "nutrition_per_100g": {
+          "calories": 185,
+          "proteins": 22.8,
+          "carbohydrates": 4.2,
+          "fats": 8.5,
+          "fiber": 1.2,
+          "sodium": 420
+        },
+        "allergens": ["gluten", "milk", "celery"],
+        "preparation_time": 180,
+        "difficulty": "Difficile",
+        "traditional": true
+      },
+      "cotoletta_milanese": {
+        "name_it": "Cotoletta alla Milanese",
+        "region": "Lombardia",
+        "category": "Secondi piatti",
+        "ingredients": [
+          "Costoletta di vitello (200g)",
+          "Uova (2)",
+          "Pangrattato (80g)",
+          "Burro (60g)",
+          "Limone (1/2)",
+          "Sale",
+          "Pepe"
+        ],
+        "nutrition_per_100g": {
+          "calories": 245,
+          "proteins": 28.5,
+          "carbohydrates": 8.2,
+          "fats": 11.8,
+          "fiber": 0.5,
+          "sodium": 380
+        },
+        "allergens": ["gluten", "eggs", "milk"],
+        "preparation_time": 30,
+        "difficulty": "Media",
+        "traditional": true
+      }
+    },
+    "dolci": {
+      "tiramisu": {
+        "name_it": "Tiramisù",
+        "region": "Veneto/Friuli",
+        "category": "Dolci",
+        "ingredients": [
+          "Savoiardi (300g)",
+          "Mascarpone (500g)",
+          "Uova (4)",
+          "Zucchero (100g)",
+          "Caffè espresso (300ml)",
+          "Cacao amaro (20g)",
+          "Marsala (30ml)"
+        ],
+        "nutrition_per_100g": {
+          "calories": 315,
+          "proteins": 6.8,
+          "carbohydrates": 28.2,
+          "fats": 19.5,
+          "fiber": 0.8,
+          "sodium": 120
+        },
+        "allergens": ["gluten", "eggs", "milk"],
+        "preparation_time": 30,
+        "rest_time": 240,
+        "difficulty": "Media",
+        "traditional": true
+      },
+      "cannoli_siciliani": {
+        "name_it": "Cannoli Siciliani",
+        "region": "Sicilia",
+        "category": "Dolci",
+        "ingredients": [
+          "Farina (200g)",
+          "Ricotta di pecora (400g)",
+          "Zucchero a velo (150g)",
+          "Cioccolato fondente (80g)",
+          "Pistacchi (50g)",
+          "Canditi (40g)",
+          "Marsala (30ml)",
+          "Cannella",
+          "Olio per friggere"
+        ],
+        "nutrition_per_100g": {
+          "calories": 285,
+          "proteins": 12.8,
+          "carbohydrates": 32.5,
+          "fats": 12.2,
+          "fiber": 1.5,
+          "sodium": 180
+        },
+        "allergens": ["gluten", "milk", "nuts"],
+        "preparation_time": 120,
+        "difficulty": "Difficile",
+        "traditional": true
+      }
+    },
+    "antipasti": {
+      "bruschetta": {
+        "name_it": "Bruschetta al Pomodoro",
+        "region": "Centro Italia",
+        "category": "Antipasti",
+        "ingredients": [
+          "Pane pugliese (300g)",
+          "Pomodori maturi (400g)",
+          "Basilico fresco",
+          "Aglio (2 spicchi)",
+          "Olio extravergine (60ml)",
+          "Sale",
+          "Pepe"
+        ],
+        "nutrition_per_100g": {
+          "calories": 165,
+          "proteins": 5.8,
+          "carbohydrates": 28.5,
+          "fats": 3.8,
+          "fiber": 3.2,
+          "sodium": 320
+        },
+        "allergens": ["gluten"],
+        "preparation_time": 15,
+        "difficulty": "Facile",
+        "traditional": true,
+        "vegan": true
+      },
+      "antipasto_italiano": {
+        "name_it": "Antipasto Italiano Misto",
+        "region": "Nazionale",
+        "category": "Antipasti",
+        "ingredients": [
+          "Prosciutto di Parma (80g)",
+          "Salame (60g)",
+          "Mozzarella (100g)",
+          "Pomodori ciliegino (150g)",
+          "Olive miste (80g)",
+          "Carciofi sottolio (60g)",
+          "Rucola (50g)",
+          "Olio extravergine (30ml)"
+        ],
+        "nutrition_per_100g": {
+          "calories": 185,
+          "proteins": 12.8,
+          "carbohydrates": 4.2,
+          "fats": 13.5,
+          "fiber": 2.8,
+          "sodium": 920
+        },
+        "allergens": ["milk"],
+        "preparation_time": 10,
+        "difficulty": "Facile",
+        "traditional": true
+      }
+    }
+  },
+  "regional_specialties": {
+    "piemonte": [
+      "Bagna Cauda",
+      "Vitello Tonnato",
+      "Agnolotti del Plin",
+      "Brasato al Barolo"
+    ],
+    "lombardia": [
+      "Risotto alla Milanese", 
+      "Cotoletta alla Milanese",
+      "Osso Buco",
+      "Panettone"
+    ],
+    "veneto": [
+      "Risotto all'Amarone",
+      "Baccalà alla Vicentina",
+      "Tiramisù",
+      "Spritz"
+    ],
+    "liguria": [
+      "Pesto Genovese",
+      "Focaccia",
+      "Farinata",
+      "Trofie al Pesto"
+    ],
+    "emilia_romagna": [
+      "Lasagne",
+      "Tortellini",
+      "Parmigiano Reggiano",
+      "Prosciutto di Parma"
+    ],
+    "toscana": [
+      "Bistecca alla Fiorentina",
+      "Ribollita",
+      "Pappa al Pomodoro",
+      "Cantucci"
+    ],
+    "lazio": [
+      "Carbonara",
+      "Amatriciana",
+      "Cacio e Pepe",
+      "Supplì"
+    ],
+    "campania": [
+      "Pizza Napoletana",
+      "Spaghetti alle Vongole",
+      "Mozzarella di Bufala",
+      "Sfogliatelle"
+    ],
+    "sicilia": [
+      "Arancini",
+      "Cannoli",
+      "Caponata",
+      "Pasta alla Norma"
+    ],
+    "sardegna": [
+      "Culurgiones",
+      "Porceddu",
+      "Seadas",
+      "Bottarga"
+    ]
+  },
+  "cooking_methods": {
+    "pasta_cooking": {
+      "description_it": "Cottura della pasta italiana",
+      "water_ratio": "1L acqua per 100g pasta",
+      "salt_amount": "10g sale per 1L acqua",
+      "al_dente": "2 minuti prima del tempo indicato"
+    },
+    "risotto_technique": {
+      "description_it": "Tecnica del risotto mantecato",
+      "liquid_ratio": "3:1 (brodo:riso)",
+      "cooking_time": "16-18 minuti",
+      "mantecatura": "Burro e Parmigiano a fine cottura"
+    },
+    "pizza_dough": {
+      "description_it": "Impasto pizza napoletana",
+      "hydration": "60-65%",
+      "fermentation": "24-72 ore",
+      "oven_temp": "450-500°C"
+    }
+  },
+  "nutritional_notes": {
+    "mediterranean_diet": {
+      "description_it": "Molti piatti italiani fanno parte della Dieta Mediterranea",
+      "benefits": [
+        "Ricca di antiossidanti",
+        "Olio extravergine di oliva",
+        "Verdure fresche di stagione",
+        "Pesce e legumi"
+      ]
+    },
+    "portion_sizes": {
+      "primi_piatti": "80-100g pasta secca, 320g riso",
+      "pizza": "1 pizza (250-300g)",
+      "secondi": "150-200g carne/pesce"
+    }
+  }
+}

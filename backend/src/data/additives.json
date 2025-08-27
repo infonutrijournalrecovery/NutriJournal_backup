@@ -1,0 +1,606 @@
+{
+  "additives": {
+    "E100": {
+      "name_it": "Curcumina",
+      "name_en": "Curcumin", 
+      "category": "Colorante",
+      "origin": "Naturale",
+      "allergen_risk": "Basso",
+      "description_it": "Colorante giallo-arancio estratto dalla radice di curcuma",
+      "adr": "0-3 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E101": {
+      "name_it": "Riboflavina, Vitamina B2",
+      "name_en": "Riboflavin, Vitamin B2",
+      "category": "Colorante",
+      "origin": "Naturale/Sintetico",
+      "allergen_risk": "Nullo",
+      "description_it": "Vitamina essenziale usata come colorante giallo",
+      "adr": "Non specificato (sostanza nutritiva)",
+      "approved_eu": true
+    },
+    "E102": {
+      "name_it": "Tartrazina",
+      "name_en": "Tartrazine",
+      "category": "Colorante",
+      "origin": "Sintetico",
+      "allergen_risk": "Alto",
+      "description_it": "Colorante giallo sintetico. Può causare iperattività nei bambini",
+      "adr": "7.5 mg/kg peso corporeo",
+      "approved_eu": true,
+      "warnings_it": ["Può influire negativamente sull'attività e l'attenzione dei bambini"]
+    },
+    "E104": {
+      "name_it": "Giallo di chinolina",
+      "name_en": "Quinoline Yellow",
+      "category": "Colorante",
+      "origin": "Sintetico",
+      "allergen_risk": "Medio",
+      "description_it": "Colorante giallo sintetico",
+      "adr": "10 mg/kg peso corporeo",
+      "approved_eu": true,
+      "warnings_it": ["Può influire negativamente sull'attività e l'attenzione dei bambini"]
+    },
+    "E110": {
+      "name_it": "Giallo tramonto FCF",
+      "name_en": "Sunset Yellow FCF",
+      "category": "Colorante",
+      "origin": "Sintetico",
+      "allergen_risk": "Alto",
+      "description_it": "Colorante giallo-arancio sintetico",
+      "adr": "4 mg/kg peso corporeo",
+      "approved_eu": true,
+      "warnings_it": ["Può influire negativamente sull'attività e l'attenzione dei bambini"]
+    },
+    "E120": {
+      "name_it": "Cocciniglia, Acido carminico",
+      "name_en": "Cochineal, Carminic acid",
+      "category": "Colorante",
+      "origin": "Naturale (insetto)",
+      "allergen_risk": "Medio",
+      "description_it": "Colorante rosso estratto dalla cocciniglia",
+      "adr": "5 mg/kg peso corporeo",
+      "approved_eu": true,
+      "dietary_restrictions": ["Non vegano", "Non vegetariano"]
+    },
+    "E124": {
+      "name_it": "Rosso Ponceau 4R",
+      "name_en": "Ponceau 4R",
+      "category": "Colorante", 
+      "origin": "Sintetico",
+      "allergen_risk": "Alto",
+      "description_it": "Colorante rosso sintetico",
+      "adr": "4 mg/kg peso corporeo",
+      "approved_eu": true,
+      "warnings_it": ["Può influire negativamente sull'attività e l'attenzione dei bambini"]
+    },
+    "E129": {
+      "name_it": "Rosso Allura AC",
+      "name_en": "Allura Red AC",
+      "category": "Colorante",
+      "origin": "Sintetico",
+      "allergen_risk": "Alto",
+      "description_it": "Colorante rosso sintetico",
+      "adr": "7 mg/kg peso corporeo",
+      "approved_eu": true,
+      "warnings_it": ["Può influire negativamente sull'attività e l'attenzione dei bambini"]
+    },
+    "E131": {
+      "name_it": "Blu patentato V",
+      "name_en": "Patent Blue V",
+      "category": "Colorante",
+      "origin": "Sintetico",
+      "allergen_risk": "Medio",
+      "description_it": "Colorante blu sintetico",
+      "adr": "15 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E132": {
+      "name_it": "Indigotina",
+      "name_en": "Indigotine",
+      "category": "Colorante",
+      "origin": "Sintetico",
+      "allergen_risk": "Medio",
+      "description_it": "Colorante blu sintetico",
+      "adr": "5 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E133": {
+      "name_it": "Blu brillante FCF",
+      "name_en": "Brilliant Blue FCF",
+      "category": "Colorante",
+      "origin": "Sintetico",
+      "allergen_risk": "Basso",
+      "description_it": "Colorante blu sintetico",
+      "adr": "12.5 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E140": {
+      "name_it": "Clorofille e clorofilline",
+      "name_en": "Chlorophylls and chlorophyllins",
+      "category": "Colorante",
+      "origin": "Naturale",
+      "allergen_risk": "Nullo",
+      "description_it": "Colorante verde estratto dalle piante",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E141": {
+      "name_it": "Complessi rameici delle clorofille",
+      "name_en": "Copper complexes of chlorophylls",
+      "category": "Colorante",
+      "origin": "Semi-sintetico",
+      "allergen_risk": "Basso",
+      "description_it": "Colorante verde con rame aggiunto per stabilità",
+      "adr": "15 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E150a": {
+      "name_it": "Caramello naturale",
+      "name_en": "Plain caramel",
+      "category": "Colorante",
+      "origin": "Naturale",
+      "allergen_risk": "Nullo",
+      "description_it": "Colorante marrone ottenuto dal riscaldamento degli zuccheri",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E150b": {
+      "name_it": "Caramello solfito-caustico",
+      "name_en": "Caustic sulphite caramel",
+      "category": "Colorante",
+      "origin": "Semi-sintetico",
+      "allergen_risk": "Basso",
+      "description_it": "Caramello prodotto con solfiti",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E150c": {
+      "name_it": "Caramello ammoniacale",
+      "name_en": "Ammonia caramel",
+      "category": "Colorante",
+      "origin": "Semi-sintetico",
+      "allergen_risk": "Basso",
+      "description_it": "Caramello prodotto con ammoniaca",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E150d": {
+      "name_it": "Caramello solfito-ammoniacale",
+      "name_en": "Sulphite ammonia caramel",
+      "category": "Colorante",
+      "origin": "Semi-sintetico",
+      "allergen_risk": "Basso",
+      "description_it": "Caramello usato in bibite tipo cola",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E160a": {
+      "name_it": "Caroteni",
+      "name_en": "Carotenes",
+      "category": "Colorante",
+      "origin": "Naturale",
+      "allergen_risk": "Nullo",
+      "description_it": "Colorante arancio, precursore della vitamina A",
+      "adr": "Non specificato (sostanza nutritiva)",
+      "approved_eu": true
+    },
+    "E160b": {
+      "name_it": "Annatto, Bixina, Norbixina",
+      "name_en": "Annatto, Bixin, Norbixin",
+      "category": "Colorante",
+      "origin": "Naturale",
+      "allergen_risk": "Medio",
+      "description_it": "Colorante giallo-rosso da semi di annatto",
+      "adr": "0.065 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E160c": {
+      "name_it": "Estratto di paprika, Capsantina, Capsorubina",
+      "name_en": "Paprika extract, Capsanthin, Capsorubin",
+      "category": "Colorante",
+      "origin": "Naturale",
+      "allergen_risk": "Basso",
+      "description_it": "Colorante rosso estratto dalla paprika",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E161b": {
+      "name_it": "Luteina",
+      "name_en": "Lutein",
+      "category": "Colorante",
+      "origin": "Naturale",
+      "allergen_risk": "Nullo",
+      "description_it": "Colorante giallo, antiossidante naturale",
+      "adr": "2 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E162": {
+      "name_it": "Rosso di barbabietola, Betanina",
+      "name_en": "Beetroot Red, Betanin",
+      "category": "Colorante",
+      "origin": "Naturale",
+      "allergen_risk": "Nullo",
+      "description_it": "Colorante rosso-viola estratto dalla barbabietola",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E163": {
+      "name_it": "Antociani",
+      "name_en": "Anthocyanins",
+      "category": "Colorante",
+      "origin": "Naturale",
+      "allergen_risk": "Nullo",
+      "description_it": "Coloranti rosso-blu da frutta e verdura",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E170": {
+      "name_it": "Carbonato di calcio",
+      "name_en": "Calcium carbonate",
+      "category": "Colorante/Antiagglomerante",
+      "origin": "Minerale",
+      "allergen_risk": "Nullo",
+      "description_it": "Colorante bianco, fonte di calcio",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E171": {
+      "name_it": "Biossido di titanio",
+      "name_en": "Titanium dioxide",
+      "category": "Colorante",
+      "origin": "Minerale",
+      "allergen_risk": "In valutazione",
+      "description_it": "Colorante bianco (uso limitato dal 2022)",
+      "adr": "Non specificato",
+      "approved_eu": false,
+      "status": "Sospeso dal 2022 nell'UE"
+    },
+    "E172": {
+      "name_it": "Ossidi e idrossidi di ferro",
+      "name_en": "Iron oxides and hydroxides",
+      "category": "Colorante",
+      "origin": "Minerale",
+      "allergen_risk": "Nullo",
+      "description_it": "Coloranti rosso, giallo, nero, marrone",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E200": {
+      "name_it": "Acido sorbico",
+      "name_en": "Sorbic acid",
+      "category": "Conservante",
+      "origin": "Sintetico",
+      "allergen_risk": "Basso",
+      "description_it": "Conservante antimicrobico",
+      "adr": "25 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E202": {
+      "name_it": "Sorbato di potassio",
+      "name_en": "Potassium sorbate",
+      "category": "Conservante",
+      "origin": "Sintetico",
+      "allergen_risk": "Basso",
+      "description_it": "Conservante antimicrobico, sale di E200",
+      "adr": "25 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E210": {
+      "name_it": "Acido benzoico",
+      "name_en": "Benzoic acid",
+      "category": "Conservante",
+      "origin": "Sintetico",
+      "allergen_risk": "Medio",
+      "description_it": "Conservante antimicrobico",
+      "adr": "5 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E211": {
+      "name_it": "Benzoato di sodio",
+      "name_en": "Sodium benzoate",
+      "category": "Conservante",
+      "origin": "Sintetico",
+      "allergen_risk": "Medio",
+      "description_it": "Conservante comune in bibite",
+      "adr": "5 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E220": {
+      "name_it": "Anidride solforosa",
+      "name_en": "Sulphur dioxide",
+      "category": "Conservante/Antiossidante",
+      "origin": "Sintetico",
+      "allergen_risk": "Alto",
+      "description_it": "Conservante nel vino, può causare reazioni allergiche",
+      "adr": "0.7 mg/kg peso corporeo",
+      "approved_eu": true,
+      "allergens": ["Solfiti"]
+    },
+    "E249": {
+      "name_it": "Nitrito di potassio",
+      "name_en": "Potassium nitrite",
+      "category": "Conservante",
+      "origin": "Sintetico",
+      "allergen_risk": "Alto",
+      "description_it": "Conservante per carni, mantiene colore rosso",
+      "adr": "0.07 mg/kg peso corporeo",
+      "approved_eu": true,
+      "warnings_it": ["Può formare nitrosammine cancerogene"]
+    },
+    "E250": {
+      "name_it": "Nitrito di sodio",
+      "name_en": "Sodium nitrite",
+      "category": "Conservante",
+      "origin": "Sintetico",
+      "allergen_risk": "Alto",
+      "description_it": "Conservante per carni insaccate",
+      "adr": "0.07 mg/kg peso corporeo",
+      "approved_eu": true,
+      "warnings_it": ["Può formare nitrosammine cancerogene"]
+    },
+    "E300": {
+      "name_it": "Acido ascorbico, Vitamina C",
+      "name_en": "Ascorbic acid, Vitamin C",
+      "category": "Antiossidante",
+      "origin": "Naturale/Sintetico",
+      "allergen_risk": "Nullo",
+      "description_it": "Vitamina essenziale, antiossidante naturale",
+      "adr": "Non specificato (sostanza nutritiva)",
+      "approved_eu": true
+    },
+    "E301": {
+      "name_it": "Ascorbato di sodio",
+      "name_en": "Sodium ascorbate",
+      "category": "Antiossidante",
+      "origin": "Sintetico",
+      "allergen_risk": "Nullo",
+      "description_it": "Sale sodico della vitamina C",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E307": {
+      "name_it": "Alfa-tocoferolo, Vitamina E",
+      "name_en": "Alpha-tocopherol, Vitamin E",
+      "category": "Antiossidante",
+      "origin": "Naturale",
+      "allergen_risk": "Nullo",
+      "description_it": "Vitamina E naturale, potente antiossidante",
+      "adr": "Non specificato (sostanza nutritiva)",
+      "approved_eu": true
+    },
+    "E320": {
+      "name_it": "Butilidrossianisolo (BHA)",
+      "name_en": "Butylated hydroxyanisole (BHA)",
+      "category": "Antiossidante",
+      "origin": "Sintetico",
+      "allergen_risk": "Alto",
+      "description_it": "Antiossidante sintetico, possibile cancerogeno",
+      "adr": "0.5 mg/kg peso corporeo",
+      "approved_eu": true,
+      "warnings_it": ["Possibile cancerogeno"]
+    },
+    "E321": {
+      "name_it": "Butilidrossitoluene (BHT)", 
+      "name_en": "Butylated hydroxytoluene (BHT)",
+      "category": "Antiossidante",
+      "origin": "Sintetico",
+      "allergen_risk": "Alto",
+      "description_it": "Antiossidante sintetico controverso",
+      "adr": "0.25 mg/kg peso corporeo",
+      "approved_eu": true,
+      "warnings_it": ["Possibili effetti endocrini"]
+    },
+    "E330": {
+      "name_it": "Acido citrico",
+      "name_en": "Citric acid",
+      "category": "Acidificante/Antiossidante",
+      "origin": "Naturale/Sintetico",
+      "allergen_risk": "Nullo",
+      "description_it": "Acidificante naturale da agrumi",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E407": {
+      "name_it": "Carragenina",
+      "name_en": "Carrageenan",
+      "category": "Addensante/Gelificante",
+      "origin": "Naturale (alghe)",
+      "allergen_risk": "Medio",
+      "description_it": "Gelificante estratto da alghe rosse",
+      "adr": "Non specificato",
+      "approved_eu": true,
+      "warnings_it": ["Possibili effetti gastrointestinali in dosi elevate"]
+    },
+    "E410": {
+      "name_it": "Farina di semi di carrube",
+      "name_en": "Locust bean gum",
+      "category": "Addensante/Stabilizzante",
+      "origin": "Naturale",
+      "allergen_risk": "Nullo",
+      "description_it": "Addensante naturale da semi di carrube",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E412": {
+      "name_it": "Gomma di guar",
+      "name_en": "Guar gum",
+      "category": "Addensante/Stabilizzante",
+      "origin": "Naturale",
+      "allergen_risk": "Basso",
+      "description_it": "Addensante da semi di guar",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E415": {
+      "name_it": "Gomma di xantano",
+      "name_en": "Xanthan gum",
+      "category": "Addensante/Stabilizzante", 
+      "origin": "Biotecnologico",
+      "allergen_risk": "Nullo",
+      "description_it": "Addensante prodotto per fermentazione",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E422": {
+      "name_it": "Glicerolo",
+      "name_en": "Glycerol",
+      "category": "Umettante/Dolcificante",
+      "origin": "Naturale/Sintetico",
+      "allergen_risk": "Nullo",
+      "description_it": "Umettante, mantiene l'umidità",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E440": {
+      "name_it": "Pectina",
+      "name_en": "Pectin",
+      "category": "Gelificante/Addensante",
+      "origin": "Naturale",
+      "allergen_risk": "Nullo",
+      "description_it": "Gelificante naturale da frutta",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E471": {
+      "name_it": "Mono- e digliceridi degli acidi grassi",
+      "name_en": "Mono- and diglycerides of fatty acids",
+      "category": "Emulsionante",
+      "origin": "Naturale/Sintetico",
+      "allergen_risk": "Nullo",
+      "description_it": "Emulsionante comune nei prodotti da forno",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E500": {
+      "name_it": "Carbonati di sodio",
+      "name_en": "Sodium carbonates",
+      "category": "Regolatore di acidità",
+      "origin": "Minerale",
+      "allergen_risk": "Nullo",
+      "description_it": "Regolatore di acidità, lievito chimico",
+      "adr": "Non specificato",
+      "approved_eu": true
+    },
+    "E621": {
+      "name_it": "Glutammato monosodico",
+      "name_en": "Monosodium glutamate (MSG)",
+      "category": "Esaltatore di sapidità",
+      "origin": "Sintetico",
+      "allergen_risk": "Medio",
+      "description_it": "Esaltatore di sapidità controverso",
+      "adr": "Non specificato",
+      "approved_eu": true,
+      "warnings_it": ["Può causare 'sindrome del ristorante cinese' in soggetti sensibili"]
+    },
+    "E950": {
+      "name_it": "Acesulfame K",
+      "name_en": "Acesulfame K",
+      "category": "Dolcificante",
+      "origin": "Sintetico",
+      "allergen_risk": "Basso",
+      "description_it": "Dolcificante artificiale intenso",
+      "adr": "15 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E951": {
+      "name_it": "Aspartame",
+      "name_en": "Aspartame",
+      "category": "Dolcificante",
+      "origin": "Sintetico",
+      "allergen_risk": "Alto",
+      "description_it": "Dolcificante artificiale, contiene fenilalanina",
+      "adr": "40 mg/kg peso corporeo",
+      "approved_eu": true,
+      "warnings_it": ["Contiene fenilalanina", "Sconsigliato per fenilchetonuria"],
+      "allergens": ["Fenilalanina"]
+    },
+    "E952": {
+      "name_it": "Ciclamati",
+      "name_en": "Cyclamates",
+      "category": "Dolcificante",
+      "origin": "Sintetico",
+      "allergen_risk": "Medio",
+      "description_it": "Dolcificante artificiale",
+      "adr": "11 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E954": {
+      "name_it": "Saccarina e suoi sali",
+      "name_en": "Saccharin and its salts",
+      "category": "Dolcificante",
+      "origin": "Sintetico",
+      "allergen_risk": "Basso",
+      "description_it": "Primo dolcificante artificiale scoperto",
+      "adr": "15 mg/kg peso corporeo",
+      "approved_eu": true
+    },
+    "E955": {
+      "name_it": "Sucralosio",
+      "name_en": "Sucralose",
+      "category": "Dolcificante",
+      "origin": "Sintetico",
+      "allergen_risk": "Basso",
+      "description_it": "Dolcificante artificiale da zucchero",
+      "adr": "15 mg/kg peso corporeo",
+      "approved_eu": true
+    }
+  },
+  "categories": {
+    "Coloranti": {
+      "description_it": "Sostanze usate per conferire o ripristinare colore negli alimenti",
+      "codes": ["E100-E199"]
+    },
+    "Conservanti": {
+      "description_it": "Sostanze che prolungano la durata di conservazione degli alimenti",
+      "codes": ["E200-E299"]
+    },
+    "Antiossidanti": {
+      "description_it": "Sostanze che prevengono l'ossidazione e il deterioramento",
+      "codes": ["E300-E399"]
+    },
+    "Addensanti/Stabilizzanti": {
+      "description_it": "Sostanze che modificano la consistenza degli alimenti",
+      "codes": ["E400-E499"]
+    },
+    "Emulsionanti": {
+      "description_it": "Sostanze che permettono di miscelare acqua e oli",
+      "codes": ["E400-E499"]
+    },
+    "Regolatori di acidità": {
+      "description_it": "Sostanze che controllano il pH degli alimenti",
+      "codes": ["E500-E599"]
+    },
+    "Esaltatori di sapidità": {
+      "description_it": "Sostanze che intensificano il gusto degli alimenti",
+      "codes": ["E600-E699"]
+    },
+    "Dolcificanti": {
+      "description_it": "Sostanze che conferiscono sapore dolce senza calorie o con poche calorie",
+      "codes": ["E950-E999"]
+    }
+  },
+  "allergen_levels": {
+    "Nullo": {
+      "description_it": "Nessun rischio allergenico noto",
+      "color": "#4CAF50"
+    },
+    "Basso": {
+      "description_it": "Rischio allergenico minimo",
+      "color": "#8BC34A"
+    },
+    "Medio": {
+      "description_it": "Può causare reazioni in soggetti sensibili",
+      "color": "#FF9800"
+    },
+    "Alto": {
+      "description_it": "Rischio allergenico elevato o effetti avversi documentati",
+      "color": "#F44336"
+    },
+    "In valutazione": {
+      "description_it": "Sicurezza in corso di valutazione da parte delle autorità",
+      "color": "#9C27B0"
+    }
+  }
+}

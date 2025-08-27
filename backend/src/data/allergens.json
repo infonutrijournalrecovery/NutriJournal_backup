@@ -1,0 +1,459 @@
+{
+  "allergens": {
+    "gluten": {
+      "name_it": "Glutine",
+      "name_en": "Gluten",
+      "category": "Cereali",
+      "description_it": "Proteina presente in frumento, segale, orzo, avena, farro, kamut",
+      "sources": [
+        "Frumento",
+        "Segale", 
+        "Orzo",
+        "Avena",
+        "Farro",
+        "Kamut",
+        "Spelta",
+        "Triticale"
+      ],
+      "common_foods_it": [
+        "Pane",
+        "Pasta",
+        "Pizza",
+        "Biscotti",
+        "Crackers",
+        "Birra",
+        "Farina",
+        "Semolino",
+        "Couscous",
+        "Seitan"
+      ],
+      "severity": "Grave per celiaci",
+      "prevalence_italy": "1% popolazione (celiachia)",
+      "regulations": {
+        "gluten_free_limit": "20 mg/kg",
+        "labeling_required": true
+      }
+    },
+    "crustaceans": {
+      "name_it": "Crostacei",
+      "name_en": "Crustaceans",
+      "category": "Frutti di mare",
+      "description_it": "Crostacei marini e d'acqua dolce",
+      "sources": [
+        "Gamberi",
+        "Granchi",
+        "Aragoste",
+        "Scampi",
+        "Astici",
+        "Paguri",
+        "Krill"
+      ],
+      "common_foods_it": [
+        "Risotto ai gamberi",
+        "Spaghetti ai frutti di mare",
+        "Insalata di mare",
+        "Antipasti di mare",
+        "Zuppe di pesce",
+        "Salse per pasta"
+      ],
+      "severity": "Da moderata a grave",
+      "prevalence_italy": "2-3% popolazione adulta",
+      "cross_reactivity": ["Molluschi", "Acari della polvere"]
+    },
+    "eggs": {
+      "name_it": "Uova",
+      "name_en": "Eggs", 
+      "category": "Proteine animali",
+      "description_it": "Uova di gallina e altri volatili",
+      "sources": [
+        "Uova di gallina",
+        "Uova di anatra",
+        "Uova di quaglia",
+        "Uova di oca"
+      ],
+      "common_foods_it": [
+        "Pasta all'uovo",
+        "Dolci",
+        "Biscotti",
+        "Gelato",
+        "Maionese",
+        "Torte",
+        "Frittate",
+        "Carbonara",
+        "Tiramisù"
+      ],
+      "severity": "Moderata, spesso si supera con l'età",
+      "prevalence_italy": "2-3% bambini, 0.5% adulti",
+      "hidden_sources": ["Lecitina di uova", "Albumina", "Globulina"]
+    },
+    "fish": {
+      "name_it": "Pesce",
+      "name_en": "Fish",
+      "category": "Proteine marine",
+      "description_it": "Pesce marino e d'acqua dolce",
+      "sources": [
+        "Tonno",
+        "Salmone",
+        "Merluzzo",
+        "Sardine",
+        "Acciughe",
+        "Branzino",
+        "Orata",
+        "Sgombro"
+      ],
+      "common_foods_it": [
+        "Pasta con le sarde",
+        "Baccalà",
+        "Sushi",
+        "Conserve di tonno",
+        "Salsa worcestershire",
+        "Caesar salad (acciughe)",
+        "Puttanesca"
+      ],
+      "severity": "Da moderata a grave",
+      "prevalence_italy": "0.5-1% popolazione",
+      "cross_reactivity": ["Diversi tipi di pesce tra loro"]
+    },
+    "peanuts": {
+      "name_it": "Arachidi",
+      "name_en": "Peanuts",
+      "category": "Legumi",
+      "description_it": "Arachidi (legumi, non frutta secca)",
+      "sources": [
+        "Arachidi crude",
+        "Arachidi tostate",
+        "Burro di arachidi",
+        "Olio di arachidi"
+      ],
+      "common_foods_it": [
+        "Dolci americani",
+        "Gelati",
+        "Snack salati",
+        "Salse orientali",
+        "Prodotti da forno industriali"
+      ],
+      "severity": "Spesso grave, anafilassi frequente",
+      "prevalence_italy": "0.6% popolazione",
+      "cross_reactivity": ["Altri legumi (raro)", "Frutta secca (raro)"],
+      "hidden_sources": ["Olio di arachidi raffinato", "Lecitina di arachidi"]
+    },
+    "soybeans": {
+      "name_it": "Soia",
+      "name_en": "Soybeans",
+      "category": "Legumi",
+      "description_it": "Semi di soia e derivati",
+      "sources": [
+        "Semi di soia",
+        "Farina di soia",
+        "Proteine di soia",
+        "Lecitina di soia",
+        "Olio di soia"
+      ],
+      "common_foods_it": [
+        "Prodotti vegetariani",
+        "Salsa di soia",
+        "Tofu",
+        "Tempeh",
+        "Gelati industriali",
+        "Prodotti da forno",
+        "Emulsionanti"
+      ],
+      "severity": "Generalmente moderata",
+      "prevalence_italy": "0.3-0.5% popolazione",
+      "cross_reactivity": ["Latte (nei bambini)", "Altri legumi"],
+      "hidden_sources": ["Lecitina di soia E322", "Proteine vegetali idrolizzate"]
+    },
+    "milk": {
+      "name_it": "Latte",
+      "name_en": "Milk",
+      "category": "Latticini",
+      "description_it": "Latte e tutti i derivati del latte",
+      "sources": [
+        "Latte vaccino",
+        "Latte di capra",
+        "Latte di pecora",
+        "Latte di bufala",
+        "Tutti i derivati"
+      ],
+      "common_foods_it": [
+        "Formaggio",
+        "Burro",
+        "Yogurt",
+        "Gelato",
+        "Panna",
+        "Mozzarella",
+        "Parmigiano",
+        "Ricotta",
+        "Mascarpone",
+        "Besciamella"
+      ],
+      "severity": "Da lieve a moderata",
+      "prevalence_italy": "2-3% bambini, 0.5% adulti",
+      "note_it": "Diverso dall'intolleranza al lattosio",
+      "hidden_sources": ["Caseinato", "Lattalbumina", "Siero di latte"]
+    },
+    "nuts": {
+      "name_it": "Frutta a guscio",
+      "name_en": "Tree nuts",
+      "category": "Frutta secca",
+      "description_it": "Noci, nocciole, mandorle e altra frutta secca",
+      "sources": [
+        "Mandorle",
+        "Nocciole",
+        "Noci",
+        "Pistacchi",
+        "Anacardi",
+        "Noci pecan",
+        "Noci del Brasile",
+        "Noci macadamia",
+        "Pinoli"
+      ],
+      "common_foods_it": [
+        "Nutella",
+        "Torrone",
+        "Pesto (pinoli)",
+        "Amaretti",
+        "Cantucci",
+        "Gelati",
+        "Dolci siciliani",
+        "Marzapane"
+      ],
+      "severity": "Spesso grave, anafilassi possibile",
+      "prevalence_italy": "1% popolazione",
+      "cross_reactivity": ["Tra diversi tipi di frutta secca"],
+      "regional_note_it": "Molto comune in dolci tradizionali italiani"
+    },
+    "celery": {
+      "name_it": "Sedano",
+      "name_en": "Celery",
+      "category": "Verdure",
+      "description_it": "Sedano e semi di sedano",
+      "sources": [
+        "Sedano fresco",
+        "Semi di sedano",
+        "Estratti di sedano",
+        "Succo di sedano"
+      ],
+      "common_foods_it": [
+        "Soffritto",
+        "Minestrone",
+        "Brodi",
+        "Salse",
+        "Condimenti",
+        "Mix di spezie",
+        "Dado da brodo"
+      ],
+      "severity": "Da lieve a moderata",
+      "prevalence_italy": "0.3% popolazione",
+      "cross_reactivity": ["Carote", "Finocchio", "Prezzemolo"],
+      "hidden_sources": ["Aromi naturali", "Estratti vegetali"]
+    },
+    "mustard": {
+      "name_it": "Senape",
+      "name_en": "Mustard",
+      "category": "Spezie",
+      "description_it": "Semi di senape e preparazioni",
+      "sources": [
+        "Semi di senape",
+        "Senape in pasta",
+        "Olio di senape",
+        "Farina di senape"
+      ],
+      "common_foods_it": [
+        "Mostarda di Cremona",
+        "Salse",
+        "Condimenti",
+        "Alcuni insaccati",
+        "Conserve",
+        "Sottaceti"
+      ],
+      "severity": "Generalmente lieve",
+      "prevalence_italy": "0.1-0.2% popolazione",
+      "cross_reactivity": ["Altre brassicacee"],
+      "regional_note_it": "Tradizionale in Lombardia (mostarda)"
+    },
+    "sesame": {
+      "name_it": "Semi di sesamo",
+      "name_en": "Sesame seeds",
+      "category": "Semi oleosi",
+      "description_it": "Semi di sesamo e olio di sesamo",
+      "sources": [
+        "Semi di sesamo",
+        "Olio di sesamo",
+        "Pasta di sesamo (tahini)",
+        "Halvah"
+      ],
+      "common_foods_it": [
+        "Pane con semi",
+        "Grissini",
+        "Prodotti da forno",
+        "Hummus",
+        "Cucina etnica",
+        "Oli per frittura"
+      ],
+      "severity": "Può essere grave",
+      "prevalence_italy": "0.1% popolazione (in aumento)",
+      "trend": "Allergia emergente",
+      "hidden_sources": ["Olio di sesamo non raffinato", "Aromi orientali"]
+    },
+    "sulphites": {
+      "name_it": "Solfiti",
+      "name_en": "Sulphites",
+      "category": "Additivi",
+      "description_it": "Conservanti a base di zolfo (E220-E228)",
+      "sources": [
+        "E220 - Anidride solforosa",
+        "E221 - Solfito di sodio", 
+        "E222 - Bisolfito di sodio",
+        "E223 - Metabisolfito di sodio",
+        "E224 - Metabisolfito di potassio",
+        "E226 - Solfito di calcio",
+        "E227 - Bisolfito di calcio",
+        "E228 - Solfito acido di potassio"
+      ],
+      "common_foods_it": [
+        "Vino",
+        "Birra",
+        "Frutta secca",
+        "Sottaceti",
+        "Succhi di frutta",
+        "Conserve",
+        "Aceto balsamico",
+        "Gamberetti surgelati"
+      ],
+      "severity": "Da lieve a grave (soprattutto asmatici)",
+      "prevalence_italy": "3-10% asmatici",
+      "labeling_required": "Se >10 mg/kg o 10 mg/L",
+      "risk_groups": ["Asmatici", "Persone con deficit enzima solfito ossidasi"]
+    },
+    "lupin": {
+      "name_it": "Lupini",
+      "name_en": "Lupin",
+      "category": "Legumi",
+      "description_it": "Semi di lupino e derivati",
+      "sources": [
+        "Semi di lupino",
+        "Farina di lupino",
+        "Proteine di lupino"
+      ],
+      "common_foods_it": [
+        "Lupini in salamoia",
+        "Prodotti da forno senza glutine",
+        "Prodotti vegetariani",
+        "Pasta senza glutine",
+        "Snack salati"
+      ],
+      "severity": "Può essere grave",
+      "prevalence_italy": "0.1% popolazione",
+      "cross_reactivity": ["Arachidi", "Altri legumi"],
+      "regional_note_it": "Tradizionale come snack al Sud Italia"
+    },
+    "mollusks": {
+      "name_it": "Molluschi",
+      "name_en": "Mollusks",
+      "category": "Frutti di mare",
+      "description_it": "Molluschi marini e d'acqua dolce",
+      "sources": [
+        "Cozze",
+        "Vongole",
+        "Ostriche",
+        "Capesante",
+        "Polpi",
+        "Calamari",
+        "Seppie",
+        "Lumache"
+      ],
+      "common_foods_it": [
+        "Spaghetti alle vongole",
+        "Risotto ai frutti di mare",
+        "Zuppa di pesce",
+        "Frittura di calamari",
+        "Antipasti di mare",
+        "Paella",
+        "Escargot"
+      ],
+      "severity": "Da moderata a grave",
+      "prevalence_italy": "1-2% popolazione",
+      "cross_reactivity": ["Crostacei"],
+      "regional_note_it": "Molto comuni nella cucina costiera italiana"
+    }
+  },
+  "cross_reactivity_groups": {
+    "cereals_gluten": {
+      "name_it": "Gruppo cereali con glutine",
+      "allergens": ["gluten"],
+      "related_foods": ["Frumento", "Segale", "Orzo", "Avena", "Farro", "Kamut"]
+    },
+    "tree_nuts_group": {
+      "name_it": "Gruppo frutta a guscio",
+      "allergens": ["nuts"],
+      "cross_reactivity_rate": "20-30%"
+    },
+    "seafood_group": {
+      "name_it": "Gruppo frutti di mare", 
+      "allergens": ["crustaceans", "mollusks"],
+      "cross_reactivity_rate": "75%"
+    },
+    "legumes_group": {
+      "name_it": "Gruppo legumi",
+      "allergens": ["peanuts", "soybeans", "lupin"],
+      "cross_reactivity_rate": "5-10%"
+    }
+  },
+  "severity_levels": {
+    "Lieve": {
+      "symptoms_it": ["Prurito", "Orticaria localizzata", "Disturbi gastrointestinali lievi"],
+      "color": "#4CAF50"
+    },
+    "Moderata": {
+      "symptoms_it": ["Orticaria diffusa", "Gonfiore", "Difficoltà respiratorie lievi", "Vomito"],
+      "color": "#FF9800"
+    },
+    "Grave": {
+      "symptoms_it": ["Anafilassi", "Shock anafilattico", "Grave difficoltà respiratoria", "Perdita di coscienza"],
+      "color": "#F44336",
+      "emergency": true
+    }
+  },
+  "labeling_requirements": {
+    "mandatory_allergens": [
+      "gluten",
+      "crustaceans", 
+      "eggs",
+      "fish",
+      "peanuts",
+      "soybeans",
+      "milk",
+      "nuts",
+      "celery",
+      "mustard",
+      "sesame",
+      "sulphites",
+      "lupin",
+      "mollusks"
+    ],
+    "threshold_labeling": {
+      "sulphites": "10 mg/kg or 10 mg/L"
+    },
+    "may_contain_labeling": {
+      "description_it": "Etichettatura precauzionale per contaminazione crociata",
+      "phrases": [
+        "Può contenere tracce di...",
+        "Prodotto in stabilimento che utilizza...",
+        "Non adatto a persone allergiche a..."
+      ]
+    }
+  },
+  "italian_regulations": {
+    "celiac_law": {
+      "description_it": "Legge 123/2005 per celiachia",
+      "gluten_free_threshold": "20 mg/kg",
+      "reimbursement": "Buoni acquisto mensili per celiaci"
+    },
+    "food_information_regulation": {
+      "eu_regulation": "1169/2011",
+      "implementation_date": "2014-12-13",
+      "mandatory_allergen_list": 14
+    }
+  }
+}
