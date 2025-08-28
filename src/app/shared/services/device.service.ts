@@ -43,7 +43,7 @@ export class DeviceService {
     this.updateDeviceInfo();
   }
 
-  private getDeviceInfo(): DeviceInfo {
+  public getDeviceInfo(): DeviceInfo {
     const width = window.innerWidth;
     const height = window.innerHeight;
     
@@ -79,6 +79,11 @@ export class DeviceService {
   // Metodi di utilità
   getCurrentDeviceInfo(): DeviceInfo {
     return this.deviceInfoSubject.value;
+  }
+
+  // Observable per sottoscrivere ai cambiamenti del dispositivo
+  getDeviceChanges() {
+    return this.deviceInfo$;
   }
 
   isMobile(): boolean {

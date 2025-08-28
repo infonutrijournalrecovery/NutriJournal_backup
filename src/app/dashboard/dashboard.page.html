@@ -8,7 +8,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" [class]="'dashboard-content ' + deviceLayout">
+<ion-content [fullscreen]="true" [class]="'dashboard-content ' + deviceLayout" style="--background: #f8f9fb; background-color: #f8f9fb !important;">
   
   <!-- Refresher (solo mobile) -->
   <ion-refresher *ngIf="isMobile" slot="fixed" (ionRefresh)="loadDashboardData($event)">
@@ -56,11 +56,11 @@
       <div class="desktop-left-column">
         
         <!-- Quick Actions Desktop -->
-        <ion-card class="desktop-quick-actions">
-          <ion-card-header>
-            <ion-card-title>Azioni Rapide</ion-card-title>
+        <ion-card class="desktop-quick-actions" style="--background: #ffffff; background-color: #ffffff !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;">
+          <ion-card-header style="--background: #e8f0fe; background-color: #e8f0fe !important; --color: #001d35; color: #001d35 !important;">
+            <ion-card-title style="--color: #001d35; color: #001d35 !important; font-weight: 600 !important;">Azioni Rapide</ion-card-title>
           </ion-card-header>
-          <ion-card-content>
+          <ion-card-content style="--background: #ffffff; background-color: #ffffff !important; --color: #1a1c1e; color: #1a1c1e !important;">
             <div class="desktop-actions-grid">
               <ion-button 
                 *ngFor="let action of quickActions" 
@@ -76,68 +76,123 @@
           </ion-card-content>
         </ion-card>
 
-        <!-- Nutrition Progress Desktop -->
-        <ion-card class="desktop-nutrition-card">
-          <ion-card-header>
-            <ion-card-title>
+        <!-- Nutrition Progress Desktop - NUOVA VERSIONE -->
+        <ion-card class="desktop-nutrition-card modern-nutrition" style="--background: #ffffff; background-color: #ffffff !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;">
+          <ion-card-header style="--background: #e8f0fe; background-color: #e8f0fe !important; --color: #001d35; color: #001d35 !important;">
+            <ion-card-title style="--color: #001d35; color: #001d35 !important; font-weight: 600 !important;">
               <ion-icon name="nutrition-outline"></ion-icon>
-              Progressi Nutrizionali
+              Stato Nutrizionale Oggi
             </ion-card-title>
           </ion-card-header>
-          <ion-card-content>
+          <ion-card-content style="--background: #ffffff; background-color: #ffffff !important; --color: #1a1c1e; color: #1a1c1e !important;">
             
-            <!-- Calorie principali -->
-            <div class="desktop-calories-display">
-              <div class="calories-info">
-                <span class="current">{{ dailyStats.calories.consumed }}</span>
-                <span class="separator">/</span>
-                <span class="goal">{{ dailyStats.calories.goal }}</span>
-                <span class="unit">kcal</span>
+            <!-- Circular Progress per Calorie Totali -->
+            <div class="circular-calories-section">
+              <div class="circular-progress-container">
+                <svg class="circular-progress" width="200" height="200" viewBox="0 0 200 200">
+                  <!-- Background circle -->
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="85"
+                    fill="transparent"
+                    stroke="#e0e0e0"
+                    stroke-width="12"
+                  />
+                  <!-- Progress circle -->
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="85"
+                    fill="transparent"
+                    [attr.stroke]="getCircularProgressColor(dailyStats.calories.percentage)"
+                    stroke-width="12"
+                    stroke-linecap="round"
+                    [style.stroke-dasharray]="534.07" 
+                    [style.stroke-dashoffset]="534.07 - (534.07 * dailyStats.calories.percentage / 100)"
+                    class="progress-ring"
+                  />
+                </svg>
+                
+                <!-- Calorie Center Info -->
+                <div class="calories-center-info">
+                  <div class="consumed-calories">{{ dailyStats.calories.consumed }}</div>
+                  <div class="goal-separator">/</div>
+                  <div class="goal-calories">{{ dailyStats.calories.adjustedGoal }}</div>
+                  <div class="calories-unit">kcal</div>
+                  <div class="remaining-calories" [ngClass]="{
+                    'positive': dailyStats.calories.remaining > 0,
+                    'negative': dailyStats.calories.remaining <= 0
+                  }">
+                    {{ dailyStats.calories.remaining > 0 ? 'Rimangono ' + dailyStats.calories.remaining : 'Eccesso di ' + getMathAbs(dailyStats.calories.remaining) }}
+                  </div>
+                </div>
               </div>
-              <ion-progress-bar 
-                [value]="dailyStats.calories.percentage / 100"
-                [color]="getProgressColor(dailyStats.calories.percentage)">
-              </ion-progress-bar>
-              <div class="percentage">{{ dailyStats.calories.percentage.toFixed(0) }}% dell'obiettivo</div>
             </div>
 
-            <!-- Macronutrienti Desktop -->
-            <div class="desktop-macros">
-              <div class="macro-item">
+            <!-- Macronutrienti e Calorie Bruciate -->
+            <div class="macros-section">
+              
+              <!-- Calorie Bruciate -->
+              <div class="macro-item burned-calories">
                 <div class="macro-header">
-                  <span class="macro-name">Carboidrati</span>
-                  <span class="macro-value">{{ dailyStats.carbs.consumed }}g / {{ dailyStats.carbs.goal }}g</span>
+                  <ion-icon name="flame-outline" class="macro-icon burned"></ion-icon>
+                  <span class="macro-label">Calorie Bruciate</span>
+                  <span class="macro-values">{{ dailyStats.calories.burned }}/400 kcal</span>
                 </div>
                 <ion-progress-bar 
-                  [value]="dailyStats.carbs.percentage / 100"
-                  color="warning">
+                  [value]="dailyStats.calories.burned / 400"
+                  color="warning"
+                  class="macro-progress">
                 </ion-progress-bar>
               </div>
-              
-              <div class="macro-item">
+
+              <!-- Proteine -->
+              <div class="macro-item proteins">
                 <div class="macro-header">
-                  <span class="macro-name">Proteine</span>
-                  <span class="macro-value">{{ dailyStats.proteins.consumed }}g / {{ dailyStats.proteins.goal }}g</span>
+                  <ion-icon name="fitness-outline" class="macro-icon protein"></ion-icon>
+                  <span class="macro-label">Proteine</span>
+                  <span class="macro-values">{{ dailyStats.proteins.consumed }}/{{ dailyStats.proteins.goal }}g</span>
                 </div>
                 <ion-progress-bar 
                   [value]="dailyStats.proteins.percentage / 100"
-                  color="success">
+                  [color]="getProgressColor(dailyStats.proteins.percentage)"
+                  class="macro-progress">
                 </ion-progress-bar>
               </div>
-              
-              <div class="macro-item">
+
+              <!-- Carboidrati -->
+              <div class="macro-item carbs">
                 <div class="macro-header">
-                  <span class="macro-name">Grassi</span>
-                  <span class="macro-value">{{ dailyStats.fats.consumed }}g / {{ dailyStats.fats.goal }}g</span>
+                  <ion-icon name="restaurant-outline" class="macro-icon carb"></ion-icon>
+                  <span class="macro-label">Carboidrati</span>
+                  <span class="macro-values">{{ dailyStats.carbs.consumed }}/{{ dailyStats.carbs.goal }}g</span>
+                </div>
+                <ion-progress-bar 
+                  [value]="dailyStats.carbs.percentage / 100"
+                  [color]="getProgressColor(dailyStats.carbs.percentage)"
+                  class="macro-progress">
+                </ion-progress-bar>
+              </div>
+
+              <!-- Grassi -->
+              <div class="macro-item fats">
+                <div class="macro-header">
+                  <ion-icon name="water-outline" class="macro-icon fat"></ion-icon>
+                  <span class="macro-label">Grassi</span>
+                  <span class="macro-values">{{ dailyStats.fats.consumed }}/{{ dailyStats.fats.goal }}g</span>
                 </div>
                 <ion-progress-bar 
                   [value]="dailyStats.fats.percentage / 100"
-                  color="primary">
+                  [color]="getProgressColor(dailyStats.fats.percentage)"
+                  class="macro-progress">
                 </ion-progress-bar>
               </div>
+
             </div>
           </ion-card-content>
         </ion-card>
+
       </div>
 
       <!-- Colonna Destra -->
@@ -223,6 +278,7 @@
           <ion-col size="6" size-md="3" *ngFor="let action of quickActions">
             <ion-card 
               class="quick-action-card" 
+              [attr.data-color]="action.color"
               [color]="action.color"
               (click)="action.action ? handleQuickAction(action) : null">
               <ion-card-content>

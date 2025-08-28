@@ -21,11 +21,21 @@ export const routes: Routes = [
         loadComponent: () => import('./dashboard/dashboard.page').then((m) => m.DashboardPage),
       },
       {
+        path: 'scanner',
+        loadComponent: () => import('./scanner/scanner.page').then((m) => m.ScannerPage),
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full',
       },
     ],
+  },
+
+  // Standalone pages
+  {
+    path: 'scanner',
+    loadComponent: () => import('./scanner/scanner.page').then((m) => m.ScannerPage),
   },
 
   // Default redirects
