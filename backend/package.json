@@ -12,7 +12,12 @@
     "translate-products": "node scripts/translate-products.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "utils": "node utils.js",
+    "status": "node utils.js status",
+    "backup": "node utils.js backup",
+    "clean": "node utils.js clean",
+    "env-check": "node utils.js env-check"
   },
   "keywords": [
     "nutrition",

@@ -1,0 +1,200 @@
+openapi: 3.0.0
+info:
+  title: NutriJournal Backend API
+  description: API locale per tracciamento nutrizionale italiano
+  version: 1.0.0
+  contact:
+    name: NutriJournal Team
+    email: support@nutrijournal.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Sviluppo locale
+
+paths:
+  /auth/register:
+    post:
+      summary: Registrazione nuovo utente
+      description: Crea un nuovo account utente nel sistema
+      tags:
+        - Autenticazione
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - birth_date
+                - gender
+                - height
+                - weight
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                  example: "Mario Rossi"
+                email:
+                  type: string
+                  format: email
+                  example: "mario.rossi@example.com"
+                password:
+                  type: string
+                  minLength: 6
+                  pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])"
+                  example: "MyPassword123!"
+                birth_date:
+                  type: string
+                  format: date
+                  example: "1990-05-15"
+                gender:
+                  type: string
+                  enum: [male, female, other]
+                  example: "male"
+                height:
+                  type: number
+                  minimum: 100
+                  maximum: 250
+                  example: 175
+                weight:
+                  type: number
+                  minimum: 30
+                  maximum: 300
+                  example: 70
+      responses:
+        '201':
+          description: Utente registrato con successo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Utente registrato con successo"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      token:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+  /auth/login:
+    post:
+      summary: Login utente
+      description: Autentica un utente esistente
+      tags:
+        - Autenticazione
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "mario.rossi@example.com"
+                password:
+                  type: string
+                  example: "MyPassword123!"
+      responses:
+        '200':
+          description: Login effettuato con successo
+        '401':
+          description: Credenziali non valide
+
+  /auth/forgot-password:
+    post:
+      summary: Richiesta reset password
+      description: Invia email per il reset della password
+      tags:
+        - Autenticazione
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "mario.rossi@example.com"
+      responses:
+        '200':
+          description: Email di reset inviata (se l'utente esiste)
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Mario Rossi"
+        email:
+          type: string
+          format: email
+          example: "mario.rossi@example.com"
+        birth_date:
+          type: string
+          format: date
+          example: "1990-05-15"
+        gender:
+          type: string
+          enum: [male, female, other]
+          example: "male"
+        height:
+          type: number
+          example: 175
+        weight:
+          type: number
+          example: 70
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-08-27T12:00:00Z"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Autenticazione
+    description: Endpoints per gestione autenticazione utenti
+  - name: Utenti
+    description: Gestione profili utente
+  - name: Prodotti
+    description: Database prodotti alimentari
+  - name: Pasti
+    description: Tracciamento pasti e alimenti
+  - name: Nutrizione
+    description: Obiettivi e analytics nutrizionali
+  - name: Attività
+    description: Tracciamento attività fisica
+  - name: Analytics
+    description: Statistiche e trends

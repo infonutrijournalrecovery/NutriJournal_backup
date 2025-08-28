@@ -2,6 +2,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const monitoringService = require('../services/monitoringService');
 
 /**
  * Rate limiting per API
@@ -297,6 +298,7 @@ const checkBlockedIPs = (req, res, next) => {
     const blockedIPs = process.env.BLOCKED_IPS ? process.env.BLOCKED_IPS.split(',') : [];
     
     if (blockedIPs.includes(req.ip)) {
+        monitoringService.trackSecurityEvent('blocked_request');
         return res.status(403).json({
             success: false,
             message: 'Accesso negato'

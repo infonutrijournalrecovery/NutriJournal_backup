@@ -23,6 +23,9 @@ const {
     errorHandler: securityErrorHandler
 } = require('./middleware/security');
 
+// Import monitoring service
+const monitoringService = require('./services/monitoringService');
+
 // Middleware legacy
 const authMiddleware = require('./middleware/auth');
 const rateLimitMiddleware = require('./middleware/rateLimit');
@@ -116,6 +119,9 @@ class NutriJournalServer {
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+    // Monitoring middleware
+    this.app.use(monitoringService.trackRequest());
+
     // Logging
     this.app.use(httpLoggingMiddleware);
 
@@ -125,7 +131,7 @@ class NutriJournalServer {
 
   // Configura routes API
   setupRoutes() {
-    // Health check
+    // Health check base
     this.app.get('/health', (req, res) => {
       res.json({
         status: 'OK',
@@ -136,6 +142,28 @@ class NutriJournalServer {
         email: emailConfig.isEmailConfigured ? 'Configured' : 'Not configured',
       });
     });
+
+    // Health check avanzato con metriche
+    this.app.get('/health/detailed', (req, res) => {
+      const healthMetrics = monitoringService.getHealthMetrics();
+      res.json({
+        service: 'NutriJournal Backend',
+        version: '1.0.0',
+        timestamp: new Date().toISOString(),
+        environment: config.server.nodeEnv,
+        database: 'Connected',
+        email: emailConfig.isEmailConfigured ? 'Configured' : 'Not configured',
+        ...healthMetrics
+      });
+    });
+
+    // Endpoint metriche (solo in development)
+    if (config.server.nodeEnv === 'development') {
+      this.app.get('/metrics', (req, res) => {
+        const metrics = monitoringService.getMetrics();
+        res.json(metrics);
+      });
+    }
 
     // API Info
     this.app.get('/api', (req, res) => {
