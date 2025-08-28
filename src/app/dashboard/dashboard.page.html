@@ -1,0 +1,478 @@
+<!-- Dashboard Header -->
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      <span *ngIf="!isDesktop">NutriJournal</span>
+      <span *ngIf="isDesktop">Dashboard - NutriJournal</span>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" [class]="'dashboard-content ' + deviceLayout">
+  
+  <!-- Refresher (solo mobile) -->
+  <ion-refresher *ngIf="isMobile" slot="fixed" (ionRefresh)="loadDashboardData($event)">
+    <ion-refresher-content
+      pullingIcon="chevron-down-circle-outline"
+      pullingText="Tira per aggiornare"
+      refreshingSpinner="circles"
+      refreshingText="Aggiornamento...">
+    </ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Layout Desktop -->
+  <div *ngIf="isDesktop" class="desktop-layout">
+    
+    <!-- Header Desktop -->
+    <div class="desktop-welcome-header">
+      <div class="welcome-content">
+        <h1>{{ getWelcomeMessage() }}<span *ngIf="user">, {{ user.name }}!</span></h1>
+        <p class="welcome-subtitle">Dashboard nutrizionale e attività fisica</p>
+      </div>
+      <!-- Quick Stats Desktop -->
+      <div class="quick-stats-desktop">
+        <div class="stat-card">
+          <div class="stat-value">{{ dailyStats.calories.consumed }}</div>
+          <div class="stat-label">Calorie</div>
+          <div class="stat-goal">/ {{ dailyStats.calories.goal }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ dailyStats.water.consumed }}ml</div>
+          <div class="stat-label">Acqua</div>
+          <div class="stat-goal">/ {{ dailyStats.water.goal }}ml</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ dailyStats.activities }}</div>
+          <div class="stat-label">Attività</div>
+          <div class="stat-goal">oggi</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Desktop in Grid -->
+    <div class="desktop-grid">
+      
+      <!-- Colonna Sinistra -->
+      <div class="desktop-left-column">
+        
+        <!-- Quick Actions Desktop -->
+        <ion-card class="desktop-quick-actions">
+          <ion-card-header>
+            <ion-card-title>Azioni Rapide</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="desktop-actions-grid">
+              <ion-button 
+                *ngFor="let action of quickActions" 
+                [color]="action.color"
+                fill="outline"
+                size="default"
+                class="desktop-action-button"
+                (click)="handleQuickAction(action)">
+                <ion-icon [name]="action.icon" slot="start"></ion-icon>
+                {{ action.label }}
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Nutrition Progress Desktop -->
+        <ion-card class="desktop-nutrition-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="nutrition-outline"></ion-icon>
+              Progressi Nutrizionali
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            
+            <!-- Calorie principali -->
+            <div class="desktop-calories-display">
+              <div class="calories-info">
+                <span class="current">{{ dailyStats.calories.consumed }}</span>
+                <span class="separator">/</span>
+                <span class="goal">{{ dailyStats.calories.goal }}</span>
+                <span class="unit">kcal</span>
+              </div>
+              <ion-progress-bar 
+                [value]="dailyStats.calories.percentage / 100"
+                [color]="getProgressColor(dailyStats.calories.percentage)">
+              </ion-progress-bar>
+              <div class="percentage">{{ dailyStats.calories.percentage.toFixed(0) }}% dell'obiettivo</div>
+            </div>
+
+            <!-- Macronutrienti Desktop -->
+            <div class="desktop-macros">
+              <div class="macro-item">
+                <div class="macro-header">
+                  <span class="macro-name">Carboidrati</span>
+                  <span class="macro-value">{{ dailyStats.carbs.consumed }}g / {{ dailyStats.carbs.goal }}g</span>
+                </div>
+                <ion-progress-bar 
+                  [value]="dailyStats.carbs.percentage / 100"
+                  color="warning">
+                </ion-progress-bar>
+              </div>
+              
+              <div class="macro-item">
+                <div class="macro-header">
+                  <span class="macro-name">Proteine</span>
+                  <span class="macro-value">{{ dailyStats.proteins.consumed }}g / {{ dailyStats.proteins.goal }}g</span>
+                </div>
+                <ion-progress-bar 
+                  [value]="dailyStats.proteins.percentage / 100"
+                  color="success">
+                </ion-progress-bar>
+              </div>
+              
+              <div class="macro-item">
+                <div class="macro-header">
+                  <span class="macro-name">Grassi</span>
+                  <span class="macro-value">{{ dailyStats.fats.consumed }}g / {{ dailyStats.fats.goal }}g</span>
+                </div>
+                <ion-progress-bar 
+                  [value]="dailyStats.fats.percentage / 100"
+                  color="primary">
+                </ion-progress-bar>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Colonna Destra -->
+      <div class="desktop-right-column">
+        
+        <!-- Pasti Recenti Desktop -->
+        <ion-card class="desktop-meals-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="restaurant-outline"></ion-icon>
+              Pasti Recenti
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div *ngIf="recentMeals.length === 0" class="desktop-empty-state">
+              <ion-icon name="restaurant-outline"></ion-icon>
+              <p>Nessun pasto registrato oggi</p>
+              <ion-button fill="outline" size="small" (click)="handleQuickAction({action: 'addMeal'})">
+                Aggiungi Primo Pasto
+              </ion-button>
+            </div>
+            
+            <div *ngFor="let meal of recentMeals" class="desktop-meal-item">
+              <div class="meal-info">
+                <h4>{{ meal.name }}</h4>
+                <p>{{ formatTime(meal.created_at || '') }} • {{ meal.total_calories }} kcal</p>
+              </div>
+              <ion-badge [color]="meal.type === 'breakfast' ? 'warning' : meal.type === 'lunch' ? 'success' : 'tertiary'">
+                {{ meal.type }}
+              </ion-badge>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Attività Recenti Desktop -->
+        <ion-card class="desktop-activities-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="trending-up-outline"></ion-icon>
+              Attività Recenti
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div *ngIf="recentActivities.length === 0" class="desktop-empty-state">
+              <ion-icon name="trending-up-outline"></ion-icon>
+              <p>Nessuna attività registrata</p>
+              <ion-button fill="outline" size="small" (click)="handleQuickAction({action: 'addActivity'})">
+                Registra Attività
+              </ion-button>
+            </div>
+            
+            <div *ngFor="let activity of recentActivities" class="desktop-activity-item">
+              <div class="activity-info">
+                <h4>{{ activity.name }}</h4>
+                <p>{{ activity.duration_minutes }} min • {{ activity.calories_burned }} kcal</p>
+              </div>
+              <ion-badge [color]="activity.intensity === 'high' ? 'danger' : activity.intensity === 'moderate' ? 'warning' : 'success'">
+                {{ activity.intensity }}
+              </ion-badge>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layout Mobile (esistente) -->
+  <div *ngIf="!isDesktop" class="mobile-layout">
+    <!-- Header con benvenuto -->
+    <div class="welcome-header">
+      <div class="welcome-content">
+        <h1>{{ getWelcomeMessage() }}</h1>
+        <p *ngIf="user">{{ user.name }}!</p>
+        <p class="welcome-subtitle">Ecco il tuo riepilogo di oggi</p>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="quick-actions-section">
+      <h2>Azioni Rapide</h2>
+      <ion-grid class="quick-actions-grid">
+        <ion-row>
+          <ion-col size="6" size-md="3" *ngFor="let action of quickActions">
+            <ion-card 
+              class="quick-action-card" 
+              [color]="action.color"
+              (click)="action.action ? handleQuickAction(action) : null">
+              <ion-card-content>
+                <ion-icon [name]="action.icon" class="action-icon"></ion-icon>
+                <ion-label>{{ action.label }}</ion-label>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <!-- Segment per scegliere la vista -->
+    <ion-segment 
+      [(ngModel)]="selectedSegment" 
+      class="dashboard-segment">
+      <ion-segment-button value="nutrition">
+        <ion-label>Nutrizione</ion-label>
+        <ion-icon name="nutrition-outline"></ion-icon>
+      </ion-segment-button>
+      <ion-segment-button value="activity">
+        <ion-label>Attività</ion-label>
+        <ion-icon name="trending-up-outline"></ion-icon>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- Vista Nutrizione Mobile -->
+    <div *ngIf="selectedSegment === 'nutrition'" class="content-section">
+      
+      <!-- Calorie Card -->
+      <ion-card class="nutrition-card calories-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="flame-outline" class="card-icon"></ion-icon>
+            Calorie Giornaliere
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="stat-display">
+            <div class="stat-numbers">
+              <span class="current">{{ dailyStats.calories.consumed }}</span>
+              <span class="separator">/</span>
+              <span class="goal">{{ dailyStats.calories.goal }}</span>
+              <span class="unit">kcal</span>
+            </div>
+            <ion-progress-bar 
+              [value]="dailyStats.calories.percentage / 100"
+              [color]="getProgressColor(dailyStats.calories.percentage)"
+              class="stat-progress">
+            </ion-progress-bar>
+            <div class="stat-percentage">
+              {{ dailyStats.calories.percentage.toFixed(0) }}% dell'obiettivo
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Macronutrienti Grid Mobile -->
+      <ion-grid class="macros-grid">
+        <ion-row>
+          <!-- Carboidrati -->
+          <ion-col size="12" size-md="4">
+            <ion-card class="macro-card carbs">
+              <ion-card-content>
+                <div class="macro-header">
+                  <ion-icon name="nutrition-outline"></ion-icon>
+                  <span>Carboidrati</span>
+                </div>
+                <div class="macro-value">
+                  {{ dailyStats.carbs.consumed }}g / {{ dailyStats.carbs.goal }}g
+                </div>
+                <ion-progress-bar 
+                  [value]="dailyStats.carbs.percentage / 100"
+                  [color]="getProgressColor(dailyStats.carbs.percentage)">
+                </ion-progress-bar>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <!-- Proteine -->
+          <ion-col size="12" size-md="4">
+            <ion-card class="macro-card proteins">
+              <ion-card-content>
+                <div class="macro-header">
+                  <ion-icon name="fitness-outline"></ion-icon>
+                  <span>Proteine</span>
+                </div>
+                <div class="macro-value">
+                  {{ dailyStats.proteins.consumed }}g / {{ dailyStats.proteins.goal }}g
+                </div>
+                <ion-progress-bar 
+                  [value]="dailyStats.proteins.percentage / 100"
+                  [color]="getProgressColor(dailyStats.proteins.percentage)">
+                </ion-progress-bar>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+
+          <!-- Grassi -->
+          <ion-col size="12" size-md="4">
+            <ion-card class="macro-card fats">
+              <ion-card-content>
+                <div class="macro-header">
+                  <ion-icon name="water-outline"></ion-icon>
+                  <span>Grassi</span>
+                </div>
+                <div class="macro-value">
+                  {{ dailyStats.fats.consumed }}g / {{ dailyStats.fats.goal }}g
+                </div>
+                <ion-progress-bar 
+                  [value]="dailyStats.fats.percentage / 100"
+                  [color]="getProgressColor(dailyStats.fats.percentage)">
+                </ion-progress-bar>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <!-- Acqua -->
+      <ion-card class="water-card">
+        <ion-card-content>
+          <div class="water-header">
+            <ion-icon name="water-outline" class="water-icon"></ion-icon>
+            <h3>Idratazione</h3>
+            <ion-button 
+              fill="clear" 
+              size="small" 
+              color="primary"
+              (click)="addWater()">
+              <ion-icon name="add-outline"></ion-icon>
+              250ml
+            </ion-button>
+          </div>
+          <div class="water-progress">
+            <div class="water-amount">
+              {{ dailyStats.water.consumed }}ml / {{ dailyStats.water.goal }}ml
+            </div>
+            <ion-progress-bar 
+              [value]="dailyStats.water.consumed / dailyStats.water.goal"
+              color="primary">
+            </ion-progress-bar>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Pasti Recenti Mobile -->
+      <ion-card class="recent-meals-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="restaurant-outline"></ion-icon>
+            Pasti Recenti
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div *ngIf="recentMeals.length === 0" class="empty-state">
+            <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+            <p>Nessun pasto registrato oggi</p>
+            <ion-button 
+              fill="outline" 
+              size="small"
+              (click)="handleQuickAction({action: 'addMeal'})">
+              Aggiungi Pasto
+            </ion-button>
+          </div>
+          
+          <ion-item 
+            *ngFor="let meal of recentMeals" 
+            class="meal-item">
+            <div slot="start" class="meal-type-indicator" [attr.data-type]="meal.type"></div>
+            <ion-label>
+              <h3>{{ meal.name }}</h3>
+              <p>{{ formatTime(meal.created_at || '') }} • {{ meal.total_calories }} kcal</p>
+            </ion-label>
+            <ion-badge slot="end" color="primary">
+              {{ meal.type }}
+            </ion-badge>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+
+    <!-- Vista Attività Mobile -->
+    <div *ngIf="selectedSegment === 'activity'" class="content-section">
+      
+      <!-- Attività oggi -->
+      <ion-card class="activity-summary-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="trending-up-outline"></ion-icon>
+            Attività di Oggi
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="activity-stats">
+            <div class="activity-count">
+              <span class="count">{{ dailyStats.activities }}</span>
+              <span class="label">Attività Completate</span>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Attività Recenti -->
+      <ion-card class="recent-activities-card">
+        <ion-card-header>
+          <ion-card-title>Attività Recenti</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div *ngIf="recentActivities.length === 0" class="empty-state">
+            <ion-icon name="trending-up-outline" class="empty-icon"></ion-icon>
+            <p>Nessuna attività registrata</p>
+            <ion-button 
+              fill="outline" 
+              size="small"
+              (click)="handleQuickAction({action: 'addActivity'})">
+              Aggiungi Attività
+            </ion-button>
+          </div>
+          
+          <ion-item 
+            *ngFor="let activity of recentActivities" 
+            class="activity-item">
+            <ion-icon 
+              [name]="'fitness-outline'"
+              slot="start"
+              [color]="activity.intensity === 'high' ? 'danger' : activity.intensity === 'moderate' ? 'warning' : 'success'">
+            </ion-icon>
+            <ion-label>
+              <h3>{{ activity.name }}</h3>
+              <p>{{ activity.duration_minutes }} min • {{ activity.calories_burned }} kcal</p>
+            </ion-label>
+            <ion-badge 
+              slot="end" 
+              [color]="activity.intensity === 'high' ? 'danger' : activity.intensity === 'moderate' ? 'warning' : 'success'">
+              {{ activity.intensity }}
+            </ion-badge>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+    </div>
+
+    <!-- FAB per aggiungere (solo mobile) -->
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="primary">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  </div>
+
+</ion-content>

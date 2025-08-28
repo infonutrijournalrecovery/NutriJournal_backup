@@ -1,0 +1,326 @@
+// Register Page Styles - Material Design per NutriJournal
+
+.register-content {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100vh;
+  padding-top: 2rem;
+}
+
+.register-container {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+// Header Section
+.header-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: white;
+
+  .logo {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    display: block;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 300;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+    font-weight: 300;
+  }
+}
+
+// Register Card
+.register-card {
+  --background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  margin-bottom: 2rem;
+  
+  ion-card-header {
+    text-align: center;
+    padding: 2rem 1.5rem 1rem;
+    
+    ion-card-title {
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: var(--ion-color-dark);
+      margin-bottom: 0.5rem;
+    }
+    
+    ion-card-subtitle {
+      color: var(--ion-color-medium);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+  }
+  
+  ion-card-content {
+    padding: 0 1.5rem 2rem;
+  }
+}
+
+// Form Sections
+.form-section {
+  margin-bottom: 2rem;
+  
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--ion-color-dark);
+    margin: 0 0 1rem 0;
+    padding: 0 0.5rem;
+    border-left: 3px solid var(--ion-color-primary);
+    padding-left: 1rem;
+  }
+}
+
+// Form Styles
+.input-item {
+  --background: #f8f9fa;
+  --border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --background: #f1f3f4;
+  }
+  
+  &.error {
+    border-color: var(--ion-color-danger);
+    --background: #fff5f5;
+  }
+  
+  ion-icon {
+    color: var(--ion-color-medium);
+    margin-right: 12px;
+  }
+  
+  ion-input, ion-select {
+    --padding-start: 0;
+    font-size: 1rem;
+  }
+  
+  ion-label {
+    .placeholder {
+      color: var(--ion-color-medium);
+    }
+    
+    small {
+      color: var(--ion-color-medium);
+      font-weight: normal;
+    }
+  }
+}
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 0.8rem;
+  margin: -0.5rem 0 1rem 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// Physical Data Grid
+.physical-data-grid {
+  padding: 0;
+  margin: 0;
+  
+  ion-col {
+    padding: 0 0.5rem;
+    
+    &:first-child {
+      padding-left: 0;
+    }
+    
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+}
+
+// Select Options
+.activity-option {
+  padding: 0.5rem 0;
+  
+  .activity-description {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+    margin-top: 0.25rem;
+  }
+}
+
+// Buttons
+.register-button {
+  --background: linear-gradient(45deg, #667eea, #764ba2);
+  --color: white;
+  --border-radius: 12px;
+  height: 50px;
+  font-weight: 500;
+  font-size: 1rem;
+  margin: 2rem 0 1rem;
+  text-transform: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    transform: none;
+  }
+  
+  ion-spinner {
+    margin-right: 8px;
+  }
+}
+
+// Login Link
+.login-link {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  
+  ion-button {
+    --color: var(--ion-color-primary);
+    font-weight: 500;
+    text-transform: none;
+  }
+}
+
+// Header toolbar
+ion-header {
+  ion-toolbar {
+    --background: var(--ion-color-primary);
+    --color: white;
+    
+    ion-title {
+      font-weight: 500;
+    }
+    
+    ion-back-button {
+      --color: white;
+    }
+  }
+}
+
+// Modal Styles
+ion-modal {
+  ion-datetime {
+    --background: white;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .register-content {
+    padding-top: 1rem;
+  }
+  
+  .register-container {
+    padding: 10px;
+  }
+  
+  .header-section {
+    margin-bottom: 1.5rem;
+    
+    .logo {
+      font-size: 3rem;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+    }
+  }
+  
+  .register-card {
+    ion-card-header {
+      padding: 1.5rem 1rem 0.5rem;
+    }
+    
+    ion-card-content {
+      padding: 0 1rem 1.5rem;
+    }
+  }
+  
+  .form-section {
+    margin-bottom: 1.5rem;
+    
+    .section-title {
+      font-size: 1rem;
+    }
+  }
+  
+  .physical-data-grid {
+    ion-col {
+      padding: 0 0.25rem;
+    }
+  }
+}
+
+// Desktop optimizations
+@media (min-width: 768px) {
+  .register-container {
+    max-width: 600px;
+  }
+  
+  .register-card {
+    ion-card-header {
+      padding: 2.5rem 2rem 1.5rem;
+    }
+    
+    ion-card-content {
+      padding: 0 2rem 2.5rem;
+    }
+  }
+  
+  .form-section {
+    .section-title {
+      font-size: 1.2rem;
+    }
+  }
+}
+
+// Validazione visuale
+.input-item {
+  &.ng-valid.ng-touched:not(.error) {
+    border-color: var(--ion-color-success);
+    
+    ion-icon {
+      color: var(--ion-color-success);
+    }
+  }
+}
+
+// Smooth transitions
+* {
+  transition: all 0.3s ease;
+}

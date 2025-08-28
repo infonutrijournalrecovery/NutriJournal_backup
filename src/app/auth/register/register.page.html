@@ -1,0 +1,238 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>Crea Account</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="register-content">
+  <div class="register-container">
+    
+    <!-- Header -->
+    <div class="header-section">
+      <div class="logo">🍎</div>
+      <h1>Unisciti a NutriJournal</h1>
+      <p class="subtitle">Inizia il tuo percorso verso una vita più sana</p>
+    </div>
+
+    <!-- Form di registrazione -->
+    <ion-card class="register-card">
+      <ion-card-header>
+        <ion-card-title>Informazioni Account</ion-card-title>
+        <ion-card-subtitle>Tutti i campi sono obbligatori</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
+          
+          <!-- Sezione Dati Personali -->
+          <div class="form-section">
+            <h3 class="section-title">Dati Personali</h3>
+            
+            <!-- Nome -->
+            <ion-item class="input-item" [class.error]="hasFieldError('name')">
+              <ion-icon slot="start" name="person-outline"></ion-icon>
+              <ion-input
+                formControlName="name"
+                type="text"
+                placeholder="Nome completo"
+                [clearInput]="true">
+              </ion-input>
+            </ion-item>
+            <div class="error-message" *ngIf="hasFieldError('name')">
+              {{ getFieldError('name') }}
+            </div>
+
+            <!-- Email -->
+            <ion-item class="input-item" [class.error]="hasFieldError('email')">
+              <ion-icon slot="start" name="mail-outline"></ion-icon>
+              <ion-input
+                formControlName="email"
+                type="email"
+                placeholder="Indirizzo email"
+                [clearInput]="true">
+              </ion-input>
+            </ion-item>
+            <div class="error-message" *ngIf="hasFieldError('email')">
+              {{ getFieldError('email') }}
+            </div>
+
+            <!-- Password -->
+            <ion-item class="input-item" [class.error]="hasFieldError('password')">
+              <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+              <ion-input
+                formControlName="password"
+                [type]="showPassword ? 'text' : 'password'"
+                placeholder="Password">
+              </ion-input>
+              <ion-button 
+                slot="end" 
+                fill="clear" 
+                size="small"
+                (click)="togglePasswordVisibility()">
+                <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </ion-button>
+            </ion-item>
+            <div class="error-message" *ngIf="hasFieldError('password')">
+              {{ getFieldError('password') }}
+            </div>
+
+            <!-- Conferma Password -->
+            <ion-item class="input-item" [class.error]="hasFieldError('confirmPassword')">
+              <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+              <ion-input
+                formControlName="confirmPassword"
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                placeholder="Conferma password">
+              </ion-input>
+              <ion-button 
+                slot="end" 
+                fill="clear" 
+                size="small"
+                (click)="toggleConfirmPasswordVisibility()">
+                <ion-icon [name]="showConfirmPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </ion-button>
+            </ion-item>
+            <div class="error-message" *ngIf="hasFieldError('confirmPassword')">
+              {{ getFieldError('confirmPassword') }}
+            </div>
+          </div>
+
+          <!-- Sezione Dati Fisici -->
+          <div class="form-section">
+            <h3 class="section-title">Dati Fisici</h3>
+            
+            <!-- Data di nascita -->
+            <ion-item class="input-item" [class.error]="hasFieldError('birth_date')" button (click)="openDateModal()">
+              <ion-icon slot="start" name="calendar-outline"></ion-icon>
+              <ion-label>
+                <span *ngIf="!registerForm.get('birth_date')?.value" class="placeholder">Data di nascita</span>
+                <span *ngIf="registerForm.get('birth_date')?.value">
+                  {{ formatDisplayDate(registerForm.get('birth_date')?.value) }}
+                  <small *ngIf="registerForm.get('birth_date')?.value"> 
+                    ({{ calculateAge(registerForm.get('birth_date')?.value) }} anni)
+                  </small>
+                </span>
+              </ion-label>
+            </ion-item>
+            <div class="error-message" *ngIf="hasFieldError('birth_date')">
+              {{ getFieldError('birth_date') }}
+            </div>
+
+            <!-- Modal per data -->
+            <ion-modal [isOpen]="isDateModalOpen" (didDismiss)="isDateModalOpen = false">
+              <ion-header>
+                <ion-toolbar>
+                  <ion-title>Seleziona Data di Nascita</ion-title>
+                  <ion-buttons slot="end">
+                    <ion-button (click)="isDateModalOpen = false">Chiudi</ion-button>
+                  </ion-buttons>
+                </ion-toolbar>
+              </ion-header>
+              <ion-content>
+                <ion-datetime
+                  [max]="maxDate"
+                  [min]="'1920-01-01'"
+                  presentation="date"
+                  (ionChange)="confirmDate($event)">
+                </ion-datetime>
+              </ion-content>
+            </ion-modal>
+
+            <!-- Genere -->
+            <ion-item class="input-item" [class.error]="hasFieldError('gender')">
+              <ion-icon slot="start" name="person-outline"></ion-icon>
+              <ion-select 
+                formControlName="gender" 
+                placeholder="Seleziona genere"
+                interface="popover">
+                <ion-select-option *ngFor="let option of genderOptions" [value]="option.value">
+                  {{ option.label }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <div class="error-message" *ngIf="hasFieldError('gender')">
+              {{ getFieldError('gender') }}
+            </div>
+
+            <!-- Altezza e Peso in griglia -->
+            <ion-grid class="physical-data-grid">
+              <ion-row>
+                <ion-col size="6">
+                  <ion-item class="input-item" [class.error]="hasFieldError('height')">
+                    <ion-icon slot="start" name="resize-outline"></ion-icon>
+                    <ion-input
+                      formControlName="height"
+                      type="number"
+                      placeholder="Altezza (cm)">
+                    </ion-input>
+                  </ion-item>
+                  <div class="error-message" *ngIf="hasFieldError('height')">
+                    {{ getFieldError('height') }}
+                  </div>
+                </ion-col>
+                <ion-col size="6">
+                  <ion-item class="input-item" [class.error]="hasFieldError('weight')">
+                    <ion-icon slot="start" name="scale-outline"></ion-icon>
+                    <ion-input
+                      formControlName="weight"
+                      type="number"
+                      placeholder="Peso (kg)">
+                    </ion-input>
+                  </ion-item>
+                  <div class="error-message" *ngIf="hasFieldError('weight')">
+                    {{ getFieldError('weight') }}
+                  </div>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+
+            <!-- Livello di attività -->
+            <ion-item class="input-item">
+              <ion-icon slot="start" name="fitness-outline"></ion-icon>
+              <ion-select 
+                formControlName="activity_level" 
+                placeholder="Livello di attività"
+                interface="popover">
+                <ion-select-option *ngFor="let level of activityLevels" [value]="level.value">
+                  <div class="activity-option">
+                    <strong>{{ level.label }}</strong>
+                    <div class="activity-description">{{ level.description }}</div>
+                  </div>
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+
+          <!-- Pulsante Registrazione -->
+          <ion-button 
+            expand="block" 
+            type="submit" 
+            class="register-button"
+            [disabled]="isLoading || !registerForm.valid">
+            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+            <span *ngIf="!isLoading">Crea Account</span>
+          </ion-button>
+
+        </form>
+
+        <!-- Link login -->
+        <div class="login-link">
+          <ion-text color="medium">
+            Hai già un account?
+          </ion-text>
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="goToLogin()">
+            Accedi
+          </ion-button>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

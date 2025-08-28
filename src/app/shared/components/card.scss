@@ -1,0 +1,430 @@
+// Card Component Styles - NutriJournal
+// Material Design Cards per Desktop e Mobile
+
+// Base card styles
+.nutrijournal-card {
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: white;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  // Card variations
+  &.card-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    
+    ion-card-header,
+    ion-card-content {
+      color: white;
+    }
+  }
+  
+  &.card-success {
+    border-left: 4px solid #30d158;
+  }
+  
+  &.card-warning {
+    border-left: 4px solid #ff9500;
+  }
+  
+  &.card-info {
+    border-left: 4px solid #007aff;
+  }
+  
+  &.card-danger {
+    border-left: 4px solid #ff3b30;
+  }
+  
+  // Desktop specific styles
+  &.desktop-card {
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+    
+    ion-card-header {
+      padding: 1.5rem 1.5rem 0;
+      
+      ion-card-title {
+        font-size: 1.2rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        ion-icon {
+          color: var(--ion-color-primary);
+          font-size: 1.3rem;
+        }
+      }
+    }
+    
+    ion-card-content {
+      padding: 1.5rem;
+    }
+  }
+  
+  // Mobile specific styles
+  &.mobile-card {
+    border-radius: 16px;
+    margin-bottom: 1rem;
+    
+    ion-card-header {
+      padding: 1rem 1rem 0;
+      
+      ion-card-title {
+        font-size: 1.1rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        
+        ion-icon {
+          color: var(--ion-color-primary);
+          font-size: 1.2rem;
+        }
+      }
+    }
+    
+    ion-card-content {
+      padding: 1rem;
+    }
+  }
+}
+
+// Statistics Card
+.stats-card {
+  text-align: center;
+  
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--ion-color-primary);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    color: var(--ion-color-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .stat-sublabel {
+    font-size: 0.8rem;
+    color: var(--ion-color-light);
+    margin-top: 0.25rem;
+  }
+}
+
+// Progress Card
+.progress-card {
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    .progress-title {
+      font-weight: 500;
+      color: var(--ion-color-dark);
+      margin: 0;
+    }
+    
+    .progress-value {
+      font-size: 0.9rem;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  .progress-bar {
+    margin-bottom: 0.5rem;
+    
+    ion-progress-bar {
+      height: 8px;
+      border-radius: 4px;
+      
+      &.desktop {
+        height: 6px;
+      }
+    }
+  }
+  
+  .progress-percentage {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+    text-align: center;
+  }
+}
+
+// List Card
+.list-card {
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    .list-title {
+      font-weight: 500;
+      color: var(--ion-color-dark);
+      margin: 0;
+    }
+    
+    .list-action {
+      font-size: 0.8rem;
+      color: var(--ion-color-primary);
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+  
+  .list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .item-info {
+      flex: 1;
+      
+      .item-title {
+        font-weight: 500;
+        color: var(--ion-color-dark);
+        margin: 0 0 0.25rem 0;
+        font-size: 0.9rem;
+      }
+      
+      .item-subtitle {
+        font-size: 0.8rem;
+        color: var(--ion-color-medium);
+        margin: 0;
+      }
+    }
+    
+    .item-value {
+      font-size: 0.8rem;
+      color: var(--ion-color-medium);
+      font-weight: 500;
+    }
+    
+    .item-badge {
+      font-size: 0.7rem;
+      text-transform: capitalize;
+    }
+  }
+}
+
+// Empty State Card
+.empty-card {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--ion-color-medium);
+  
+  .empty-icon {
+    font-size: 3rem;
+    color: var(--ion-color-light);
+    margin-bottom: 1rem;
+  }
+  
+  .empty-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--ion-color-medium);
+  }
+  
+  .empty-message {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+  
+  .empty-action {
+    --color: var(--ion-color-primary);
+    font-size: 0.9rem;
+  }
+}
+
+// Gradient Cards
+.gradient-card {
+  &.blue-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  &.green-gradient {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  }
+  
+  &.orange-gradient {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  }
+  
+  &.purple-gradient {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  }
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .nutrijournal-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    
+    &.card-primary {
+      background: linear-gradient(135deg, #0d47a1 0%, #1a237e 100%);
+    }
+  }
+  
+  .list-card .list-item {
+    border-bottom-color: #30363d;
+  }
+  
+  .empty-card {
+    color: #8b949e;
+    
+    .empty-title {
+      color: #f0f6fc;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 767px) {
+  .nutrijournal-card {
+    &.mobile-card {
+      ion-card-content {
+        padding: 0.75rem;
+      }
+    }
+  }
+  
+  .stats-card .stat-value {
+    font-size: 1.8rem;
+  }
+  
+  .list-card .list-item {
+    padding: 0.5rem 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .nutrijournal-card {
+    &.desktop-card {
+      margin-bottom: 2rem;
+      
+      ion-card-content {
+        padding: 2rem;
+      }
+    }
+  }
+  
+  .stats-card .stat-value {
+    font-size: 2.5rem;
+  }
+  
+  .list-card .list-item {
+    padding: 1rem 0;
+    
+    .item-info {
+      .item-title {
+        font-size: 1rem;
+      }
+      
+      .item-subtitle {
+        font-size: 0.9rem;
+      }
+    }
+    
+    .item-value {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Animation Utilities
+.card-fade-in {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.card-slide-in-left {
+  animation: slideInLeft 0.5s ease-out;
+}
+
+.card-slide-in-right {
+  animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  .nutrijournal-card {
+    transition: none;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+  
+  .card-fade-in,
+  .card-slide-in-left,
+  .card-slide-in-right {
+    animation: none;
+  }
+}
+
+// Focus states
+.nutrijournal-card:focus-visible {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}

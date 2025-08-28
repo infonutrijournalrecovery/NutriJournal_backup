@@ -1,0 +1,122 @@
+<ion-content class="login-content">
+  <div class="login-container">
+    
+    <!-- Logo e titolo -->
+    <div class="header-section">
+      <div class="logo">
+        🍎
+      </div>
+      <h1>NutriJournal</h1>
+      <p class="subtitle">Il tuo diario nutrizionale italiano</p>
+    </div>
+
+    <!-- Form di login -->
+    <ion-card class="login-card">
+      <ion-card-header>
+        <ion-card-title>Bentornato!</ion-card-title>
+        <ion-card-subtitle>Accedi per continuare il tuo percorso nutrizionale</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+          
+          <!-- Campo Email -->
+          <ion-item class="input-item" [class.error]="hasFieldError('email')">
+            <ion-icon slot="start" name="mail-outline"></ion-icon>
+            <ion-input
+              formControlName="email"
+              type="email"
+              placeholder="Inserisci la tua email"
+              [clearInput]="true">
+            </ion-input>
+          </ion-item>
+          <div class="error-message" *ngIf="hasFieldError('email')">
+            {{ getFieldError('email') }}
+          </div>
+
+          <!-- Campo Password -->
+          <ion-item class="input-item" [class.error]="hasFieldError('password')">
+            <ion-icon slot="start" name="lock-closed-outline"></ion-icon>
+            <ion-input
+              formControlName="password"
+              [type]="showPassword ? 'text' : 'password'"
+              placeholder="Inserisci la tua password">
+            </ion-input>
+            <ion-button 
+              slot="end" 
+              fill="clear" 
+              size="small"
+              (click)="togglePasswordVisibility()">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </ion-button>
+          </ion-item>
+          <div class="error-message" *ngIf="hasFieldError('password')">
+            {{ getFieldError('password') }}
+          </div>
+
+          <!-- Pulsante Login -->
+          <ion-button 
+            expand="block" 
+            type="submit" 
+            class="login-button"
+            [disabled]="isLoading || !loginForm.valid">
+            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+            <span *ngIf="!isLoading">Accedi</span>
+          </ion-button>
+
+          <!-- Link recupero password -->
+          <div class="forgot-password">
+            <ion-button 
+              fill="clear" 
+              size="small"
+              (click)="goToForgotPassword()">
+              Hai dimenticato la password?
+            </ion-button>
+          </div>
+
+        </form>
+
+        <!-- Divider -->
+        <div class="divider">
+          <span>oppure</span>
+        </div>
+
+        <!-- Social Login (placeholder) -->
+        <div class="social-login">
+          <ion-button 
+            expand="block" 
+            fill="outline"
+            class="social-button google"
+            (click)="loginWithGoogle()">
+            <ion-icon slot="start" name="logo-google"></ion-icon>
+            Continua con Google
+          </ion-button>
+
+          <ion-button 
+            expand="block" 
+            fill="outline"
+            class="social-button apple"
+            (click)="loginWithApple()">
+            <ion-icon slot="start" name="logo-apple"></ion-icon>
+            Continua con Apple
+          </ion-button>
+        </div>
+
+        <!-- Link registrazione -->
+        <div class="register-link">
+          <ion-text color="medium">
+            Non hai un account?
+          </ion-text>
+          <ion-button 
+            fill="clear" 
+            size="small"
+            (click)="goToRegister()">
+            Registrati
+          </ion-button>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

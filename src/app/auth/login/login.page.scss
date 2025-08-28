@@ -1,0 +1,282 @@
+// Login Page Styles - Material Design per NutriJournal
+
+.login-content {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+// Header Section
+.header-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: white;
+
+  .logo {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    display: block;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 0;
+    font-weight: 300;
+  }
+}
+
+// Login Card
+.login-card {
+  --background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  
+  ion-card-header {
+    text-align: center;
+    padding: 2rem 1.5rem 1rem;
+    
+    ion-card-title {
+      font-size: 1.8rem;
+      font-weight: 500;
+      color: var(--ion-color-dark);
+      margin-bottom: 0.5rem;
+    }
+    
+    ion-card-subtitle {
+      color: var(--ion-color-medium);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+  }
+  
+  ion-card-content {
+    padding: 0 1.5rem 2rem;
+  }
+}
+
+// Form Styles
+.input-item {
+  --background: #f8f9fa;
+  --border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --background: #f1f3f4;
+  }
+  
+  &.error {
+    border-color: var(--ion-color-danger);
+    --background: #fff5f5;
+  }
+  
+  ion-icon {
+    color: var(--ion-color-medium);
+    margin-right: 12px;
+  }
+  
+  ion-input {
+    --padding-start: 0;
+    font-size: 1rem;
+  }
+}
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 0.8rem;
+  margin: -0.5rem 0 1rem 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+// Buttons
+.login-button {
+  --background: linear-gradient(45deg, #667eea, #764ba2);
+  --color: white;
+  --border-radius: 12px;
+  height: 50px;
+  font-weight: 500;
+  font-size: 1rem;
+  margin: 1.5rem 0 1rem;
+  text-transform: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    transform: none;
+  }
+}
+
+.forgot-password {
+  text-align: center;
+  margin: 1rem 0;
+  
+  ion-button {
+    --color: var(--ion-color-medium);
+    font-size: 0.9rem;
+    text-transform: none;
+  }
+}
+
+// Divider
+.divider {
+  text-align: center;
+  margin: 2rem 0 1.5rem;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e9ecef;
+  }
+  
+  span {
+    background: white;
+    padding: 0 1rem;
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Social Login
+.social-login {
+  margin-bottom: 1.5rem;
+  
+  .social-button {
+    --border-radius: 12px;
+    height: 50px;
+    margin-bottom: 0.8rem;
+    text-transform: none;
+    font-weight: 500;
+    
+    &.google {
+      --color: #4285f4;
+      --border-color: #4285f4;
+      
+      &:hover {
+        --background: #4285f4;
+        --color: white;
+      }
+    }
+    
+    &.apple {
+      --color: #000000;
+      --border-color: #000000;
+      
+      &:hover {
+        --background: #000000;
+        --color: white;
+      }
+    }
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Register Link
+.register-link {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  ion-button {
+    --color: var(--ion-color-primary);
+    font-weight: 500;
+    text-transform: none;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .login-container {
+    padding: 10px;
+  }
+  
+  .header-section {
+    margin-bottom: 1.5rem;
+    
+    .logo {
+      font-size: 3rem;
+    }
+    
+    h1 {
+      font-size: 2rem;
+    }
+  }
+  
+  .login-card {
+    ion-card-header {
+      padding: 1.5rem 1rem 0.5rem;
+    }
+    
+    ion-card-content {
+      padding: 0 1rem 1.5rem;
+    }
+  }
+}
+
+// Desktop optimizations
+@media (min-width: 768px) {
+  .login-container {
+    max-width: 450px;
+  }
+  
+  .login-card {
+    ion-card-header {
+      padding: 2.5rem 2rem 1.5rem;
+    }
+    
+    ion-card-content {
+      padding: 0 2rem 2.5rem;
+    }
+  }
+}
+
+// Loading state
+.login-button {
+  ion-spinner {
+    margin-right: 8px;
+  }
+}

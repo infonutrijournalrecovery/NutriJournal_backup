@@ -1,0 +1,686 @@
+// Dashboard Styles - Material Design per NutriJournal
+// Responsive design: Mobile + Desktop
+
+// Variabili per il tema
+:root {
+  --dashboard-primary: #667eea;
+  --dashboard-secondary: #764ba2;
+  --dashboard-gradient: linear-gradient(135deg, var(--dashboard-primary) 0%, var(--dashboard-secondary) 100%);
+  --card-radius: 16px;
+  --header-height: 180px;
+  --desktop-sidebar-width: 280px;
+  --desktop-content-padding: 2rem;
+}
+
+// Content principale
+.dashboard-content {
+  --background: #f8f9fa;
+  
+  // Layout specifico per dispositivo
+  &.desktop {
+    --background: #f5f7fa;
+    padding: 0;
+  }
+  
+  &.tablet {
+    --background: #f8f9fa;
+  }
+  
+  &.mobile {
+    --background: #f8f9fa;
+  }
+}
+
+// ===========================================
+// LAYOUT DESKTOP
+// ===========================================
+
+.desktop-layout {
+  min-height: 100vh;
+  background: var(--background);
+}
+
+// Header Desktop
+.desktop-welcome-header {
+  background: var(--dashboard-gradient);
+  color: white;
+  padding: var(--desktop-content-padding);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 0 0 24px 24px;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    right: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+  }
+  
+  .welcome-content {
+    flex: 1;
+    
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 300;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .welcome-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+  }
+  
+  .quick-stats-desktop {
+    display: flex;
+    gap: 2rem;
+    
+    .stat-card {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 1.5rem;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      min-width: 120px;
+      
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        display: block;
+      }
+      
+      .stat-goal {
+        font-size: 0.8rem;
+        opacity: 0.7;
+      }
+    }
+  }
+}
+
+// Grid Layout Desktop
+.desktop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--desktop-content-padding);
+}
+
+.desktop-left-column,
+.desktop-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// Quick Actions Desktop
+.desktop-quick-actions {
+  .desktop-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    
+    .desktop-action-button {
+      height: 60px;
+      font-size: 0.9rem;
+      text-transform: none;
+      --border-radius: 12px;
+      
+      ion-icon {
+        font-size: 1.2rem;
+      }
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+  }
+}
+
+// Nutrition Card Desktop
+.desktop-nutrition-card {
+  .desktop-calories-display {
+    text-align: center;
+    margin-bottom: 2rem;
+    
+    .calories-info {
+      font-size: 2rem;
+      font-weight: 300;
+      margin-bottom: 1rem;
+      
+      .current {
+        font-weight: 600;
+        color: var(--dashboard-primary);
+      }
+      
+      .separator {
+        opacity: 0.7;
+        margin: 0 0.5rem;
+      }
+      
+      .goal {
+        opacity: 0.8;
+      }
+      
+      .unit {
+        font-size: 1.2rem;
+        opacity: 0.8;
+        margin-left: 0.5rem;
+      }
+    }
+    
+    ion-progress-bar {
+      height: 8px;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .percentage {
+      font-size: 0.9rem;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  .desktop-macros {
+    .macro-item {
+      margin-bottom: 1.5rem;
+      
+      .macro-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        
+        .macro-name {
+          font-weight: 500;
+          color: var(--ion-color-dark);
+        }
+        
+        .macro-value {
+          font-size: 0.9rem;
+          color: var(--ion-color-medium);
+        }
+      }
+      
+      ion-progress-bar {
+        height: 6px;
+        border-radius: 3px;
+      }
+    }
+  }
+}
+
+// Desktop Cards
+.desktop-meals-card,
+.desktop-activities-card {
+  .desktop-empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+    
+    ion-icon {
+      font-size: 3rem;
+      color: var(--ion-color-light);
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      color: var(--ion-color-medium);
+      margin-bottom: 1rem;
+    }
+  }
+  
+  .desktop-meal-item,
+  .desktop-activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: #e9ecef;
+      transform: translateX(4px);
+    }
+    
+    .meal-info,
+    .activity-info {
+      flex: 1;
+      
+      h4 {
+        margin: 0 0 0.25rem 0;
+        font-weight: 500;
+        color: var(--ion-color-dark);
+      }
+      
+      p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--ion-color-medium);
+      }
+    }
+    
+    ion-badge {
+      font-size: 0.7rem;
+      text-transform: capitalize;
+    }
+  }
+}
+
+// ===========================================
+// LAYOUT MOBILE (esistente migliorato)
+// ===========================================
+
+.mobile-layout {
+  min-height: 100vh;
+  background: var(--background);
+}
+
+// Header di benvenuto Mobile
+.welcome-header {
+  background: var(--dashboard-gradient);
+  color: white;
+  padding: 2rem 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0 0 24px 24px;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 150px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+  }
+  
+  .welcome-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    
+    h1 {
+      font-size: 2rem;
+      font-weight: 300;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    p {
+      font-size: 1.1rem;
+      margin: 0;
+      opacity: 0.9;
+      
+      &.welcome-subtitle {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+// Quick Actions Mobile
+.quick-actions-section {
+  padding: 0 1rem;
+  margin-bottom: 1.5rem;
+  
+  h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    color: var(--ion-color-dark);
+  }
+}
+
+.quick-actions-grid {
+  padding: 0;
+  margin: 0;
+}
+
+.quick-action-card {
+  margin: 0.5rem 0;
+  border-radius: var(--card-radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  ion-card-content {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    color: white;
+    
+    .action-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    ion-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+// Segment Navigation
+.dashboard-segment {
+  margin: 1rem 1rem 1.5rem;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  ion-segment-button {
+    --indicator-color: var(--dashboard-primary);
+    --color: var(--ion-color-medium);
+    --color-checked: var(--dashboard-primary);
+    
+    ion-label {
+      font-weight: 500;
+      margin: 0.5rem 0;
+    }
+    
+    ion-icon {
+      margin-top: 0.25rem;
+    }
+  }
+}
+
+// Content sections
+.content-section {
+  padding: 0 1rem 2rem;
+}
+
+// Calorie Card
+.calories-card {
+  background: var(--dashboard-gradient);
+  color: white;
+  margin-bottom: 1.5rem;
+  border-radius: var(--card-radius);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+  
+  ion-card-header {
+    text-align: center;
+    
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 1.3rem;
+      font-weight: 500;
+      
+      .card-icon {
+        font-size: 1.5rem;
+      }
+    }
+  }
+  
+  ion-card-content {
+    text-align: center;
+    
+    .stat-display {
+      .stat-numbers {
+        font-size: 2.5rem;
+        font-weight: 300;
+        margin-bottom: 1rem;
+        
+        .current {
+          font-weight: 600;
+        }
+        
+        .separator {
+          opacity: 0.7;
+          margin: 0 0.5rem;
+        }
+        
+        .goal {
+          opacity: 0.8;
+        }
+        
+        .unit {
+          font-size: 1.2rem;
+          opacity: 0.8;
+          margin-left: 0.5rem;
+        }
+      }
+      
+      .stat-progress {
+        margin: 1rem 0;
+        height: 8px;
+        border-radius: 4px;
+        --background: rgba(255, 255, 255, 0.3);
+      }
+      
+      .stat-percentage {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+    }
+  }
+}
+
+// Resto degli stili mobile esistenti...
+.macros-grid {
+  margin-bottom: 1.5rem;
+  padding: 0;
+}
+
+.macro-card {
+  margin: 0.5rem 0;
+  border-radius: var(--card-radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  &.carbs {
+    border-left: 4px solid #ff9500;
+  }
+  
+  &.proteins {
+    border-left: 4px solid #30d158;
+  }
+  
+  &.fats {
+    border-left: 4px solid #007aff;
+  }
+  
+  ion-card-content {
+    padding: 1rem;
+    
+    .macro-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      
+      ion-icon {
+        font-size: 1.2rem;
+        color: var(--ion-color-medium);
+      }
+      
+      span {
+        font-weight: 500;
+        color: var(--ion-color-dark);
+      }
+    }
+    
+    .macro-value {
+      font-size: 0.9rem;
+      color: var(--ion-color-medium);
+      margin-bottom: 0.5rem;
+    }
+    
+    ion-progress-bar {
+      height: 4px;
+      border-radius: 2px;
+    }
+  }
+}
+
+// ===========================================
+// RESPONSIVE BREAKPOINTS
+// ===========================================
+
+// Tablet
+@media (min-width: 768px) and (max-width: 1023px) {
+  .desktop-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .desktop-welcome-header {
+    .quick-stats-desktop {
+      gap: 1rem;
+      
+      .stat-card {
+        min-width: 100px;
+        padding: 1rem;
+      }
+    }
+  }
+}
+
+// Large Desktop
+@media (min-width: 1400px) {
+  .desktop-grid {
+    max-width: 1600px;
+    gap: 3rem;
+  }
+  
+  .desktop-welcome-header {
+    padding: 3rem var(--desktop-content-padding);
+  }
+}
+
+// Mobile fino a 767px mantiene tutti gli stili esistenti
+@media (max-width: 767px) {
+  .welcome-header {
+    padding: 1.5rem 1rem;
+    
+    .welcome-content h1 {
+      font-size: 1.6rem;
+    }
+  }
+  
+  .quick-action-card {
+    ion-card-content {
+      padding: 1rem 0.5rem;
+      
+      .action-icon {
+        font-size: 1.8rem;
+      }
+      
+      ion-label {
+        font-size: 0.8rem;
+      }
+    }
+  }
+  
+  .calories-card {
+    .stat-display .stat-numbers {
+      font-size: 2rem;
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .dashboard-content {
+    --background: #0d1117;
+    
+    &.desktop {
+      --background: #010409;
+    }
+  }
+  
+  .desktop-welcome-header,
+  .welcome-header {
+    background: linear-gradient(135deg, #0d47a1 0%, #1a237e 100%);
+  }
+  
+  .desktop-quick-actions,
+  .desktop-nutrition-card,
+  .desktop-meals-card,
+  .desktop-activities-card,
+  .quick-action-card,
+  .macro-card,
+  .water-card,
+  .recent-meals-card,
+  .recent-activities-card,
+  .activity-summary-card {
+    --background: #161b22;
+    border: 1px solid #30363d;
+  }
+  
+  .desktop-meal-item,
+  .desktop-activity-item,
+  .meal-item,
+  .activity-item {
+    background: #21262d !important;
+    
+    &:hover {
+      background: #30363d !important;
+    }
+  }
+}
+
+// Accessibilità
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+// Focus states per accessibilità
+.desktop-action-button:focus-visible,
+.quick-action-card:focus-visible,
+.desktop-meal-item:focus-visible,
+.desktop-activity-item:focus-visible,
+.meal-item:focus-visible,
+.activity-item:focus-visible {
+  outline: 2px solid var(--ion-color-primary);
+  outline-offset: 2px;
+}
