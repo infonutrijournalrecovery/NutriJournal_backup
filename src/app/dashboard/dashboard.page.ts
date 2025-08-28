@@ -45,7 +45,7 @@ import {
   refreshOutline, 
   nutritionOutline, 
   fitnessOutline,
-  scanOutline } from 'ionicons/icons';
+  scanOutline, personOutline, pizzaOutline, moonOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
 // Commentiamo temporaneamente questi import per far funzionare l'app
@@ -156,6 +156,59 @@ export class DashboardPage implements OnInit, OnDestroy {
     { icon: 'trending-up-outline', label: 'Attività', action: 'addActivity', color: 'tertiary' }
   ];
 
+  // Distribuzione ottimale dei pasti (percentuali del fabbisogno giornaliero)
+  mealDistribution = {
+    breakfast: { calories: 0.25, carbs: 0.30, proteins: 0.20, fats: 0.20 }, // 25% calorie, 30% carbs, etc.
+    lunch: { calories: 0.35, carbs: 0.40, proteins: 0.35, fats: 0.35 },     // 35% calorie (pasto principale)
+    snack: { calories: 0.15, carbs: 0.15, proteins: 0.15, fats: 0.15 },     // 15% calorie
+    dinner: { calories: 0.25, carbs: 0.15, proteins: 0.30, fats: 0.30 }     // 25% calorie, meno carbs sera
+  };
+
+  // Dati nutrizionali per ogni pasto (simulati per ora)
+  mealStats = {
+    breakfast: {
+      calories: { consumed: 0, goal: 0, percentage: 0 },
+      carbs: { consumed: 0, goal: 0, percentage: 0 },
+      proteins: { consumed: 0, goal: 0, percentage: 0 },
+      fats: { consumed: 0, goal: 0, percentage: 0 },
+      foods: [] as any[]
+    },
+    lunch: {
+      calories: { consumed: 0, goal: 0, percentage: 0 },
+      carbs: { consumed: 0, goal: 0, percentage: 0 },
+      proteins: { consumed: 0, goal: 0, percentage: 0 },
+      fats: { consumed: 0, goal: 0, percentage: 0 },
+      foods: [] as any[]
+    },
+    snack: {
+      calories: { consumed: 0, goal: 0, percentage: 0 },
+      carbs: { consumed: 0, goal: 0, percentage: 0 },
+      proteins: { consumed: 0, goal: 0, percentage: 0 },
+      fats: { consumed: 0, goal: 0, percentage: 0 },
+      foods: [] as any[]
+    },
+    dinner: {
+      calories: { consumed: 0, goal: 0, percentage: 0 },
+      carbs: { consumed: 0, goal: 0, percentage: 0 },
+      proteins: { consumed: 0, goal: 0, percentage: 0 },
+      fats: { consumed: 0, goal: 0, percentage: 0 },
+      foods: [] as any[]
+    }
+  };
+
+  // Getter per progress bar sovrapposte (calorie consumate e bruciate)
+  get consumedCaloriesProgressOffset(): number {
+    const percentage = Math.min(100, (this.dailyStats.calories.consumed / this.dailyStats.calories.adjustedGoal) * 100);
+    const circumference = 345.58; // circonferenza del semicerchio più grande
+    return circumference - (circumference * percentage / 100);
+  }
+
+  get burnedCaloriesProgressOffset(): number {
+    const percentage = Math.min(100, (this.dailyStats.calories.burned / this.dailyStats.calories.adjustedGoal) * 100);
+    const circumference = 267.04; // circonferenza del semicerchio più piccolo (raggio 85)
+    return circumference - (circumference * percentage / 100);
+  }
+
   constructor(
     // Commentiamo temporaneamente questi servizi
     // private authService: AuthService,
@@ -165,7 +218,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private router: Router
   ) {
-    addIcons({nutritionOutline,trendingUpOutline,flameOutline,fitnessOutline,waterOutline,addOutline,restaurantOutline,cafeOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline});
+    addIcons({personOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,trendingUpOutline,flameOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline});
   }
 
   ngOnInit() {
@@ -264,8 +317,38 @@ export class DashboardPage implements OnInit, OnDestroy {
     this.dailyStats.carbs.goal = Math.round((calorieGoal * distribution.carbs) / 4);
     this.dailyStats.fats.goal = Math.round((calorieGoal * distribution.fats) / 9);
 
+    // Calcola obiettivi per ogni pasto
+    this.updateMealGoals();
+
     // Calcola percentuali
     this.updateNutritionPercentages();
+  }
+
+  private updateMealGoals() {
+    // Calcola obiettivi per ogni pasto basati sulla distribuzione
+    const mealTypes = ['breakfast', 'lunch', 'snack', 'dinner'] as const;
+    
+    mealTypes.forEach(mealType => {
+      const distribution = this.mealDistribution[mealType];
+      
+      // Calcola obiettivi per questo pasto
+      this.mealStats[mealType].calories.goal = Math.round(this.dailyStats.calories.goal * distribution.calories);
+      this.mealStats[mealType].carbs.goal = Math.round(this.dailyStats.carbs.goal * distribution.carbs);
+      this.mealStats[mealType].proteins.goal = Math.round(this.dailyStats.proteins.goal * distribution.proteins);
+      this.mealStats[mealType].fats.goal = Math.round(this.dailyStats.fats.goal * distribution.fats);
+      
+      // Calcola percentuali (consumed/goal)
+      this.updateMealPercentages(mealType);
+    });
+  }
+
+  private updateMealPercentages(mealType: 'breakfast' | 'lunch' | 'snack' | 'dinner') {
+    const meal = this.mealStats[mealType];
+    
+    meal.calories.percentage = meal.calories.goal > 0 ? Math.round((meal.calories.consumed / meal.calories.goal) * 100) : 0;
+    meal.carbs.percentage = meal.carbs.goal > 0 ? Math.round((meal.carbs.consumed / meal.carbs.goal) * 100) : 0;
+    meal.proteins.percentage = meal.proteins.goal > 0 ? Math.round((meal.proteins.consumed / meal.proteins.goal) * 100) : 0;
+    meal.fats.percentage = meal.fats.goal > 0 ? Math.round((meal.fats.consumed / meal.fats.goal) * 100) : 0;
   }
 
   private updateNutritionPercentages() {
@@ -432,6 +515,86 @@ export class DashboardPage implements OnInit, OnDestroy {
 
   openScanner() {
     this.router.navigate(['/scanner']);
+  }
+
+  openUserProfile() {
+    // TODO: Implementare navigazione al profilo utente
+    this.router.navigate(['/profile']);
+  }
+
+  addMeal(mealType: string) {
+    // TODO: Implementare aggiunta pasto per tipo specifico
+    console.log(`Aggiungendo pasto: ${mealType}`);
+    
+    // Simuliamo l'aggiunta di alcuni valori nutrizionali per demo
+    const mealKey = mealType as 'breakfast' | 'lunch' | 'snack' | 'dinner';
+    
+    // Valori nutrizionali simulati basati sul tipo di pasto
+    let calories = 0, carbs = 0, proteins = 0, fats = 0;
+    
+    switch (mealType) {
+      case 'breakfast':
+        calories = 350; carbs = 45; proteins = 15; fats = 12;
+        this.mealStats.breakfast.foods.push({ name: 'Colazione esempio', calories });
+        break;
+      case 'lunch':
+        calories = 600; carbs = 70; proteins = 35; fats = 20;
+        this.mealStats.lunch.foods.push({ name: 'Pranzo esempio', calories });
+        break;
+      case 'snack':
+        calories = 200; carbs = 25; proteins = 8; fats = 8;
+        this.mealStats.snack.foods.push({ name: 'Spuntino esempio', calories });
+        break;
+      case 'dinner':
+        calories = 500; carbs = 40; proteins = 40; fats = 18;
+        this.mealStats.dinner.foods.push({ name: 'Cena esempio', calories });
+        break;
+    }
+    
+    // Aggiorna i valori del pasto
+    this.mealStats[mealKey].calories.consumed += calories;
+    this.mealStats[mealKey].carbs.consumed += carbs;
+    this.mealStats[mealKey].proteins.consumed += proteins;
+    this.mealStats[mealKey].fats.consumed += fats;
+    
+    // Ricalcola le percentuali
+    this.updateMealPercentages(mealKey);
+    
+    // Aggiorna anche i totali giornalieri
+    this.dailyStats.calories.consumed += calories;
+    this.dailyStats.carbs.consumed += carbs;
+    this.dailyStats.proteins.consumed += proteins;
+    this.dailyStats.fats.consumed += fats;
+    this.updateNutritionPercentages();
+    
+    this.showToast(`${this.getMealName(mealType)} aggiunta! +${calories} kcal`, 'success');
+  }
+
+  // Metodo helper per ottenere i dati di un pasto specifico
+  getMealStats(mealType: 'breakfast' | 'lunch' | 'snack' | 'dinner') {
+    return this.mealStats[mealType];
+  }
+
+  // Metodo helper per ottenere l'icona del pasto
+  getMealIcon(mealType: string): string {
+    switch (mealType) {
+      case 'breakfast': return 'cafe-outline';
+      case 'lunch': return 'restaurant-outline';
+      case 'snack': return 'pizza-outline';
+      case 'dinner': return 'moon-outline';
+      default: return 'restaurant-outline';
+    }
+  }
+
+  // Metodo helper per ottenere il nome italiano del pasto
+  getMealName(mealType: string): string {
+    switch (mealType) {
+      case 'breakfast': return 'Colazione';
+      case 'lunch': return 'Pranzo';
+      case 'snack': return 'Spuntino';
+      case 'dinner': return 'Cena';
+      default: return mealType;
+    }
   }
 
   getWelcomeMessage(): string {

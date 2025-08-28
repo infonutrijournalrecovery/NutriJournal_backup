@@ -1,6 +1,13 @@
 INDICAZIONI:
 -collegare tutto al backend, appena la GUI è finita
 -calendario data di nascita in register non funzionante
--in login: google e apple da eliminare
--in login non funziona la funzionalità recupera password 
+-in login: button "Collegati con google" e apple da eliminare
+-in login non esiste la funzionalità recupera password 
 -la home teoricamente non serve perchè abbiamo la dashboard quindi possiamo rimuoverla
+-correggere le routes
+-aggiungere dashboard navigabile nel tempo
+-le progress bar non sono ottimizzate per layout desktop e non sono presenti nel layout mobile
+-rimuovi le quick stats nell'header e inseriamo lì un button per il profilo utente
+-rimuovi la sezione azioni rapide dalla dashboard
+-rinomina la sezione "Pasti recenti" in "Gestione pasti" e crea 4 sezioni principali disposti orizzontalmente dentro Gestione pasti(Colazione, Pranzo, Spuntino, Cena) decora con qualche icona carina e aggiungi un button "+" per ogni sezione pasto.
+-vorrei che ogni pasto principale nella sezione gestione pasti avesse delle piccole progress bar che indicano la quantità di calorie e macronutrienti assorbiti nel pasto in relazione ai cibi/prodotti registrati in quel pasto. Questo richiede anche l'implementazione di un ulteriore calcolo per consigliare la migliore suddivisione delle calorie e macronutrienti in ogni pasto giornaliero.

@@ -351,78 +351,187 @@ ion-content.dashboard-content {
   // ===== NUOVI STILI PER SEZIONE NUTRIZIONALE MODERNA =====
   &.modern-nutrition {
     
-    .circular-calories-section {
+    .semicircular-calories-section {
       display: flex;
       justify-content: center;
       align-items: center;
       margin-bottom: 2rem;
       
-      .circular-progress-container {
+      .semicircular-progress-container {
         position: relative;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
+        width: 100%;
         
-        .circular-progress {
-          transform: rotate(-90deg);
-          filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        .overlapped-progress {
+          position: relative;
+          display: flex;
+          justify-content: center;
+          margin-bottom: 1rem;
           
-          .progress-ring {
-            transition: stroke-dashoffset 0.8s ease-in-out;
-            animation: progressRing 1.5s ease-out;
+          .semicircular-progress-overlay {
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+            
+            .progress-semicircle {
+              transition: stroke-dashoffset 1s ease-in-out;
+              
+              &.consumed-outer {
+                animation: progressSemicircleConsumed 2s ease-out;
+              }
+              
+              &.burned-inner {
+                animation: progressSemicircleBurned 2.5s ease-out;
+              }
+            }
           }
         }
         
-        .calories-center-info {
+        .calories-data-overlay {
           position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
+          top: 20px;
+          left: 0;
+          right: 0;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          padding: 0 20px;
+          pointer-events: none;
+          
+          .calories-info-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 80px;
+            text-align: center;
+            
+            // Responsive adjustments per desktop
+            @media (min-width: 768px) {
+              min-width: 100px;
+              padding: 1rem 1.25rem;
+            }
+            
+            &.consumed-box {
+              border-left: 3px solid #4f46e5;
+              
+              // Spostamento per desktop
+              @media (min-width: 768px) {
+                margin-left: -10px;
+              }
+              
+              .calories-label {
+                color: #4f46e5;
+                font-size: 0.6rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 0.25rem;
+              }
+              
+              .main-value {
+                color: #4f46e5;
+                font-size: 1.4rem;
+                font-weight: 700;
+              }
+              
+              .separator {
+                color: #a0aec0;
+                font-size: 1rem;
+                margin: 0 0.15rem;
+              }
+              
+              .goal-value {
+                color: #718096;
+                font-size: 1rem;
+                font-weight: 500;
+              }
+            }
+            
+            &.burned-box {
+              border-left: 3px solid #ff9800;
+              
+              // Spostamento per desktop
+              @media (min-width: 768px) {
+                margin-right: -10px;
+              }
+              
+              .calories-label {
+                color: #ff9800;
+                font-size: 0.6rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 0.25rem;
+              }
+              
+              .main-value {
+                color: #ff9800;
+                font-size: 1.2rem;
+                font-weight: 600;
+              }
+            }
+            
+            .calories-values {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin-bottom: 0.25rem;
+            }
+            
+            .calories-unit {
+              font-size: 0.7rem;
+              color: #a0aec0;
+              font-weight: 500;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+          }
+        }
+        
+        .calories-summary-bottom {
+          margin-top: 0.5rem;
           text-align: center;
           
-          .consumed-calories {
-            font-size: 2.8rem;
-            font-weight: 700;
-            color: #2d3748;
-            line-height: 1;
-          }
-          
-          .goal-separator {
-            font-size: 1.8rem;
-            color: #a0aec0;
-            margin: 0 0.25rem;
-          }
-          
-          .goal-calories {
-            font-size: 1.6rem;
-            color: #718096;
-            font-weight: 500;
-          }
-          
-          .calories-unit {
-            font-size: 0.9rem;
-            color: #a0aec0;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 0.25rem;
-          }
-          
           .remaining-calories {
-            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            margin-top: 0.5rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            
+            ion-icon {
+              font-size: 1.1rem;
+            }
             
             &.positive {
               color: #38a169;
-              background: rgba(56, 161, 105, 0.1);
+              border-color: rgba(56, 161, 105, 0.3);
+              background: linear-gradient(135deg, rgba(56, 161, 105, 0.1), rgba(56, 161, 105, 0.05));
+              
+              ion-icon {
+                color: #38a169;
+              }
             }
             
             &.negative {
               color: #e53e3e;
-              background: rgba(229, 62, 62, 0.1);
+              border-color: rgba(229, 62, 62, 0.3);
+              background: linear-gradient(135deg, rgba(229, 62, 62, 0.1), rgba(229, 62, 62, 0.05));
+              
+              ion-icon {
+                color: #e53e3e;
+              }
             }
           }
         }
@@ -601,6 +710,45 @@ ion-content.dashboard-content {
   }
   100% {
     stroke-dashoffset: var(--progress-offset, 534.07);
+  }
+}
+
+// Animazione per le progress bar semicircolari
+@keyframes progressSemicircle {
+  0% {
+    stroke-dashoffset: 300;
+  }
+  100% {
+    stroke-dashoffset: var(--progress-offset, 300);
+  }
+}
+
+// Animazioni per le progress bar sovrapposte
+@keyframes progressSemicircleConsumed {
+  0% {
+    stroke-dashoffset: 345.58;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    stroke-dashoffset: var(--consumed-progress-offset, 345.58);
+    opacity: 1;
+  }
+}
+
+@keyframes progressSemicircleBurned {
+  0% {
+    stroke-dashoffset: 267.04;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    stroke-dashoffset: var(--burned-progress-offset, 267.04);
+    opacity: 1;
   }
 }
 
@@ -1241,4 +1389,383 @@ ion-content.dashboard-content {
 .activity-item:focus-visible {
   outline: 2px solid var(--ion-color-primary);
   outline-offset: 2px;
+}
+
+// ===========================================
+// MEAL MANAGEMENT STYLES
+// ===========================================
+
+// Desktop Meal Management
+.desktop-meal-management {
+  background: var(--md-surface);
+  border-radius: var(--card-radius);
+  box-shadow: 0 2px 12px var(--md-shadow), 0 1px 4px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--md-outline);
+  overflow: hidden;
+  
+  ion-card-header {
+    background: var(--md-primary-container);
+    --background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+    --color: var(--md-on-primary-container);
+    padding: 1.5rem;
+    
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin: 0;
+      
+      ion-icon {
+        font-size: 1.5rem;
+        color: var(--dashboard-primary);
+      }
+    }
+  }
+  
+  ion-card-content {
+    padding: 2rem;
+  }
+}
+
+.meal-management-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  
+  // Responsive: mobile diventa 1 colonna
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.meal-section {
+  background: var(--md-surface-variant);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--md-outline);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--meal-color, var(--dashboard-primary));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    background: var(--md-surface);
+    
+    &::before {
+      transform: scaleX(1);
+    }
+  }
+  
+  // Colori specifici per ogni pasto
+  &.breakfast {
+    --meal-color: #ff9500;
+    
+    .meal-icon {
+      color: #ff9500;
+      background: rgba(255, 149, 0, 0.1);
+    }
+    
+    .add-meal-btn {
+      --background: #ff9500;
+      --background-hover: #e6850e;
+    }
+  }
+  
+  &.lunch {
+    --meal-color: #30d158;
+    
+    .meal-icon {
+      color: #30d158;
+      background: rgba(48, 209, 88, 0.1);
+    }
+    
+    .add-meal-btn {
+      --background: #30d158;
+      --background-hover: #28a745;
+    }
+  }
+  
+  &.snack {
+    --meal-color: #5856d6;
+    
+    .meal-icon {
+      color: #5856d6;
+      background: rgba(88, 86, 214, 0.1);
+    }
+    
+    .add-meal-btn {
+      --background: #5856d6;
+      --background-hover: #4c4acf;
+    }
+  }
+  
+  &.dinner {
+    --meal-color: #007aff;
+    
+    .meal-icon {
+      color: #007aff;
+      background: rgba(0, 122, 255, 0.1);
+    }
+    
+    .add-meal-btn {
+      --background: #007aff;
+      --background-hover: #0056cc;
+    }
+  }
+  
+  .meal-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    
+    .meal-icon {
+      font-size: 1.8rem;
+      padding: 0.75rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    
+    .meal-info {
+      flex: 1;
+      
+      .meal-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--md-on-surface);
+        margin: 0 0 0.25rem 0;
+      }
+      
+      .meal-calories {
+        font-size: 0.875rem;
+        color: var(--md-on-surface-variant);
+        margin: 0;
+      }
+    }
+  }
+  
+  .meal-content {
+    .empty-meal {
+      text-align: center;
+      padding: 2rem 1rem;
+      
+      .empty-icon {
+        font-size: 3rem;
+        color: var(--md-outline);
+        margin-bottom: 1rem;
+        opacity: 0.6;
+      }
+      
+      .empty-text {
+        color: var(--md-on-surface-variant);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+      }
+      
+      .add-meal-btn {
+        --border-radius: 8px;
+        height: 40px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: none;
+        
+        ion-icon {
+          font-size: 1.1rem;
+          margin-right: 0.5rem;
+        }
+      }
+    }
+    
+    .meal-items {
+      .meal-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--md-surface);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--md-outline);
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: var(--md-primary-container);
+          transform: translateX(4px);
+        }
+        
+        .item-info {
+          flex: 1;
+          
+          .item-name {
+            font-weight: 600;
+            color: var(--md-on-surface);
+            margin: 0 0 0.25rem 0;
+            font-size: 0.95rem;
+          }
+          
+          .item-details {
+            font-size: 0.8rem;
+            color: var(--md-on-surface-variant);
+            margin: 0;
+          }
+        }
+        
+        .item-calories {
+          font-weight: 600;
+          color: var(--meal-color);
+          font-size: 0.9rem;
+        }
+      }
+      
+      .add-more-btn {
+        width: 100%;
+        height: 36px;
+        font-size: 0.8rem;
+        margin-top: 1rem;
+        --background: transparent;
+        --color: var(--meal-color);
+        --border-color: var(--meal-color);
+        --border-radius: 6px;
+        text-transform: none;
+        
+        &:hover {
+          --background: var(--meal-color);
+          --color: white;
+        }
+        
+        ion-icon {
+          font-size: 1rem;
+          margin-right: 0.5rem;
+        }
+      }
+    }
+    
+    // Progress bars per pasto
+    .meal-progress {
+      margin-top: 1rem;
+      
+      .macro-progress-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        
+        .macro-label {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--md-on-surface-variant);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          min-width: 45px;
+        }
+        
+        ion-progress-bar {
+          flex: 1;
+          height: 6px;
+          border-radius: 3px;
+          --background: var(--md-outline);
+          box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .macro-percentage {
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: var(--md-on-surface-variant);
+          min-width: 35px;
+          text-align: right;
+        }
+      }
+    }
+  }
+}
+
+// Mobile Meal Management (stesso layout)
+.mobile-meal-management {
+  .meal-management-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+  
+  .meal-section {
+    padding: 1.25rem;
+    
+    .meal-header {
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      
+      .meal-icon {
+        font-size: 1.6rem;
+        padding: 0.625rem;
+      }
+      
+      .meal-info {
+        .meal-name {
+          font-size: 1rem;
+        }
+        
+        .meal-calories {
+          font-size: 0.8rem;
+        }
+      }
+    }
+    
+    .meal-content {
+      .empty-meal {
+        padding: 1.5rem 1rem;
+        
+        .empty-icon {
+          font-size: 2.5rem;
+        }
+        
+        .empty-text {
+          font-size: 0.85rem;
+        }
+        
+        .add-meal-btn {
+          height: 36px;
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+}
+
+// Animazioni per i pasti
+@keyframes mealSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.meal-section {
+  animation: mealSlideIn 0.5s ease-out;
+  
+  &.breakfast { animation-delay: 0.1s; }
+  &.lunch { animation-delay: 0.2s; }
+  &.snack { animation-delay: 0.3s; }
+  &.dinner { animation-delay: 0.4s; }
 }

@@ -29,23 +29,16 @@
         <h1>{{ getWelcomeMessage() }}<span *ngIf="user">, {{ user.name }}!</span></h1>
         <p class="welcome-subtitle">Dashboard nutrizionale e attività fisica</p>
       </div>
-      <!-- Quick Stats Desktop -->
-      <div class="quick-stats-desktop">
-        <div class="stat-card">
-          <div class="stat-value">{{ dailyStats.calories.consumed }}</div>
-          <div class="stat-label">Calorie</div>
-          <div class="stat-goal">/ {{ dailyStats.calories.goal }}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">{{ dailyStats.water.consumed }}ml</div>
-          <div class="stat-label">Acqua</div>
-          <div class="stat-goal">/ {{ dailyStats.water.goal }}ml</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">{{ dailyStats.activities }}</div>
-          <div class="stat-label">Attività</div>
-          <div class="stat-goal">oggi</div>
-        </div>
+      <!-- User Profile Button -->
+      <div class="user-profile-section">
+        <ion-button 
+          fill="outline" 
+          color="primary"
+          class="profile-button"
+          (click)="openUserProfile()">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          Profilo
+        </ion-button>
       </div>
     </div>
 
@@ -55,27 +48,6 @@
       <!-- Colonna Sinistra -->
       <div class="desktop-left-column">
         
-        <!-- Quick Actions Desktop -->
-        <ion-card class="desktop-quick-actions" style="--background: #ffffff; background-color: #ffffff !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;">
-          <ion-card-header style="--background: #e8f0fe; background-color: #e8f0fe !important; --color: #001d35; color: #001d35 !important;">
-            <ion-card-title style="--color: #001d35; color: #001d35 !important; font-weight: 600 !important;">Azioni Rapide</ion-card-title>
-          </ion-card-header>
-          <ion-card-content style="--background: #ffffff; background-color: #ffffff !important; --color: #1a1c1e; color: #1a1c1e !important;">
-            <div class="desktop-actions-grid">
-              <ion-button 
-                *ngFor="let action of quickActions" 
-                [color]="action.color"
-                fill="outline"
-                size="default"
-                class="desktop-action-button"
-                (click)="handleQuickAction(action)">
-                <ion-icon [name]="action.icon" slot="start"></ion-icon>
-                {{ action.label }}
-              </ion-button>
-            </div>
-          </ion-card-content>
-        </ion-card>
-
         <!-- Nutrition Progress Desktop - NUOVA VERSIONE -->
         <ion-card class="desktop-nutrition-card modern-nutrition" style="--background: #ffffff; background-color: #ffffff !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;">
           <ion-card-header style="--background: #e8f0fe; background-color: #e8f0fe !important; --color: #001d35; color: #001d35 !important;">
@@ -86,66 +58,100 @@
           </ion-card-header>
           <ion-card-content style="--background: #ffffff; background-color: #ffffff !important; --color: #1a1c1e; color: #1a1c1e !important;">
             
-            <!-- Circular Progress per Calorie Totali -->
-            <div class="circular-calories-section">
-              <div class="circular-progress-container">
-                <svg class="circular-progress" width="200" height="200" viewBox="0 0 200 200">
-                  <!-- Background circle -->
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="85"
-                    fill="transparent"
-                    stroke="#e0e0e0"
-                    stroke-width="12"
-                  />
-                  <!-- Progress circle -->
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="85"
-                    fill="transparent"
-                    [attr.stroke]="getCircularProgressColor(dailyStats.calories.percentage)"
-                    stroke-width="12"
-                    stroke-linecap="round"
-                    [style.stroke-dasharray]="534.07" 
-                    [style.stroke-dashoffset]="534.07 - (534.07 * dailyStats.calories.percentage / 100)"
-                    class="progress-ring"
-                  />
-                </svg>
+            <!-- Semicircular Progress per Calorie Sovrapposte -->
+            <div class="semicircular-calories-section">
+              <div class="semicircular-progress-container">
                 
-                <!-- Calorie Center Info -->
-                <div class="calories-center-info">
-                  <div class="consumed-calories">{{ dailyStats.calories.consumed }}</div>
-                  <div class="goal-separator">/</div>
-                  <div class="goal-calories">{{ dailyStats.calories.adjustedGoal }}</div>
-                  <div class="calories-unit">kcal</div>
+                <!-- SVG con progress bar semicircolari sovrapposte -->
+                <div class="overlapped-progress">
+                  <svg class="semicircular-progress-overlay" width="260" height="140" viewBox="0 0 260 140">
+                    
+                    <!-- Background semicircle per calorie consumate (esterno) -->
+                    <path
+                      d="M 20 130 A 110 110 0 0 1 240 130"
+                      fill="transparent"
+                      stroke="#e0e0e0"
+                      stroke-width="14"
+                      stroke-linecap="round"
+                    />
+                    
+                    <!-- Progress semicircle per calorie consumate (esterno) -->
+                    <path
+                      d="M 20 130 A 110 110 0 0 1 240 130"
+                      fill="transparent"
+                      [attr.stroke]="getCircularProgressColor(dailyStats.calories.percentage)"
+                      stroke-width="14"
+                      stroke-linecap="round"
+                      [style.stroke-dasharray]="345.58"
+                      [style.stroke-dashoffset]="consumedCaloriesProgressOffset"
+                      class="progress-semicircle consumed-outer"
+                    />
+                    
+                    <!-- Background semicircle per calorie bruciate (interno) -->
+                    <path
+                      d="M 45 105 A 85 85 0 0 1 215 105"
+                      fill="transparent"
+                      stroke="#f5f5f5"
+                      stroke-width="8"
+                      stroke-linecap="round"
+                    />
+                    
+                    <!-- Progress semicircle per calorie bruciate (interno) -->
+                    <path
+                      d="M 45 105 A 85 85 0 0 1 215 105"
+                      fill="transparent"
+                      stroke="#ff9800"
+                      stroke-width="8"
+                      stroke-linecap="round"
+                      [style.stroke-dasharray]="267.04"
+                      [style.stroke-dashoffset]="burnedCaloriesProgressOffset"
+                      class="progress-semicircle burned-inner"
+                    />
+                    
+                  </svg>
+                </div>
+                
+                <!-- Informazioni numeriche posizionate lateralmente -->
+                <div class="calories-data-overlay">
+                  
+                  <!-- Calorie consumate (lato sinistro) -->
+                  <div class="calories-info-box consumed-box">
+                    <div class="calories-label">CONSUMATE</div>
+                    <div class="calories-values">
+                      <span class="main-value">{{ dailyStats.calories.consumed }}</span>
+                      <span class="separator">/</span>
+                      <span class="goal-value">{{ dailyStats.calories.adjustedGoal }}</span>
+                    </div>
+                    <div class="calories-unit">kcal</div>
+                  </div>
+                  
+                  <!-- Calorie bruciate (lato destro) -->
+                  <div class="calories-info-box burned-box">
+                    <div class="calories-label">BRUCIATE</div>
+                    <div class="calories-values">
+                      <span class="main-value">{{ dailyStats.calories.burned }}</span>
+                    </div>
+                    <div class="calories-unit">kcal</div>
+                  </div>
+                  
+                </div>
+                
+                <!-- Riepilogo centrale sotto le progress bar -->
+                <div class="calories-summary-bottom">
                   <div class="remaining-calories" [ngClass]="{
                     'positive': dailyStats.calories.remaining > 0,
                     'negative': dailyStats.calories.remaining <= 0
                   }">
-                    {{ dailyStats.calories.remaining > 0 ? 'Rimangono ' + dailyStats.calories.remaining : 'Eccesso di ' + getMathAbs(dailyStats.calories.remaining) }}
+                    <ion-icon [name]="dailyStats.calories.remaining > 0 ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
+                    {{ dailyStats.calories.remaining > 0 ? 'Rimangono ' + dailyStats.calories.remaining + ' kcal' : 'Eccesso di ' + getMathAbs(dailyStats.calories.remaining) + ' kcal' }}
                   </div>
                 </div>
+                
               </div>
             </div>
 
-            <!-- Macronutrienti e Calorie Bruciate -->
+            <!-- Macronutrienti -->
             <div class="macros-section">
-              
-              <!-- Calorie Bruciate -->
-              <div class="macro-item burned-calories">
-                <div class="macro-header">
-                  <ion-icon name="flame-outline" class="macro-icon burned"></ion-icon>
-                  <span class="macro-label">Calorie Bruciate</span>
-                  <span class="macro-values">{{ dailyStats.calories.burned }}/400 kcal</span>
-                </div>
-                <ion-progress-bar 
-                  [value]="dailyStats.calories.burned / 400"
-                  color="warning"
-                  class="macro-progress">
-                </ion-progress-bar>
-              </div>
 
               <!-- Proteine -->
               <div class="macro-item proteins">
@@ -198,32 +204,265 @@
       <!-- Colonna Destra -->
       <div class="desktop-right-column">
         
-        <!-- Pasti Recenti Desktop -->
-        <ion-card class="desktop-meals-card">
+        <!-- Gestione Pasti Desktop -->
+        <ion-card class="desktop-meals-card desktop-meal-management">
           <ion-card-header>
             <ion-card-title>
               <ion-icon name="restaurant-outline"></ion-icon>
-              Pasti Recenti
+              Gestione Pasti
             </ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <div *ngIf="recentMeals.length === 0" class="desktop-empty-state">
-              <ion-icon name="restaurant-outline"></ion-icon>
-              <p>Nessun pasto registrato oggi</p>
-              <ion-button fill="outline" size="small" (click)="handleQuickAction({action: 'addMeal'})">
-                Aggiungi Primo Pasto
-              </ion-button>
+            
+            <!-- 4 Sezioni Pasti con Progress Bar -->
+            <div class="meal-management-grid">
+              
+              <!-- Colazione -->
+              <div class="meal-section breakfast">
+                <div class="meal-header">
+                  <ion-icon name="cafe-outline" class="meal-icon"></ion-icon>
+                  <div class="meal-info">
+                    <h4 class="meal-name">Colazione</h4>
+                    <p class="meal-calories">{{getMealStats('breakfast').calories.consumed}} / {{getMealStats('breakfast').calories.goal}} kcal</p>
+                  </div>
+                </div>
+                <div class="meal-content">
+                  <div *ngIf="getMealStats('breakfast').foods.length === 0" class="empty-meal">
+                    <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                    <p class="empty-text">Nessun cibo aggiunto</p>
+                    <ion-button 
+                      fill="solid" 
+                      size="small"
+                      class="add-meal-btn"
+                      (click)="addMeal('breakfast')">
+                      <ion-icon name="add-outline"></ion-icon>
+                      Aggiungi
+                    </ion-button>
+                  </div>
+                  
+                  <!-- Progress Bars Macronutrienti -->
+                  <div *ngIf="getMealStats('breakfast').foods.length > 0" class="meal-progress">
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Calorie</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('breakfast').calories.percentage / 100"
+                        [color]="getProgressColor(getMealStats('breakfast').calories.percentage)">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('breakfast').calories.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Carb</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('breakfast').carbs.percentage / 100"
+                        color="primary">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('breakfast').carbs.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Prot</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('breakfast').proteins.percentage / 100"
+                        color="success">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('breakfast').proteins.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Grassi</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('breakfast').fats.percentage / 100"
+                        color="warning">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('breakfast').fats.percentage}}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Pranzo -->
+              <div class="meal-section lunch">
+                <div class="meal-header">
+                  <ion-icon name="restaurant-outline" class="meal-icon"></ion-icon>
+                  <div class="meal-info">
+                    <h4 class="meal-name">Pranzo</h4>
+                    <p class="meal-calories">{{getMealStats('lunch').calories.consumed}} / {{getMealStats('lunch').calories.goal}} kcal</p>
+                  </div>
+                </div>
+                <div class="meal-content">
+                  <div *ngIf="getMealStats('lunch').foods.length === 0" class="empty-meal">
+                    <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                    <p class="empty-text">Nessun cibo aggiunto</p>
+                    <ion-button 
+                      fill="solid" 
+                      size="small"
+                      class="add-meal-btn"
+                      (click)="addMeal('lunch')">
+                      <ion-icon name="add-outline"></ion-icon>
+                      Aggiungi
+                    </ion-button>
+                  </div>
+                  
+                  <!-- Progress Bars Macronutrienti -->
+                  <div *ngIf="getMealStats('lunch').foods.length > 0" class="meal-progress">
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Calorie</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('lunch').calories.percentage / 100"
+                        [color]="getProgressColor(getMealStats('lunch').calories.percentage)">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('lunch').calories.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Carb</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('lunch').carbs.percentage / 100"
+                        color="primary">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('lunch').carbs.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Prot</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('lunch').proteins.percentage / 100"
+                        color="success">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('lunch').proteins.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Grassi</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('lunch').fats.percentage / 100"
+                        color="warning">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('lunch').fats.percentage}}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Spuntino -->
+              <div class="meal-section snack">
+                <div class="meal-header">
+                  <ion-icon name="pizza-outline" class="meal-icon"></ion-icon>
+                  <div class="meal-info">
+                    <h4 class="meal-name">Spuntino</h4>
+                    <p class="meal-calories">{{getMealStats('snack').calories.consumed}} / {{getMealStats('snack').calories.goal}} kcal</p>
+                  </div>
+                </div>
+                <div class="meal-content">
+                  <div *ngIf="getMealStats('snack').foods.length === 0" class="empty-meal">
+                    <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                    <p class="empty-text">Nessun cibo aggiunto</p>
+                    <ion-button 
+                      fill="solid" 
+                      size="small"
+                      class="add-meal-btn"
+                      (click)="addMeal('snack')">
+                      <ion-icon name="add-outline"></ion-icon>
+                      Aggiungi
+                    </ion-button>
+                  </div>
+                  
+                  <!-- Progress Bars Macronutrienti -->
+                  <div *ngIf="getMealStats('snack').foods.length > 0" class="meal-progress">
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Calorie</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('snack').calories.percentage / 100"
+                        [color]="getProgressColor(getMealStats('snack').calories.percentage)">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('snack').calories.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Carb</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('snack').carbs.percentage / 100"
+                        color="primary">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('snack').carbs.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Prot</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('snack').proteins.percentage / 100"
+                        color="success">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('snack').proteins.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Grassi</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('snack').fats.percentage / 100"
+                        color="warning">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('snack').fats.percentage}}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Cena -->
+              <div class="meal-section dinner">
+                <div class="meal-header">
+                  <ion-icon name="moon-outline" class="meal-icon"></ion-icon>
+                  <div class="meal-info">
+                    <h4 class="meal-name">Cena</h4>
+                    <p class="meal-calories">{{getMealStats('dinner').calories.consumed}} / {{getMealStats('dinner').calories.goal}} kcal</p>
+                  </div>
+                </div>
+                <div class="meal-content">
+                  <div *ngIf="getMealStats('dinner').foods.length === 0" class="empty-meal">
+                    <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                    <p class="empty-text">Nessun cibo aggiunto</p>
+                    <ion-button 
+                      fill="solid" 
+                      size="small"
+                      class="add-meal-btn"
+                      (click)="addMeal('dinner')">
+                      <ion-icon name="add-outline"></ion-icon>
+                      Aggiungi
+                    </ion-button>
+                  </div>
+                  
+                  <!-- Progress Bars Macronutrienti -->
+                  <div *ngIf="getMealStats('dinner').foods.length > 0" class="meal-progress">
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Calorie</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('dinner').calories.percentage / 100"
+                        [color]="getProgressColor(getMealStats('dinner').calories.percentage)">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('dinner').calories.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Carb</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('dinner').carbs.percentage / 100"
+                        color="primary">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('dinner').carbs.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Prot</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('dinner').proteins.percentage / 100"
+                        color="success">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('dinner').proteins.percentage}}%</span>
+                    </div>
+                    <div class="macro-progress-item">
+                      <span class="macro-label">Grassi</span>
+                      <ion-progress-bar 
+                        [value]="getMealStats('dinner').fats.percentage / 100"
+                        color="warning">
+                      </ion-progress-bar>
+                      <span class="macro-percentage">{{getMealStats('dinner').fats.percentage}}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
             </div>
             
-            <div *ngFor="let meal of recentMeals" class="desktop-meal-item">
-              <div class="meal-info">
-                <h4>{{ meal.name }}</h4>
-                <p>{{ formatTime(meal.created_at || '') }} • {{ meal.total_calories }} kcal</p>
-              </div>
-              <ion-badge [color]="meal.type === 'breakfast' ? 'warning' : meal.type === 'lunch' ? 'success' : 'tertiary'">
-                {{ meal.type }}
-              </ion-badge>
-            </div>
           </ion-card-content>
         </ion-card>
 
@@ -268,27 +507,6 @@
         <p *ngIf="user">{{ user.name }}!</p>
         <p class="welcome-subtitle">Ecco il tuo riepilogo di oggi</p>
       </div>
-    </div>
-
-    <!-- Quick actions -->
-    <div class="quick-actions-section">
-      <h2>Azioni Rapide</h2>
-      <ion-grid class="quick-actions-grid">
-        <ion-row>
-          <ion-col size="6" size-md="3" *ngFor="let action of quickActions">
-            <ion-card 
-              class="quick-action-card" 
-              [attr.data-color]="action.color"
-              [color]="action.color"
-              (click)="action.action ? handleQuickAction(action) : null">
-              <ion-card-content>
-                <ion-icon [name]="action.icon" class="action-icon"></ion-icon>
-                <ion-label>{{ action.label }}</ion-label>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
     </div>
 
     <!-- Segment per scegliere la vista -->
@@ -425,38 +643,264 @@
         </ion-card-content>
       </ion-card>
 
-      <!-- Pasti Recenti Mobile -->
-      <ion-card class="recent-meals-card">
+      <!-- Gestione Pasti Mobile -->
+      <ion-card class="recent-meals-card mobile-meal-management">
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="restaurant-outline"></ion-icon>
-            Pasti Recenti
+            Gestione Pasti
           </ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <div *ngIf="recentMeals.length === 0" class="empty-state">
-            <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
-            <p>Nessun pasto registrato oggi</p>
-            <ion-button 
-              fill="outline" 
-              size="small"
-              (click)="handleQuickAction({action: 'addMeal'})">
-              Aggiungi Pasto
-            </ion-button>
+          
+          <div class="meal-management-grid">
+            
+            <!-- Colazione -->
+            <div class="meal-section breakfast">
+              <div class="meal-header">
+                <ion-icon name="cafe-outline" class="meal-icon"></ion-icon>
+                <div class="meal-info">
+                  <h4 class="meal-name">Colazione</h4>
+                  <p class="meal-calories">{{getMealStats('breakfast').calories.consumed}} / {{getMealStats('breakfast').calories.goal}} kcal</p>
+                </div>
+              </div>
+              <div class="meal-content">
+                <div *ngIf="getMealStats('breakfast').foods.length === 0" class="empty-meal">
+                  <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                  <p class="empty-text">Nessun cibo aggiunto</p>
+                  <ion-button 
+                    fill="solid" 
+                    size="small"
+                    class="add-meal-btn"
+                    (click)="addMeal('breakfast')">
+                    <ion-icon name="add-outline"></ion-icon>
+                    Aggiungi
+                  </ion-button>
+                </div>
+                
+                <!-- Progress Bars Macronutrienti -->
+                <div *ngIf="getMealStats('breakfast').foods.length > 0" class="meal-progress">
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Calorie</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('breakfast').calories.percentage / 100"
+                      [color]="getProgressColor(getMealStats('breakfast').calories.percentage)">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('breakfast').calories.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Carb</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('breakfast').carbs.percentage / 100"
+                      color="primary">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('breakfast').carbs.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Prot</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('breakfast').proteins.percentage / 100"
+                      color="success">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('breakfast').proteins.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Grassi</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('breakfast').fats.percentage / 100"
+                      color="warning">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('breakfast').fats.percentage}}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Pranzo -->
+            <div class="meal-section lunch">
+              <div class="meal-header">
+                <ion-icon name="restaurant-outline" class="meal-icon"></ion-icon>
+                <div class="meal-info">
+                  <h4 class="meal-name">Pranzo</h4>
+                  <p class="meal-calories">{{getMealStats('lunch').calories.consumed}} / {{getMealStats('lunch').calories.goal}} kcal</p>
+                </div>
+              </div>
+              <div class="meal-content">
+                <div *ngIf="getMealStats('lunch').foods.length === 0" class="empty-meal">
+                  <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                  <p class="empty-text">Nessun cibo aggiunto</p>
+                  <ion-button 
+                    fill="solid" 
+                    size="small"
+                    class="add-meal-btn"
+                    (click)="addMeal('lunch')">
+                    <ion-icon name="add-outline"></ion-icon>
+                    Aggiungi
+                  </ion-button>
+                </div>
+                
+                <!-- Progress Bars Macronutrienti -->
+                <div *ngIf="getMealStats('lunch').foods.length > 0" class="meal-progress">
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Calorie</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('lunch').calories.percentage / 100"
+                      [color]="getProgressColor(getMealStats('lunch').calories.percentage)">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('lunch').calories.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Carb</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('lunch').carbs.percentage / 100"
+                      color="primary">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('lunch').carbs.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Prot</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('lunch').proteins.percentage / 100"
+                      color="success">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('lunch').proteins.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Grassi</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('lunch').fats.percentage / 100"
+                      color="warning">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('lunch').fats.percentage}}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Spuntino -->
+            <div class="meal-section snack">
+              <div class="meal-header">
+                <ion-icon name="pizza-outline" class="meal-icon"></ion-icon>
+                <div class="meal-info">
+                  <h4 class="meal-name">Spuntino</h4>
+                  <p class="meal-calories">{{getMealStats('snack').calories.consumed}} / {{getMealStats('snack').calories.goal}} kcal</p>
+                </div>
+              </div>
+              <div class="meal-content">
+                <div *ngIf="getMealStats('snack').foods.length === 0" class="empty-meal">
+                  <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                  <p class="empty-text">Nessun cibo aggiunto</p>
+                  <ion-button 
+                    fill="solid" 
+                    size="small"
+                    class="add-meal-btn"
+                    (click)="addMeal('snack')">
+                    <ion-icon name="add-outline"></ion-icon>
+                    Aggiungi
+                  </ion-button>
+                </div>
+                
+                <!-- Progress Bars Macronutrienti -->
+                <div *ngIf="getMealStats('snack').foods.length > 0" class="meal-progress">
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Calorie</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('snack').calories.percentage / 100"
+                      [color]="getProgressColor(getMealStats('snack').calories.percentage)">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('snack').calories.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Carb</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('snack').carbs.percentage / 100"
+                      color="primary">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('snack').carbs.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Prot</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('snack').proteins.percentage / 100"
+                      color="success">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('snack').proteins.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Grassi</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('snack').fats.percentage / 100"
+                      color="warning">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('snack').fats.percentage}}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Cena -->
+            <div class="meal-section dinner">
+              <div class="meal-header">
+                <ion-icon name="moon-outline" class="meal-icon"></ion-icon>
+                <div class="meal-info">
+                  <h4 class="meal-name">Cena</h4>
+                  <p class="meal-calories">{{getMealStats('dinner').calories.consumed}} / {{getMealStats('dinner').calories.goal}} kcal</p>
+                </div>
+              </div>
+              <div class="meal-content">
+                <div *ngIf="getMealStats('dinner').foods.length === 0" class="empty-meal">
+                  <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                  <p class="empty-text">Nessun cibo aggiunto</p>
+                  <ion-button 
+                    fill="solid" 
+                    size="small"
+                    class="add-meal-btn"
+                    (click)="addMeal('dinner')">
+                    <ion-icon name="add-outline"></ion-icon>
+                    Aggiungi
+                  </ion-button>
+                </div>
+                
+                <!-- Progress Bars Macronutrienti -->
+                <div *ngIf="getMealStats('dinner').foods.length > 0" class="meal-progress">
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Calorie</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('dinner').calories.percentage / 100"
+                      [color]="getProgressColor(getMealStats('dinner').calories.percentage)">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('dinner').calories.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Carb</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('dinner').carbs.percentage / 100"
+                      color="primary">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('dinner').carbs.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Prot</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('dinner').proteins.percentage / 100"
+                      color="success">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('dinner').proteins.percentage}}%</span>
+                  </div>
+                  <div class="macro-progress-item">
+                    <span class="macro-label">Grassi</span>
+                    <ion-progress-bar 
+                      [value]="getMealStats('dinner').fats.percentage / 100"
+                      color="warning">
+                    </ion-progress-bar>
+                    <span class="macro-percentage">{{getMealStats('dinner').fats.percentage}}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
           </div>
           
-          <ion-item 
-            *ngFor="let meal of recentMeals" 
-            class="meal-item">
-            <div slot="start" class="meal-type-indicator" [attr.data-type]="meal.type"></div>
-            <ion-label>
-              <h3>{{ meal.name }}</h3>
-              <p>{{ formatTime(meal.created_at || '') }} • {{ meal.total_calories }} kcal</p>
-            </ion-label>
-            <ion-badge slot="end" color="primary">
-              {{ meal.type }}
-            </ion-badge>
-          </ion-item>
         </ion-card-content>
       </ion-card>
 
