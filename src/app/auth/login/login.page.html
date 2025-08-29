@@ -7,7 +7,7 @@
         🍎
       </div>
       <h1>NutriJournal</h1>
-      <p class="subtitle">Il tuo diario nutrizionale italiano</p>
+      <p class="subtitle">Il tuo diario nutrizionale</p>
     </div>
 
     <!-- Form di login -->
@@ -26,7 +26,7 @@
             <ion-input
               formControlName="email"
               type="email"
-              placeholder="Inserisci la tua email"
+                placeholder="Inserisci la tua email" style="color: #505050;"
               [clearInput]="true">
             </ion-input>
           </ion-item>
@@ -40,7 +40,7 @@
             <ion-input
               formControlName="password"
               [type]="showPassword ? 'text' : 'password'"
-              placeholder="Inserisci la tua password">
+              placeholder="Inserisci la tua password" style="color: #505050;">
             </ion-input>
             <ion-button 
               slot="end" 
@@ -78,12 +78,12 @@
 
         <!-- Link registrazione -->
         <div class="register-link">
-          <ion-text color="medium">
+          <ion-text color="big">
             Non hai un account?
           </ion-text>
           <ion-button 
             fill="clear" 
-            size="small"
+            size="big"
             (click)="goToRegister()">
             Registrati
           </ion-button>

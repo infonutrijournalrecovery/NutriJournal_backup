@@ -120,7 +120,7 @@ ion-content.dashboard-content {
   background: #f8f9fb !important;
   
   &.desktop {
-    --background: #f5f7fa !important;
+    --background: #efefef!important;  // Colore di sfondo del desktop
     background: #f5f7fa !important;
   }
 }
@@ -317,7 +317,7 @@ ion-content.dashboard-content {
 .desktop-nutrition-card {
   background: var(--md-surface) !important;
   --background: var(--md-surface) !important;
-  border-radius: var(--card-radius) !important;
+  border-radius: 16px !important;
   box-shadow: 0 2px 12px var(--md-shadow), 0 1px 4px rgba(0, 0, 0, 0.08) !important;
   border: 1px solid var(--md-outline) !important;
   overflow: hidden !important;
@@ -328,6 +328,7 @@ ion-content.dashboard-content {
     color: var(--md-on-primary-container) !important;
     --color: var(--md-on-primary-container) !important;
     padding: 1.5rem !important;
+    height: 70px;
     
     ion-card-title {
       display: flex !important;
@@ -336,6 +337,7 @@ ion-content.dashboard-content {
       font-size: 1.25rem;
       font-weight: 500;
       margin: 0;
+      margin-top: 0px;
       
       ion-icon {
         font-size: 1.5rem;
@@ -810,10 +812,11 @@ ion-content.dashboard-content {
     }
     
     ion-button {
-      --background: var(--dashboard-gradient);
+      --background: #0051d0;
       --border-radius: 12px;
       height: 45px;
       font-weight: 500;
+      color: #0051d0;
     }
   }
   
@@ -1331,6 +1334,7 @@ ion-content.dashboard-content {
 }
 
 // Dark mode support
+/*
 @media (prefers-color-scheme: dark) {
   .dashboard-content {
     --background: #0d1117;
@@ -1369,7 +1373,7 @@ ion-content.dashboard-content {
       background: #30363d !important;
     }
   }
-}
+} */
 
 // Accessibilità
 @media (prefers-reduced-motion: reduce) {

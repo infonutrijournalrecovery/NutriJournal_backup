@@ -16,7 +16,7 @@
 
 .desktop-scanner-layout {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: #d0d0d0;
 }
 
 .desktop-header {
@@ -39,6 +39,7 @@
       align-items: center;
       justify-content: center;
       gap: 1rem;
+      color: #606060;
       
       ion-icon {
         font-size: 3rem;
@@ -49,6 +50,8 @@
       font-size: 1.2rem;
       margin: 0;
       opacity: 0.9;
+      color: #606060;
+
     }
   }
 }
@@ -64,41 +67,45 @@
 
 .search-card {
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+  background: #d0d0d0;
   
   ion-card-header {
-    background: #f8f9fa;
+    background: #d0d0d0;
     border-radius: 16px 16px 0 0;
     
     ion-card-title {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      color: var(--scanner-primary);
+      color: #606060;
       font-size: 1.3rem;
     }
   }
   
   .search-container {
     ion-item {
-      --background: #f8f9fa;
+      --background: #f0f0f0;
       --border-radius: 12px;
       margin-bottom: 1.5rem;
+      margin-top: 1.5rem;
+      height: 100px;
       
       ion-input {
-        font-size: 1.1rem;
+        font-size: 1.0rem;
+        color: #606060;
       }
     }
     
     .search-button {
-      --background: var(--scanner-gradient);
+      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       height: 50px;
       font-size: 1.1rem;
       --border-radius: 12px;
       
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
       }
     }
   }
@@ -106,32 +113,36 @@
 
 .camera-card {
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
   height: fit-content;
   
   ion-card-header {
-    background: #e3f2fd;
+    background: #d0d0d0;
     border-radius: 16px 16px 0 0;
     
     ion-card-title {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      color: #1976d2;
+      color: #606060;
       font-size: 1.1rem;
     }
   }
   
   ion-card-content {
     text-align: center;
+    background: #d0d0d0;
     
     p {
-      color: var(--ion-color-medium);
+      color: #ff0000;
       margin-bottom: 1.5rem;
     }
     
     ion-button {
-      --color: #1976d2;
+      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 40px;
+      font-size: 1.0rem;
+      --border-radius: 12px;
     }
   }
 }
@@ -348,7 +359,7 @@
     }
     
     .barcode-chip {
-      --background: rgba(255, 255, 255, 0.2);
+      --background: rgb(255, 255, 255, 0.2);
       --color: white;
       
       ion-icon {
@@ -507,10 +518,10 @@
 // ===========================================
 // DARK MODE SUPPORT
 // ===========================================
-
+/*
 @media (prefers-color-scheme: dark) {
   .desktop-scanner-layout {
-    background: #0d1117;
+    background: #29304a;
   }
   
   .search-card,
@@ -536,7 +547,7 @@
     background: #21262d !important;
   }
 }
-
+*/
 // ===========================================
 // ANIMATIONS
 // ===========================================

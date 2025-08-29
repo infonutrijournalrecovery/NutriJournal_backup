@@ -20,7 +20,7 @@
     <!-- Form di registrazione -->
     <ion-card class="register-card">
       <ion-card-header>
-        <ion-card-title>Informazioni Account</ion-card-title>
+        <ion-card-title style="color: #505050;">Informazioni Account</ion-card-title>
         <ion-card-subtitle>Tutti i campi sono obbligatori</ion-card-subtitle>
       </ion-card-header>
 
@@ -29,7 +29,7 @@
           
           <!-- Sezione Dati Personali -->
           <div class="form-section">
-            <h3 class="section-title">Dati Personali</h3>
+            <h3 class="section-title" style="color: #505050;">Dati Personali</h3>
             
             <!-- Nome -->
             <ion-item class="input-item" [class.error]="hasFieldError('name')">
@@ -37,7 +37,7 @@
               <ion-input
                 formControlName="name"
                 type="text"
-                placeholder="Nome completo"
+                placeholder="Nome completo" 
                 [clearInput]="true">
               </ion-input>
             </ion-item>
@@ -102,7 +102,7 @@
 
           <!-- Sezione Dati Fisici -->
           <div class="form-section">
-            <h3 class="section-title">Dati Fisici</h3>
+            <h3 class="section-title" style="color: #505050;">Dati Fisici</h3>
             
             <!-- Data di nascita -->
             <ion-item class="input-item" [class.error]="hasFieldError('birth_date')">
@@ -202,12 +202,12 @@
 
         <!-- Link login -->
         <div class="login-link">
-          <ion-text color="medium">
+          <ion-text color="bigger">
             Hai già un account?
           </ion-text>
           <ion-button 
             fill="clear" 
-            size="small"
+            size="medium"
             (click)="goToLogin()">
             Accedi
           </ion-button>

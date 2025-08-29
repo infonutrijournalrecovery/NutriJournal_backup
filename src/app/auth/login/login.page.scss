@@ -59,7 +59,7 @@
     ion-card-title {
       font-size: 1.8rem;
       font-weight: 500;
-      color: var(--ion-color-dark);
+      color: #505050;
       margin-bottom: 0.5rem;
     }
     
@@ -77,10 +77,19 @@
 
 // Form Styles
 .input-item {
-  --background: #f8f9fa;
+  /*--background: #f8f9fa;
   --border-radius: 12px;
   margin-bottom: 1rem;
   border: 1px solid #e9ecef;
+  transition: all 0.3s ease; */
+
+  --background: #f8f9fa;
+  --border-radius: 12px;
+  --border-color: #e9ecef;
+  --highlight-color-focused: var(--ion-color-primary);
+  --highlight-color-valid: var(--ion-color-success);
+  margin-bottom: 1rem;
+  border: 2px solid transparent;
   transition: all 0.3s ease;
   
   &:hover {
@@ -93,7 +102,7 @@
   }
   
   ion-icon {
-    color: var(--ion-color-medium);
+    color: #505050;
     margin-right: 12px;
   }
   

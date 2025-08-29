@@ -1,12 +1,12 @@
-<!-- Dashboard Header -->
+<!-- Dashboard Header 
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
       <span *ngIf="!isDesktop">NutriJournal</span>
-      <span *ngIf="isDesktop">Dashboard - NutriJournal</span>
+      <span *ngIf="isDesktop">DasAhboard - NutriJournal</span>
     </ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header>  -->
 
 <ion-content [fullscreen]="true" [class]="'dashboard-content ' + deviceLayout" style="--background: #f8f9fb; background-color: #f8f9fb !important;">
   
@@ -149,7 +149,7 @@
                   
                   <!-- Calorie consumate (lato sinistro) -->
                   <div class="calories-info-box consumed-box">
-                    <div class="calories-label">CONSUMATE</div>
+                    <div class="calories-label">MANGIATE</div>
                     <div class="calories-values">
                       <span class="main-value">{{ dailyStats.calories.consumed }}</span>
                       <span class="separator">/</span>
@@ -228,6 +228,35 @@
                 </ion-progress-bar>
               </div>
 
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- ATTIVITA' REC -->
+        <ion-card class="desktop-activities-card" style="box-shadow: none; border: none;">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="trending-up-outline"></ion-icon>
+              Attività Recenti
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div *ngIf="recentActivities.length === 0" class="desktop-empty-state">
+              <ion-icon name="trending-up-outline" style="color: #ff0000;"></ion-icon>
+              <p>Nessuna attività registrata</p>
+                <ion-button fill="outline" size="small" style="--ion-color-contrast: #505050;"  (click)="handleQuickAction({action: 'addActivity'})">
+                + Registra Attività
+                </ion-button>
+            </div>
+            
+            <div *ngFor="let activity of recentActivities" class="desktop-activity-item">
+              <div class="activity-info">
+                <h4>{{ activity.name }}</h4>
+                <p>{{ activity.duration_minutes }} min • {{ activity.calories_burned }} kcal</p>
+              </div>
+              <ion-badge [color]="activity.intensity === 'high' ? 'danger' : activity.intensity === 'moderate' ? 'warning' : 'success'">
+                {{ activity.intensity }}
+              </ion-badge>
             </div>
           </ion-card-content>
         </ion-card>
@@ -499,8 +528,8 @@
           </ion-card-content>
         </ion-card>
 
-        <!-- Attività Recenti Desktop -->
-        <ion-card class="desktop-activities-card">
+        <!-- Attività Recenti Desktop
+        <ion-card class="desktop-activities-card" style="box-shadow: none; border: none;">
           <ion-card-header>
             <ion-card-title>
               <ion-icon name="trending-up-outline"></ion-icon>
@@ -509,11 +538,11 @@
           </ion-card-header>
           <ion-card-content>
             <div *ngIf="recentActivities.length === 0" class="desktop-empty-state">
-              <ion-icon name="trending-up-outline"></ion-icon>
+              <ion-icon name="trending-up-outline" style="color: #ff0000;"></ion-icon>
               <p>Nessuna attività registrata</p>
-              <ion-button fill="outline" size="small" (click)="handleQuickAction({action: 'addActivity'})">
+                <ion-button fill="outline" size="small" style="--ion-color-contrast: #505050;"  (click)="handleQuickAction({action: 'addActivity'})">
                 Registra Attività
-              </ion-button>
+                </ion-button>
             </div>
             
             <div *ngFor="let activity of recentActivities" class="desktop-activity-item">
@@ -526,7 +555,7 @@
               </ion-badge>
             </div>
           </ion-card-content>
-        </ion-card>
+        </ion-card>   -->
       </div>
     </div>
   </div>
