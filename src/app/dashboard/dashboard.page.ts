@@ -45,7 +45,14 @@ import {
   refreshOutline, 
   nutritionOutline, 
   fitnessOutline,
-  scanOutline, personOutline, pizzaOutline, moonOutline } from 'ionicons/icons';
+  scanOutline, 
+  personOutline, 
+  pizzaOutline, 
+  moonOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
+  calendarOutline
+} from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
 // Commentiamo temporaneamente questi import per far funzionare l'app
@@ -96,6 +103,9 @@ export class DashboardPage implements OnInit, OnDestroy {
   isLoading = false;
   selectedSegment = 'nutrition';
 
+  // Proprietà per la navigazione temporale
+  currentDate = new Date();
+  
   // Proprietà per il layout responsive
   isDesktop = false;
   isTablet = false;
@@ -196,16 +206,16 @@ export class DashboardPage implements OnInit, OnDestroy {
     }
   };
 
-  // Getter per progress bar sovrapposte (calorie consumate e bruciate)
+  // Getter per progress bar separate (calorie consumate e bruciate)
   get consumedCaloriesProgressOffset(): number {
     const percentage = Math.min(100, (this.dailyStats.calories.consumed / this.dailyStats.calories.adjustedGoal) * 100);
-    const circumference = 345.58; // circonferenza del semicerchio più grande
+    const circumference = 377.0; // circonferenza del semicerchio più grande (raggio 120)
     return circumference - (circumference * percentage / 100);
   }
 
   get burnedCaloriesProgressOffset(): number {
     const percentage = Math.min(100, (this.dailyStats.calories.burned / this.dailyStats.calories.adjustedGoal) * 100);
-    const circumference = 267.04; // circonferenza del semicerchio più piccolo (raggio 85)
+    const circumference = 267.0; // circonferenza del semicerchio (raggio 85)
     return circumference - (circumference * percentage / 100);
   }
 
@@ -218,7 +228,28 @@ export class DashboardPage implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private router: Router
   ) {
-    addIcons({personOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,trendingUpOutline,flameOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline});
+    addIcons({
+      personOutline,
+      nutritionOutline,
+      fitnessOutline,
+      restaurantOutline,
+      waterOutline,
+      cafeOutline,
+      addOutline,
+      pizzaOutline,
+      moonOutline,
+      trendingUpOutline,
+      flameOutline,
+      timeOutline,
+      checkmarkCircleOutline,
+      alertCircleOutline,
+      statsChartOutline,
+      refreshOutline,
+      scanOutline,
+      chevronBackOutline,
+      chevronForwardOutline,
+      calendarOutline
+    });
   }
 
   ngOnInit() {
@@ -393,13 +424,19 @@ export class DashboardPage implements OnInit, OnDestroy {
       // Simula dati per ora (fino a quando non connettiamo il backend)
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // TODO: Sostituire con chiamate API reali
-      this.dailyStats.calories.consumed = 1200;
-      this.dailyStats.carbs.consumed = 150;
-      this.dailyStats.proteins.consumed = 80;
-      this.dailyStats.fats.consumed = 45;
-      this.dailyStats.water.consumed = 1250;
-      this.dailyStats.activities = 2;
+      // TODO: Sostituire con chiamate API reali basate su this.currentDate
+      // const formattedDate = this.currentDate.toISOString().split('T')[0];
+      // await this.apiService.getDailyNutrition(formattedDate);
+      
+      // Per ora simuliamo dati diversi in base alla data per test
+      const dayOffset = Math.floor((new Date().getTime() - this.currentDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      this.dailyStats.calories.consumed = Math.max(800, 1200 - (dayOffset * 100));
+      this.dailyStats.carbs.consumed = Math.max(80, 150 - (dayOffset * 20));
+      this.dailyStats.proteins.consumed = Math.max(50, 80 - (dayOffset * 10));
+      this.dailyStats.fats.consumed = Math.max(30, 45 - (dayOffset * 5));
+      this.dailyStats.water.consumed = Math.max(500, 1250 - (dayOffset * 150));
+      this.dailyStats.activities = Math.max(0, 2 - Math.floor(dayOffset / 2));
 
       this.updateDailyStatsPercentages();
 
@@ -520,6 +557,69 @@ export class DashboardPage implements OnInit, OnDestroy {
   openUserProfile() {
     // TODO: Implementare navigazione al profilo utente
     this.router.navigate(['/profile']);
+  }
+
+  // Metodi per la navigazione temporale
+  goToPreviousDay() {
+    const newDate = new Date(this.currentDate);
+    newDate.setDate(newDate.getDate() - 1);
+    this.currentDate = newDate;
+    this.loadDashboardData();
+  }
+
+  goToNextDay() {
+    const newDate = new Date(this.currentDate);
+    newDate.setDate(newDate.getDate() + 1);
+    
+    // Non permettere di andare oltre oggi
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    
+    if (newDate <= today) {
+      this.currentDate = newDate;
+      this.loadDashboardData();
+    }
+  }
+
+  goToToday() {
+    this.currentDate = new Date();
+    this.loadDashboardData();
+  }
+
+  // Metodi helper per la visualizzazione date
+  getDateDisplayText(): string {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (this.isSameDay(this.currentDate, today)) {
+      return 'Oggi';
+    } else if (this.isSameDay(this.currentDate, yesterday)) {
+      return 'Ieri';
+    } else {
+      return this.currentDate.toLocaleDateString('it-IT', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long'
+      });
+    }
+  }
+
+  private isSameDay(date1: Date, date2: Date): boolean {
+    return date1.getDate() === date2.getDate() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getFullYear() === date2.getFullYear();
+  }
+
+  isToday(): boolean {
+    return this.isSameDay(this.currentDate, new Date());
+  }
+
+  canGoToNextDay(): boolean {
+    const tomorrow = new Date(this.currentDate);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const today = new Date();
+    return tomorrow <= today;
   }
 
   addMeal(mealType: string) {

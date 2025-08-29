@@ -15,7 +15,6 @@ import {
   IonCardSubtitle, 
   IonCardContent,
   IonItem, 
-  IonLabel, 
   IonInput, 
   IonButton, 
   IonIcon,
@@ -26,8 +25,6 @@ import {
   IonSpinner,
   IonSelect,
   IonSelectOption,
-  IonDatetime,
-  IonModal,
   ToastController,
   LoadingController
 } from '@ionic/angular/standalone';
@@ -67,7 +64,6 @@ import { AuthService } from '../../shared/services/auth.service';
     IonCardSubtitle,
     IonCardContent,
     IonItem,
-    IonLabel,
     IonInput,
     IonButton,
     IonIcon,
@@ -77,9 +73,7 @@ import { AuthService } from '../../shared/services/auth.service';
     IonText,
     IonSpinner,
     IonSelect,
-    IonSelectOption,
-    IonDatetime,
-    IonModal
+    IonSelectOption
   ]
 })
 export class RegisterPage implements OnInit {
@@ -87,7 +81,6 @@ export class RegisterPage implements OnInit {
   showPassword = false;
   showConfirmPassword = false;
   isLoading = false;
-  isDateModalOpen = false;
   maxDate = new Date().toISOString();
 
   genderOptions = [
@@ -224,24 +217,6 @@ export class RegisterPage implements OnInit {
    */
   goToLogin() {
     this.router.navigate(['/login']);
-  }
-
-  /**
-   * Apre il modal della data
-   */
-  openDateModal() {
-    this.isDateModalOpen = true;
-  }
-
-  /**
-   * Conferma la data selezionata
-   */
-  confirmDate(event: any) {
-    const selectedDate = event.detail.value;
-    const date = new Date(selectedDate);
-    const formattedDate = date.toISOString().split('T')[0];
-    this.registerForm.patchValue({ birth_date: formattedDate });
-    this.isDateModalOpen = false;
   }
 
   /**

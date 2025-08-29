@@ -10,6 +10,10 @@ export const routes: Routes = [
     path: 'register',
     loadComponent: () => import('./auth/register/register.page').then((m) => m.RegisterPage),
   },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./auth/forgot-password/forgot-password.page').then( m => m.ForgotPasswordPage)
+  },
   
   // Main app with tabs
   {
@@ -32,21 +36,22 @@ export const routes: Routes = [
     ],
   },
 
-  // Standalone pages
+  // Standalone pages (quando chiamate dall'esterno delle tabs)
   {
     path: 'scanner',
     loadComponent: () => import('./scanner/scanner.page').then((m) => m.ScannerPage),
   },
 
-  // Default redirects
+  // Default redirects - tutto porta alla dashboard principale
   {
-    path: 'home',
+    path: '',
     redirectTo: 'tabs/dashboard',
     pathMatch: 'full',
   },
+  
+  // Wildcard route - gestisce tutti i path non trovati
   {
-    path: '',
-    redirectTo: 'login',
-    pathMatch: 'full',
+    path: '**',
+    redirectTo: 'tabs/dashboard',
   },
 ];

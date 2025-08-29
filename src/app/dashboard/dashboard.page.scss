@@ -365,7 +365,7 @@ ion-content.dashboard-content {
         align-items: center;
         width: 100%;
         
-        .overlapped-progress {
+        .separated-progress {
           position: relative;
           display: flex;
           justify-content: center;
@@ -375,7 +375,7 @@ ion-content.dashboard-content {
             filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
             
             .progress-semicircle {
-              transition: stroke-dashoffset 1s ease-in-out;
+              transition: stroke-dashoffset 1.5s ease-in-out;
               
               &.consumed-outer {
                 animation: progressSemicircleConsumed 2s ease-out;
@@ -390,13 +390,13 @@ ion-content.dashboard-content {
         
         .calories-data-overlay {
           position: absolute;
-          top: 20px;
+          top: 30px;
           left: 0;
           right: 0;
           display: flex;
           justify-content: space-between;
           align-items: flex-start;
-          padding: 0 20px;
+          padding: 0 30px;
           pointer-events: none;
           
           .calories-info-box {
@@ -1768,4 +1768,73 @@ ion-content.dashboard-content {
   &.lunch { animation-delay: 0.2s; }
   &.snack { animation-delay: 0.3s; }
   &.dinner { animation-delay: 0.4s; }
+}
+
+// Stili per la navigazione temporale
+.date-navigation-controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 8px !important;
+  
+  ion-button {
+    --height: 32px !important;
+    height: 32px !important;
+    --width: 32px !important;
+    width: 32px !important;
+    
+    &[disabled] {
+      --color: #bdbdbd !important;
+      color: #bdbdbd !important;
+      opacity: 0.5 !important;
+    }
+  }
+  
+  .date-display {
+    flex: 1 !important;
+    text-align: center !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+    color: #001d35 !important;
+  }
+}
+
+.mobile-date-navigation {
+  margin-top: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  
+  ion-button {
+    --height: 36px !important;
+    height: 36px !important;
+    --width: 36px !important;
+    width: 36px !important;
+    
+    &[disabled] {
+      --color: rgba(255, 255, 255, 0.5) !important;
+      color: rgba(255, 255, 255, 0.5) !important;
+      opacity: 0.5 !important;
+    }
+  }
+  
+  .mobile-date-display {
+    flex: 1 !important;
+    text-align: center !important;
+    color: #ffffff !important;
+    font-weight: 500 !important;
+    font-size: 1rem !important;
+    padding: 0 8px !important;
+  }
+}
+
+// Transizioni smooth per cambio data
+.nutrition-card, .desktop-nutrition-card {
+  transition: all 0.3s ease-in-out !important;
+}
+
+.date-transition {
+  opacity: 0.6 !important;
+  transform: scale(0.98) !important;
 }

@@ -24,7 +24,7 @@ import {
   LoadingController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline, logoGoogle, logoApple } from 'ionicons/icons';
+import { mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
@@ -62,7 +62,7 @@ export class LoginPage implements OnInit {
     private toastController: ToastController,
     private loadingController: LoadingController
   ) {
-    addIcons({ mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline, logoGoogle, logoApple });
+    addIcons({ mailOutline, lockClosedOutline, eyeOutline, eyeOffOutline });
     
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -135,20 +135,6 @@ export class LoginPage implements OnInit {
    */
   goToForgotPassword() {
     this.router.navigate(['/forgot-password']);
-  }
-
-  /**
-   * Login con Google (placeholder)
-   */
-  async loginWithGoogle() {
-    await this.showToast('Funzionalità in arrivo!', 'medium');
-  }
-
-  /**
-   * Login con Apple (placeholder)
-   */
-  async loginWithApple() {
-    await this.showToast('Funzionalità in arrivo!', 'medium');
   }
 
   /**

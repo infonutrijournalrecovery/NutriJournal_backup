@@ -53,7 +53,40 @@
           <ion-card-header style="--background: #e8f0fe; background-color: #e8f0fe !important; --color: #001d35; color: #001d35 !important;">
             <ion-card-title style="--color: #001d35; color: #001d35 !important; font-weight: 600 !important;">
               <ion-icon name="nutrition-outline"></ion-icon>
-              Stato Nutrizionale Oggi
+              Stato Nutrizionale
+              
+              <!-- Controlli di navigazione temporale -->
+              <div class="date-navigation-controls" style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+                <ion-button 
+                  fill="clear" 
+                  size="small" 
+                  (click)="goToPreviousDay()"
+                  style="--color: #1976d2; color: #1976d2 !important;">
+                  <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+                
+                <div class="date-display" style="flex: 1; text-align: center; font-weight: 500; font-size: 0.9rem;">
+                  {{ getDateDisplayText() }}
+                </div>
+                
+                <ion-button 
+                  fill="clear" 
+                  size="small" 
+                  (click)="goToNextDay()"
+                  [disabled]="!canGoToNextDay()"
+                  style="--color: #1976d2; color: #1976d2 !important;">
+                  <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+                
+                <ion-button 
+                  *ngIf="!isToday()"
+                  fill="outline" 
+                  size="small" 
+                  (click)="goToToday()"
+                  style="--border-color: #1976d2; --color: #1976d2; border-color: #1976d2 !important; color: #1976d2 !important; font-size: 0.8rem; height: 28px;">
+                  Oggi
+                </ion-button>
+              </div>
             </ion-card-title>
           </ion-card-header>
           <ion-card-content style="--background: #ffffff; background-color: #ffffff !important; --color: #1a1c1e; color: #1a1c1e !important;">
@@ -62,48 +95,48 @@
             <div class="semicircular-calories-section">
               <div class="semicircular-progress-container">
                 
-                <!-- SVG con progress bar semicircolari sovrapposte -->
-                <div class="overlapped-progress">
-                  <svg class="semicircular-progress-overlay" width="260" height="140" viewBox="0 0 260 140">
+                <!-- SVG con progress bar semicircolari separate -->
+                <div class="separated-progress">
+                  <svg class="semicircular-progress-overlay" width="280" height="160" viewBox="0 0 280 160">
                     
                     <!-- Background semicircle per calorie consumate (esterno) -->
                     <path
-                      d="M 20 130 A 110 110 0 0 1 240 130"
+                      d="M 20 140 A 120 120 0 0 1 260 140"
                       fill="transparent"
                       stroke="#e0e0e0"
-                      stroke-width="14"
+                      stroke-width="16"
                       stroke-linecap="round"
                     />
                     
                     <!-- Progress semicircle per calorie consumate (esterno) -->
                     <path
-                      d="M 20 130 A 110 110 0 0 1 240 130"
+                      d="M 20 140 A 120 120 0 0 1 260 140"
                       fill="transparent"
                       [attr.stroke]="getCircularProgressColor(dailyStats.calories.percentage)"
-                      stroke-width="14"
+                      stroke-width="16"
                       stroke-linecap="round"
-                      [style.stroke-dasharray]="345.58"
+                      [style.stroke-dasharray]="377.0"
                       [style.stroke-dashoffset]="consumedCaloriesProgressOffset"
                       class="progress-semicircle consumed-outer"
                     />
                     
                     <!-- Background semicircle per calorie bruciate (interno) -->
                     <path
-                      d="M 45 105 A 85 85 0 0 1 215 105"
+                      d="M 55 140 A 85 85 0 0 1 225 140"
                       fill="transparent"
                       stroke="#f5f5f5"
-                      stroke-width="8"
+                      stroke-width="12"
                       stroke-linecap="round"
                     />
                     
                     <!-- Progress semicircle per calorie bruciate (interno) -->
                     <path
-                      d="M 45 105 A 85 85 0 0 1 215 105"
+                      d="M 55 140 A 85 85 0 0 1 225 140"
                       fill="transparent"
                       stroke="#ff9800"
-                      stroke-width="8"
+                      stroke-width="12"
                       stroke-linecap="round"
-                      [style.stroke-dasharray]="267.04"
+                      [style.stroke-dasharray]="267.0"
                       [style.stroke-dashoffset]="burnedCaloriesProgressOffset"
                       class="progress-semicircle burned-inner"
                     />
@@ -500,12 +533,45 @@
 
   <!-- Layout Mobile (esistente) -->
   <div *ngIf="!isDesktop" class="mobile-layout">
-    <!-- Header con benvenuto -->
+    <!-- Header con benvenuto e navigazione temporale -->
     <div class="welcome-header">
       <div class="welcome-content">
         <h1>{{ getWelcomeMessage() }}</h1>
         <p *ngIf="user">{{ user.name }}!</p>
-        <p class="welcome-subtitle">Ecco il tuo riepilogo di oggi</p>
+        <p class="welcome-subtitle">Ecco il tuo riepilogo</p>
+        
+        <!-- Controlli di navigazione temporale mobile -->
+        <div class="mobile-date-navigation" style="margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          <ion-button 
+            fill="clear" 
+            size="small" 
+            (click)="goToPreviousDay()"
+            style="--color: #ffffff; color: #ffffff !important;">
+            <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          
+          <div class="mobile-date-display" style="flex: 1; text-align: center; color: #ffffff; font-weight: 500; font-size: 1rem; padding: 0 8px;">
+            {{ getDateDisplayText() }}
+          </div>
+          
+          <ion-button 
+            fill="clear" 
+            size="small" 
+            (click)="goToNextDay()"
+            [disabled]="!canGoToNextDay()"
+            style="--color: #ffffff; color: #ffffff !important;">
+            <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+        
+        <ion-button 
+          *ngIf="!isToday()"
+          fill="outline" 
+          size="small" 
+          (click)="goToToday()"
+          style="margin-top: 12px; --border-color: #ffffff; --color: #ffffff; border-color: #ffffff !important; color: #ffffff !important; font-size: 0.9rem;">
+          Torna a Oggi
+        </ion-button>
       </div>
     </div>
 

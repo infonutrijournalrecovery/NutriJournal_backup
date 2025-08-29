@@ -105,41 +105,23 @@
             <h3 class="section-title">Dati Fisici</h3>
             
             <!-- Data di nascita -->
-            <ion-item class="input-item" [class.error]="hasFieldError('birth_date')" button (click)="openDateModal()">
+            <ion-item class="input-item" [class.error]="hasFieldError('birth_date')">
               <ion-icon slot="start" name="calendar-outline"></ion-icon>
-              <ion-label>
-                <span *ngIf="!registerForm.get('birth_date')?.value" class="placeholder">Data di nascita</span>
-                <span *ngIf="registerForm.get('birth_date')?.value">
-                  {{ formatDisplayDate(registerForm.get('birth_date')?.value) }}
-                  <small *ngIf="registerForm.get('birth_date')?.value"> 
-                    ({{ calculateAge(registerForm.get('birth_date')?.value) }} anni)
-                  </small>
-                </span>
-              </ion-label>
+              <ion-input
+                formControlName="birth_date"
+                type="date"
+                placeholder="Data di nascita"
+                [max]="maxDate.split('T')[0]"
+                min="1920-01-01"
+                class="date-input">
+              </ion-input>
+              <div slot="end" *ngIf="registerForm.get('birth_date')?.value" class="age-display">
+                {{ calculateAge(registerForm.get('birth_date')?.value) }} anni
+              </div>
             </ion-item>
             <div class="error-message" *ngIf="hasFieldError('birth_date')">
               {{ getFieldError('birth_date') }}
             </div>
-
-            <!-- Modal per data -->
-            <ion-modal [isOpen]="isDateModalOpen" (didDismiss)="isDateModalOpen = false">
-              <ion-header>
-                <ion-toolbar>
-                  <ion-title>Seleziona Data di Nascita</ion-title>
-                  <ion-buttons slot="end">
-                    <ion-button (click)="isDateModalOpen = false">Chiudi</ion-button>
-                  </ion-buttons>
-                </ion-toolbar>
-              </ion-header>
-              <ion-content>
-                <ion-datetime
-                  [max]="maxDate"
-                  [min]="'1920-01-01'"
-                  presentation="date"
-                  (ionChange)="confirmDate($event)">
-                </ion-datetime>
-              </ion-content>
-            </ion-modal>
 
             <!-- Genere -->
             <ion-item class="input-item" [class.error]="hasFieldError('gender')">
