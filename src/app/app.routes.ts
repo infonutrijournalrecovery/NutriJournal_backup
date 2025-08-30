@@ -22,6 +22,30 @@ export const routes: Routes = [
     path: 'scanner',
     loadComponent: () => import('./scanner/scanner.page').then((m) => m.ScannerPage),
   },
+  {
+    path: 'profile',
+    loadComponent: () => import('./profile/profile.page').then((m) => m.ProfilePage),
+  },
+  {
+    path: 'profile/change-password',
+    loadComponent: () => import('./profile/change-password/change-password.page').then((m) => m.ChangePasswordPage),
+  },
+  {
+    path: 'profile/edit-personal',
+    loadComponent: () => import('./profile/edit-personal/edit-personal.page').then((m) => m.EditPersonalPage),
+  },
+  {
+    path: 'profile/view-goals',
+    loadComponent: () => import('./profile/view-goals/view-goals.page').then((m) => m.ViewGoalsPage),
+  },
+  {
+    path: 'meal/add',
+    loadComponent: () => import('./meal-tracking/add-meal/add-meal.page').then((m) => m.AddMealPage),
+  },
+  {
+    path: 'meal/edit/:id',
+    loadComponent: () => import('./meal-tracking/add-meal/add-meal.page').then((m) => m.AddMealPage),
+  },
   
   // Main app with tabs
   {

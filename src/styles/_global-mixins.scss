@@ -1,0 +1,83 @@
+// ===================================
+// NUTRIJOURNAL - GLOBAL MIXINS
+// Sistema mixins mantenendo stili identici esistenti
+// ===================================
+
+@use 'global-variables' as *;
+
+// === GRADIENT MIXINS ===
+@mixin app-gradient-primary {
+  background: $app-gradient;
+}
+
+@mixin app-gradient-card {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+// === CARD MIXINS ===
+@mixin app-card-base {
+  background: $app-white;
+  border-radius: $app-radius-lg;
+  box-shadow: $app-shadow-light;
+}
+
+@mixin app-card-elevated {
+  background: $app-white;
+  border-radius: $app-radius-lg;
+  box-shadow: $app-shadow-medium;
+}
+
+// === BUTTON MIXINS ===
+@mixin app-button-primary {
+  background: $app-gradient;
+  color: $app-white;
+  border-radius: $app-radius-md;
+  padding: $app-spacing-md $app-spacing-xl;
+}
+
+@mixin app-button-secondary {
+  background: $app-white;
+  color: $app-primary;
+  border: 1px solid $app-primary;
+  border-radius: $app-radius-md;
+  padding: $app-spacing-md $app-spacing-xl;
+}
+
+// === RESPONSIVE MIXINS ===
+@mixin mobile-only {
+  @media (max-width: #{$app-mobile - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: #{$app-mobile}) {
+    @content;
+  }
+}
+
+@mixin desktop-up {
+  @media (min-width: #{$app-desktop}) {
+    @content;
+  }
+}
+
+// === IONIC OVERRIDE MIXINS ===
+@mixin ionic-override-content($bg-color: $app-gray-light) {
+  --background: #{$bg-color} !important;
+  background-color: #{$bg-color} !important;
+}
+
+@mixin ionic-override-card($bg-color: $app-white, $text-color: $app-gray-dark) {
+  --background: #{$bg-color} !important;
+  background-color: #{$bg-color} !important;
+  --color: #{$text-color} !important;
+  color: #{$text-color} !important;
+}
+
+@mixin ionic-override-header($bg-color: $app-gray-medium, $text-color: $app-gray-darker) {
+  --background: #{$bg-color} !important;
+  background-color: #{$bg-color} !important;
+  --color: #{$text-color} !important;
+  color: #{$text-color} !important;
+}

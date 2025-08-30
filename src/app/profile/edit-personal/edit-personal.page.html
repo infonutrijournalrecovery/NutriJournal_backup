@@ -1,0 +1,374 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Modifica Dati Personali</ion-title>
+    <ion-buttons slot="end">
+      <ion-button 
+        fill="clear" 
+        [disabled]="!hasChanges() || isSaving"
+        (click)="saveChanges()">
+        <ion-icon name="checkmark-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="dots"></ion-spinner>
+    <p>Caricamento dati...</p>
+  </div>
+
+  <!-- Form Container -->
+  <div class="edit-personal-container" *ngIf="!isLoading">
+    
+    <!-- Informazioni Personali -->
+    <ion-card class="section-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="person-outline"></ion-icon>
+          Informazioni Personali
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <form #personalForm="ngForm">
+          
+          <!-- Nome -->
+          <ion-item class="form-item">
+            <ion-label position="stacked">Nome *</ion-label>
+            <ion-input
+              name="firstName"
+              type="text"
+              [(ngModel)]="formData.firstName"
+              #firstName="ngModel"
+              required
+              placeholder="Inserisci il tuo nome"
+              (ionInput)="markAsChanged()">
+            </ion-input>
+          </ion-item>
+          <div *ngIf="firstName.invalid && firstName.touched" class="error-message">
+            Il nome è obbligatorio
+          </div>
+
+          <!-- Cognome -->
+          <ion-item class="form-item">
+            <ion-label position="stacked">Cognome *</ion-label>
+            <ion-input
+              name="lastName"
+              type="text"
+              [(ngModel)]="formData.lastName"
+              #lastName="ngModel"
+              required
+              placeholder="Inserisci il tuo cognome"
+              (ionInput)="markAsChanged()">
+            </ion-input>
+          </ion-item>
+          <div *ngIf="lastName.invalid && lastName.touched" class="error-message">
+            Il cognome è obbligatorio
+          </div>
+
+          <!-- Email -->
+          <ion-item class="form-item">
+            <ion-label position="stacked">Email *</ion-label>
+            <ion-input
+              name="email"
+              type="email"
+              [(ngModel)]="formData.email"
+              #email="ngModel"
+              required
+              email
+              placeholder="Inserisci la tua email"
+              (ionInput)="markAsChanged()">
+            </ion-input>
+          </ion-item>
+          <div *ngIf="email.invalid && email.touched" class="error-message">
+            <span *ngIf="email.errors?.['required']">L'email è obbligatoria</span>
+            <span *ngIf="email.errors?.['email']">Formato email non valido</span>
+          </div>
+
+          <!-- Data di Nascita -->
+          <ion-item class="form-item">
+            <ion-label position="stacked">Data di Nascita *</ion-label>
+            <ion-datetime
+              name="birthDate"
+              presentation="date"
+              [(ngModel)]="formData.birthDate"
+              #birthDate="ngModel"
+              required
+              [max]="maxDate"
+              [min]="minDate"
+              (ionChange)="markAsChanged()">
+            </ion-datetime>
+          </ion-item>
+
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Dati Fisici -->
+    <ion-card class="section-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="fitness-outline"></ion-icon>
+          Dati Fisici
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        <form #physicalForm="ngForm">
+          
+          <!-- Genere -->
+          <ion-item class="form-item">
+            <ion-label position="stacked">Genere</ion-label>
+            <ion-select
+              name="gender"
+              [(ngModel)]="formData.gender"
+              placeholder="Seleziona genere"
+              (ionChange)="markAsChanged()">
+              <ion-select-option value="male">Maschio</ion-select-option>
+              <ion-select-option value="female">Femmina</ion-select-option>
+              <ion-select-option value="other">Altro</ion-select-option>
+              <ion-select-option value="prefer_not_to_say">Preferisco non dirlo</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <!-- Altezza -->
+          <ion-item class="form-item">
+            <ion-label position="stacked">Altezza (cm)</ion-label>
+            <ion-input
+              name="height"
+              type="number"
+              [(ngModel)]="formData.height"
+              min="100"
+              max="250"
+              placeholder="Es. 175"
+              (ionInput)="markAsChanged()">
+            </ion-input>
+          </ion-item>
+
+          <!-- Peso -->
+          <ion-item class="form-item">
+            <ion-label position="stacked">Peso (kg)</ion-label>
+            <ion-input
+              name="weight"
+              type="number"
+              [(ngModel)]="formData.weight"
+              min="30"
+              max="300"
+              step="0.1"
+              placeholder="Es. 70.5"
+              (ionInput)="markAsChanged()">
+            </ion-input>
+          </ion-item>
+
+          <!-- Livello di Attività -->
+          <ion-item class="form-item">
+            <ion-label position="stacked">Livello di Attività</ion-label>
+            <ion-select
+              name="activityLevel"
+              [(ngModel)]="formData.activityLevel"
+              placeholder="Seleziona livello"
+              (ionChange)="markAsChanged()">
+              <ion-select-option value="sedentary">Sedentario</ion-select-option>
+              <ion-select-option value="light">Leggero</ion-select-option>
+              <ion-select-option value="moderate">Moderato</ion-select-option>
+              <ion-select-option value="active">Attivo</ion-select-option>
+              <ion-select-option value="very_active">Molto Attivo</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Allergeni e Additivi -->
+    <ion-card class="section-card allergies-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="warning-outline" color="warning"></ion-icon>
+          Allergeni e Additivi
+        </ion-card-title>
+        <ion-card-subtitle>
+          Gestisci le tue allergie e sensibilità per ricevere avvisi di sicurezza
+        </ion-card-subtitle>
+      </ion-card-header>
+      
+      <ion-card-content>
+        
+        <!-- Allergeni Section -->
+        <div class="allergens-section">
+          <div class="section-header">
+            <h3>
+              <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+              Allergeni
+            </h3>
+            <ion-button 
+              fill="outline" 
+              size="small"
+              (click)="addAllergy()">
+              <ion-icon name="add-outline"></ion-icon>
+              Aggiungi
+            </ion-button>
+          </div>
+          
+          <div class="allergies-list" *ngIf="formData.allergies && formData.allergies.length > 0">
+            <div 
+              class="allergy-item" 
+              *ngFor="let allergy of formData.allergies; let i = index">
+              <div class="allergy-info">
+                <ion-chip [color]="getAllergySeverityColor(allergy.severity)">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  <ion-label>{{ allergy.allergen_name }}</ion-label>
+                </ion-chip>
+                <span class="severity-label">{{ getSeverityLabel(allergy.severity) }}</span>
+              </div>
+              <div class="allergy-actions">
+                <ion-button 
+                  fill="clear" 
+                  size="small"
+                  (click)="editAllergy(i)">
+                  <ion-icon name="create-outline"></ion-icon>
+                </ion-button>
+                <ion-button 
+                  fill="clear" 
+                  size="small"
+                  color="danger"
+                  (click)="removeAllergy(i)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="empty-state" *ngIf="!formData.allergies || formData.allergies.length === 0">
+            <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            <p>Nessun allergene registrato</p>
+          </div>
+        </div>
+
+        <!-- Additivi Section -->
+        <div class="additives-section">
+          <div class="section-header">
+            <h3>
+              <ion-icon name="flask-outline" color="warning"></ion-icon>
+              Additivi Sensibili
+            </h3>
+            <ion-button 
+              fill="outline" 
+              size="small"
+              (click)="addAdditive()">
+              <ion-icon name="add-outline"></ion-icon>
+              Aggiungi
+            </ion-button>
+          </div>
+          
+          <div class="additives-list" *ngIf="formData.additives_sensitivity && formData.additives_sensitivity.length > 0">
+            <div 
+              class="additive-item" 
+              *ngFor="let additive of formData.additives_sensitivity; let i = index">
+              <div class="additive-info">
+                <ion-chip [color]="getAdditiveSensitivityColor(additive.sensitivity_level)">
+                  <ion-icon name="flask-outline"></ion-icon>
+                  <ion-label>{{ additive.additive_name }}</ion-label>
+                </ion-chip>
+                <span class="sensitivity-label">{{ getSensitivityLabel(additive.sensitivity_level) }}</span>
+              </div>
+              <div class="additive-actions">
+                <ion-button 
+                  fill="clear" 
+                  size="small"
+                  (click)="editAdditive(i)">
+                  <ion-icon name="create-outline"></ion-icon>
+                </ion-button>
+                <ion-button 
+                  fill="clear" 
+                  size="small"
+                  color="danger"
+                  (click)="removeAdditive(i)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="empty-state" *ngIf="!formData.additives_sensitivity || formData.additives_sensitivity.length === 0">
+            <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+            <p>Nessun additivo sensibile registrato</p>
+          </div>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Preferenze -->
+    <ion-card class="section-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="settings-outline"></ion-icon>
+          Preferenze
+        </ion-card-title>
+      </ion-card-header>
+      
+      <ion-card-content>
+        
+        <!-- Notifiche -->
+        <ion-item class="toggle-item">
+          <ion-icon name="notifications-outline" slot="start" color="primary"></ion-icon>
+          <ion-label>
+            <h3>Notifiche</h3>
+            <p>Ricevi promemoria e aggiornamenti</p>
+          </ion-label>
+          <ion-toggle
+            [(ngModel)]="formData.preferences.notifications"
+            (ionChange)="markAsChanged()">
+          </ion-toggle>
+        </ion-item>
+
+        <!-- Modalità Scura -->
+        <ion-item class="toggle-item">
+          <ion-icon name="moon-outline" slot="start" color="medium"></ion-icon>
+          <ion-label>
+            <h3>Modalità Scura</h3>
+            <p>Tema scuro per l'interfaccia</p>
+          </ion-label>
+          <ion-toggle
+            [(ngModel)]="formData.preferences.darkMode"
+            (ionChange)="markAsChanged(); toggleDarkMode($event)">
+          </ion-toggle>
+        </ion-item>
+
+        <!-- Unità di Misura -->
+        <ion-item class="form-item">
+          <ion-label position="stacked">Unità di Misura</ion-label>
+          <ion-select
+            name="units"
+            [(ngModel)]="formData.preferences.units"
+            (ionChange)="markAsChanged()">
+            <ion-select-option value="metric">Metrico (kg, cm)</ion-select-option>
+            <ion-select-option value="imperial">Imperiale (lb, ft)</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Save Button -->
+    <div class="save-section">
+      <ion-button
+        expand="block"
+        size="large"
+        [disabled]="!hasChanges() || isSaving"
+        (click)="saveChanges()">
+        <ion-spinner *ngIf="isSaving" name="dots"></ion-spinner>
+        <ion-icon *ngIf="!isSaving" name="checkmark-outline"></ion-icon>
+        <span *ngIf="!isSaving">Salva Modifiche</span>
+        <span *ngIf="isSaving">Salvataggio...</span>
+      </ion-button>
+    </div>
+
+  </div>
+</ion-content>

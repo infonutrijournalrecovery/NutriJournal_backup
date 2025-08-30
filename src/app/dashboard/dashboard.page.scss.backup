@@ -2,53 +2,46 @@
 // Responsive design: Mobile + Desktop
 // OVERRIDE FORCATO DEI COLORI IONIC
 
-@use 'dashboard-variables' as *;
-
 // Override globale e immediato
 * {
   color: inherit !important;
 }
 
 ion-content {
-  --background: #{$dashboard-bg} !important;
-  background-color: #{$dashboard-bg} !important;
+  --background: #f8f9fb !important;
+  background-color: #f8f9fb !important;
 }
 
 ion-card {
-  --background: #{$dashboard-card-bg} !important;
-  background-color: #{$dashboard-card-bg} !important;
-  background: #{$dashboard-card-bg} !important;
-  --color: #{$dashboard-text-primary} !important;
-  color: #{$dashboard-text-primary} !important;
-  box-shadow: #{$dashboard-card-shadow} !important;
-  border-radius: #{$dashboard-card-radius} !important;
+  --background: #ffffff !important;
+  background-color: #ffffff !important;
+  --color: #1a1c1e !important;
+  color: #1a1c1e !important;
 }
 
 ion-card-header {
-  --background: #{$dashboard-header-bg} !important;
-  background-color: #{$dashboard-header-bg} !important;
-  background: #{$dashboard-header-bg} !important;
-  --color: #{$dashboard-text-header} !important;
-  color: #{$dashboard-text-header} !important;
-  font-weight: 600 !important;
+  --background: #e8f0fe !important;
+  background-color: #e8f0fe !important;
+  --color: #001d35 !important;
+  color: #001d35 !important;
 }
 
 ion-card-title {
-  --color: #{$dashboard-text-header} !important;
-  color: #{$dashboard-text-header} !important;
+  --color: #001d35 !important;
+  color: #001d35 !important;
   font-weight: 600 !important;
 }
 
 ion-card-content {
-  --background: #{$dashboard-card-bg} !important;
-  background-color: #{$dashboard-card-bg} !important;
-  --color: #{$dashboard-text-primary} !important;
-  color: #{$dashboard-text-primary} !important;
+  --background: #ffffff !important;
+  background-color: #ffffff !important;
+  --color: #1a1c1e !important;
+  color: #1a1c1e !important;
 }
 
 ion-button {
-  --color: #{$dashboard-button-text} !important;
-  color: #{$dashboard-button-text} !important;
+  --color: white !important;
+  color: white !important;
 }
 
 // Variabili per il tema Material Design con colori diretti
@@ -62,29 +55,46 @@ ion-button {
   --desktop-content-padding: 2rem;
   
   // Material Design Colors - Colori diretti
-  --md-surface: #{$dashboard-card-bg};
-  --md-surface-variant: #{$dashboard-bg};
-  --md-on-surface: #{$dashboard-text-primary};
+  --md-surface: #ffffff;
+  --md-surface-variant: #f8f9fb;
+  --md-on-surface: #1a1c1e;
   --md-on-surface-variant: #44474a;
   --md-outline: #e0e3e7;
   --md-shadow: rgba(0, 0, 0, 0.12);
-  --md-primary-container: #{$dashboard-header-bg};
+  --md-primary-container: #e8f0fe;
   --md-on-primary-container: #001d35;
 }
 
-// Override forcato degli stili Ionic eliminato - unito con definizione principale
+// Override forcato degli stili Ionic
+ion-content {
+  --background: #f8f9fb !important;
+}
+
+ion-card {
+  --background: #ffffff !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 16px !important;
+}
+
+ion-card-header {
+  --background: #e8f0fe !important;
+  background: #e8f0fe !important;
+  --color: #001d35 !important;
+  color: #001d35 !important;
+}
 
 ion-card-content {
-  --background: #{$dashboard-card-bg} !important;
-  background: #{$dashboard-card-bg} !important;
-  --color: #{$dashboard-text-primary} !important;
-  color: #{$dashboard-text-primary} !important;
+  --background: #ffffff !important;
+  background: #ffffff !important;
+  --color: #1a1c1e !important;
+  color: #1a1c1e !important;
 }
 
 // Content principale con colori diretti
 .dashboard-content {
-  --background: #{$dashboard-bg} !important;
-  background: #{$dashboard-bg} !important;
+  --background: #f8f9fb !important;
+  background: #f8f9fb !important;
   
   // Layout specifico per dispositivo
   &.desktop {
@@ -94,20 +104,20 @@ ion-card-content {
   }
   
   &.tablet {
-    --background: #{$dashboard-bg} !important;
-    background: #{$dashboard-bg} !important;
+    --background: #f8f9fb !important;
+    background: #f8f9fb !important;
   }
   
   &.mobile {
-    --background: #{$dashboard-bg} !important;
-    background: #{$dashboard-bg} !important;
+    --background: #f8f9fb !important;
+    background: #f8f9fb !important;
   }
 }
 
 // Override degli stili Ionic di base
 ion-content.dashboard-content {
-  --background: #{$dashboard-bg} !important;
-  background: #{$dashboard-bg} !important;
+  --background: #f8f9fb !important;
+  background: #f8f9fb !important;
   
   &.desktop {
     --background: #efefef!important;  // Colore di sfondo del desktop
@@ -191,8 +201,8 @@ ion-content.dashboard-content {
     .stat-card {
       text-align: center;
       background: rgba(255, 255, 255, 0.2);
-      padding: #{$dashboard-padding-large};
-      border-radius: #{$dashboard-radius-large};
+      padding: 1.5rem;
+      border-radius: 16px;
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.3);
       min-width: 140px;
@@ -249,16 +259,16 @@ ion-content.dashboard-content {
 
 // Quick Actions Desktop con colori diretti
 .desktop-quick-actions {
-  --background: #{$dashboard-card-bg} !important;
-  background: #{$dashboard-card-bg} !important;
-  box-shadow: #{$dashboard-card-shadow} !important;
-  border-radius: #{$dashboard-radius-large} !important;
+  --background: #ffffff !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 16px !important;
   
   ion-card-header {
-    --background: #{$dashboard-header-bg} !important;
-    background: #{$dashboard-header-bg} !important;
-    --color: #{$dashboard-text-header} !important;
-    color: #{$dashboard-text-header} !important;
+    --background: #e8f0fe !important;
+    background: #e8f0fe !important;
+    --color: #001d35 !important;
+    color: #001d35 !important;
   }
   
   .desktop-actions-grid {
@@ -317,7 +327,7 @@ ion-content.dashboard-content {
     --background: var(--md-primary-container) !important;
     color: var(--md-on-primary-container) !important;
     --color: var(--md-on-primary-container) !important;
-    padding: #{$dashboard-padding-large} !important;
+    padding: 1.5rem !important;
     height: 70px;
     
     ion-card-title {
@@ -337,7 +347,7 @@ ion-content.dashboard-content {
   }
   
   ion-card-content {
-    padding: #{$dashboard-padding-xl};
+    padding: 2rem;
   }
   
   // ===== NUOVI STILI PER SEZIONE NUTRIZIONALE MODERNA =====
@@ -600,13 +610,13 @@ ion-content.dashboard-content {
   .desktop-calories-display {
     text-align: center;
     margin-bottom: 2.5rem;
-    padding: #{$dashboard-padding-xl};
+    padding: 2rem;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 12px;
     border: 1px solid var(--md-outline);
     
     .calories-info {
-      font-size: #{$dashboard-font-xl};
+      font-size: 2.5rem;
       font-weight: 300;
       margin-bottom: 1.5rem;
       color: var(--md-on-surface);

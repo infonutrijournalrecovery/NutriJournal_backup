@@ -23,6 +23,7 @@ import {
   IonProgressBar,
   IonFab,
   IonFabButton,
+  IonFabList,
   IonRefresher,
   IonRefresherContent,
   IonSegment,
@@ -51,8 +52,7 @@ import {
   moonOutline,
   chevronBackOutline,
   chevronForwardOutline,
-  calendarOutline
-} from 'ionicons/icons';
+  calendarOutline, wineOutline, fastFoodOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
 // Commentiamo temporaneamente questi import per far funzionare l'app
@@ -71,9 +71,6 @@ import { User, DailyNutrition, Meal, Activity } from '../shared/interfaces/types
     FormsModule,
     RouterModule,
     IonContent,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonCard,
     IonCardHeader,
     IonCardTitle,
@@ -89,6 +86,7 @@ import { User, DailyNutrition, Meal, Activity } from '../shared/interfaces/types
     IonProgressBar,
     IonFab,
     IonFabButton,
+    IonFabList,
     IonRefresher,
     IonRefresherContent,
     IonSegment,
@@ -228,28 +226,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private router: Router
   ) {
-    addIcons({
-      personOutline,
-      nutritionOutline,
-      fitnessOutline,
-      restaurantOutline,
-      waterOutline,
-      cafeOutline,
-      addOutline,
-      pizzaOutline,
-      moonOutline,
-      trendingUpOutline,
-      flameOutline,
-      timeOutline,
-      checkmarkCircleOutline,
-      alertCircleOutline,
-      statsChartOutline,
-      refreshOutline,
-      scanOutline,
-      chevronBackOutline,
-      chevronForwardOutline,
-      calendarOutline
-    });
+    addIcons({personOutline,nutritionOutline,chevronBackOutline,chevronForwardOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,flameOutline,wineOutline,fastFoodOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,calendarOutline});
   }
 
   ngOnInit() {
@@ -623,56 +600,49 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   addMeal(mealType: string) {
-    // TODO: Implementare aggiunta pasto per tipo specifico
-    console.log(`Aggiungendo pasto: ${mealType}`);
-    
-    // Simuliamo l'aggiunta di alcuni valori nutrizionali per demo
-    const mealKey = mealType as 'breakfast' | 'lunch' | 'snack' | 'dinner';
-    
-    // Valori nutrizionali simulati basati sul tipo di pasto
-    let calories = 0, carbs = 0, proteins = 0, fats = 0;
+    // Converti il mealType dal formato inglese a quello italiano
+    let italianMealType: string;
     
     switch (mealType) {
       case 'breakfast':
-        calories = 350; carbs = 45; proteins = 15; fats = 12;
-        this.mealStats.breakfast.foods.push({ name: 'Colazione esempio', calories });
+        italianMealType = 'Colazione';
         break;
       case 'lunch':
-        calories = 600; carbs = 70; proteins = 35; fats = 20;
-        this.mealStats.lunch.foods.push({ name: 'Pranzo esempio', calories });
+        italianMealType = 'Pranzo';
         break;
       case 'snack':
-        calories = 200; carbs = 25; proteins = 8; fats = 8;
-        this.mealStats.snack.foods.push({ name: 'Spuntino esempio', calories });
+        italianMealType = 'Spuntini';
         break;
       case 'dinner':
-        calories = 500; carbs = 40; proteins = 40; fats = 18;
-        this.mealStats.dinner.foods.push({ name: 'Cena esempio', calories });
+        italianMealType = 'Cena';
         break;
+      default:
+        italianMealType = 'Colazione';
     }
     
-    // Aggiorna i valori del pasto
-    this.mealStats[mealKey].calories.consumed += calories;
-    this.mealStats[mealKey].carbs.consumed += carbs;
-    this.mealStats[mealKey].proteins.consumed += proteins;
-    this.mealStats[mealKey].fats.consumed += fats;
-    
-    // Ricalcola le percentuali
-    this.updateMealPercentages(mealKey);
-    
-    // Aggiorna anche i totali giornalieri
-    this.dailyStats.calories.consumed += calories;
-    this.dailyStats.carbs.consumed += carbs;
-    this.dailyStats.proteins.consumed += proteins;
-    this.dailyStats.fats.consumed += fats;
-    this.updateNutritionPercentages();
-    
-    this.showToast(`${this.getMealName(mealType)} aggiunta! +${calories} kcal`, 'success');
+    // Naviga alla pagina di aggiunta pasto con parametri
+    this.router.navigate(['/meal/add'], {
+      queryParams: {
+        type: italianMealType,
+        date: new Date().toISOString().split('T')[0] // Data corrente
+      }
+    });
   }
 
   // Metodo helper per ottenere i dati di un pasto specifico
   getMealStats(mealType: 'breakfast' | 'lunch' | 'snack' | 'dinner') {
     return this.mealStats[mealType];
+  }
+
+  /**
+   * Apre la pagina di aggiunta pasto generale senza tipo preselezionato
+   */
+  openGeneralMealAdd() {
+    this.router.navigate(['/meal/add'], {
+      queryParams: {
+        date: new Date().toISOString().split('T')[0] // Data corrente
+      }
+    });
   }
 
   // Metodo helper per ottenere l'icona del pasto

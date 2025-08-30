@@ -1,0 +1,273 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="getBackRoute()" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      {{ isEditing ? 'Modifica' : 'Aggiungi' }} {{ selectedMealType || 'Pasto' }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button 
+        [disabled]="mealItems.length === 0 || isSaving" 
+        (click)="saveMeal()"
+        color="light">
+        <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="add-meal-content">
+  
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner color="primary"></ion-spinner>
+    <p>Caricamento...</p>
+  </div>
+
+  <!-- Main content -->
+  <div *ngIf="!isLoading" class="meal-container">
+    
+    <!-- Date and Meal Type Selection -->
+    <ion-card class="meal-config-card">
+      <ion-card-content>
+        <div class="config-row">
+          <!-- Date Selection -->
+          <div class="date-section">
+            <ion-label>
+              <h3>Data</h3>
+            </ion-label>
+            <ion-button 
+              fill="outline" 
+              (click)="openDatePicker()"
+              class="date-button">
+              <ion-icon name="calendar-outline" slot="start"></ion-icon>
+              {{ formatDate(selectedDate) }}
+            </ion-button>
+          </div>
+          
+          <!-- Meal Type Selection -->
+          <div class="meal-type-section">
+            <ion-label>
+              <h3>Tipo Pasto</h3>
+            </ion-label>
+            <ion-button 
+              fill="outline" 
+              (click)="openMealTypeSelector()"
+              class="meal-type-button"
+              [color]="selectedMealType ? 'primary' : 'medium'">
+              <ion-icon [name]="getMealTypeIcon()" slot="start"></ion-icon>
+              {{ selectedMealType || 'Seleziona tipo' }}
+            </ion-button>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Current Meal Items -->
+    <ion-card *ngIf="mealItems.length > 0" class="current-meal-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="restaurant-outline"></ion-icon>
+          Prodotti Aggiunti ({{ mealItems.length }})
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list lines="none">
+          <ion-item-sliding *ngFor="let item of mealItems; trackBy: trackByItemId">
+            <ion-item>
+              <ion-thumbnail slot="start" *ngIf="item.imageUrl">
+                <img [src]="item.imageUrl" [alt]="item.productName">
+              </ion-thumbnail>
+              <ion-icon 
+                *ngIf="!item.imageUrl" 
+                slot="start" 
+                [name]="getCategoryIcon(item.category)"
+                color="medium"
+                size="large">
+              </ion-icon>
+              
+              <ion-label>
+                <h3>{{ item.productName }}</h3>
+                <p *ngIf="item.productBrand">{{ item.productBrand }}</p>
+                <p class="quantity-info">
+                  {{ item.quantity }} {{ item.unit }} • 
+                  <span class="calories">{{ Math.round(item.totalNutrition.calories) }} kcal</span>
+                </p>
+              </ion-label>
+              
+              <ion-button 
+                slot="end" 
+                fill="clear" 
+                size="small"
+                (click)="editItemQuantity(item)">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+            
+            <ion-item-options slot="end">
+              <ion-item-option color="danger" (click)="removeItem(item)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+        
+        <!-- Nutrition Summary -->
+        <div class="nutrition-summary">
+          <h4>Totale Pasto</h4>
+          <div class="nutrition-grid">
+            <div class="nutrition-item calories">
+              <span class="value">{{ getTotalCalories() }}</span>
+              <span class="unit">kcal</span>
+            </div>
+            <div class="nutrition-item proteins">
+              <span class="value">{{ getTotalProteins() }}</span>
+              <span class="unit">g proteine</span>
+            </div>
+            <div class="nutrition-item carbs">
+              <span class="value">{{ getTotalCarbs() }}</span>
+              <span class="unit">g carboidrati</span>
+            </div>
+            <div class="nutrition-item fats">
+              <span class="value">{{ getTotalFats() }}</span>
+              <span class="unit">g grassi</span>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Add Products Section -->
+    <ion-card class="add-products-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Aggiungi Prodotti
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="add-methods">
+          
+          <!-- Search Products -->
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            class="add-method-button"
+            (click)="openSearchModal()">
+            <ion-icon name="search-outline" slot="start"></ion-icon>
+            Cerca Prodotti
+          </ion-button>
+          
+          <!-- Pantry -->
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            class="add-method-button"
+            (click)="openPantryModal()">
+            <ion-icon name="home-outline" slot="start"></ion-icon>
+            Dalla Dispensa
+          </ion-button>
+          
+          <!-- Scan Barcode -->
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            class="add-method-button"
+            (click)="openBarcodeScanner()">
+            <ion-icon name="camera-outline" slot="start"></ion-icon>
+            Scansiona Codice
+          </ion-button>
+          
+          <!-- Recent Products -->
+          <ion-button 
+            expand="block" 
+            fill="outline" 
+            class="add-method-button"
+            (click)="openRecentModal()">
+            <ion-icon name="time-outline" slot="start"></ion-icon>
+            Prodotti Recenti
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Empty State -->
+    <div *ngIf="mealItems.length === 0" class="empty-state">
+      <ion-icon name="restaurant" color="medium"></ion-icon>
+      <h3>Nessun prodotto aggiunto</h3>
+      <p>Inizia aggiungendo i prodotti che hai consumato usando uno dei metodi sopra.</p>
+    </div>
+  </div>
+
+  <!-- Date Picker Modal -->
+  <ion-modal #dateModal [isOpen]="showDatePicker" (didDismiss)="showDatePicker = false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Seleziona Data</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeDatePicker()">Chiudi</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-datetime
+          #datetime
+          [value]="selectedDate"
+          presentation="date"
+          [max]="today"
+          (ionChange)="onDateChange($event)">
+        </ion-datetime>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Meal Type Selector Modal -->
+  <ion-modal #mealTypeModal [isOpen]="showMealTypeSelector" (didDismiss)="showMealTypeSelector = false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Seleziona Tipo Pasto</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeMealTypeSelector()">Chiudi</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <ion-list>
+          <ion-item 
+            *ngFor="let type of mealTypes" 
+            button 
+            (click)="selectMealType(type)">
+            <ion-icon [name]="getMealTypeIcon(type)" slot="start"></ion-icon>
+            <ion-label>{{ type }}</ion-label>
+            <ion-radio 
+              slot="end" 
+              [value]="type">
+            </ion-radio>
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+</ion-content>
+
+<!-- Floating Action Button for Quick Add -->
+<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab-button color="primary" (click)="openQuickAddMenu()">
+    <ion-icon name="add"></ion-icon>
+  </ion-fab-button>
+  <ion-fab-list side="top">
+    <ion-fab-button color="secondary" (click)="openSearchModal()">
+      <ion-icon name="search-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button color="tertiary" (click)="openBarcodeScanner()">
+      <ion-icon name="camera-outline"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button color="success" (click)="openPantryModal()">
+      <ion-icon name="home-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab-list>
+</ion-fab>

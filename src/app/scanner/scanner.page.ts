@@ -91,8 +91,6 @@ interface UserPreferences {
     IonToolbar,
     IonButtons,
     IonBackButton,
-    IonFab,
-    IonFabButton,
     IonIcon,
     IonCard,
     IonCardHeader,
@@ -102,14 +100,9 @@ interface UserPreferences {
     IonLabel,
     IonInput,
     IonButton,
-    IonSearchbar,
-    IonList,
     IonAvatar,
-    IonBadge,
     IonChip,
-    IonProgressBar,
     IonSpinner,
-    IonAlert,
     IonModal
   ]
 })

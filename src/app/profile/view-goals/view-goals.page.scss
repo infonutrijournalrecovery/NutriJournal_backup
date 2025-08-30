@@ -1,0 +1,914 @@
+@use '../../styles/profile-variables' as profile;
+
+// Desktop Layout Styles
+.desktop-layout {
+  --background: #f8f9fb;
+  background: var(--background);
+}
+
+.desktop-goals-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.desktop-goals-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-tint));
+  border-radius: 16px;
+  color: white;
+
+  .header-content {
+    h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .header-subtitle {
+      margin: 0;
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .header-actions {
+    ion-button {
+      --color: white;
+      --border-color: rgba(255, 255, 255, 0.5);
+      --background: rgba(255, 255, 255, 0.1);
+      
+      &:hover {
+        --background: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+}
+
+.desktop-goals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.goals-left-column,
+.goals-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// Desktop Cards
+.desktop-goal-card,
+.desktop-calories-card,
+.desktop-hydration-card,
+.desktop-macros-card,
+.desktop-details-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  ion-card-header {
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+      
+      ion-icon {
+        font-size: 1.5rem;
+      }
+    }
+  }
+}
+
+// Goal Overview
+.goal-overview {
+  text-align: center;
+  padding: 1rem 0;
+
+  .goal-badge {
+    margin-bottom: 1.5rem;
+
+    ion-chip {
+      --background: var(--ion-color-primary-tint);
+      --color: var(--ion-color-primary);
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      
+      ion-icon {
+        margin-right: 0.5rem;
+        font-size: 1.3rem;
+      }
+    }
+  }
+
+  .goal-description {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// Calories Overview
+.calories-overview {
+  .main-calories {
+    text-align: center;
+    margin-bottom: 2rem;
+    
+    .calories-number {
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--ion-color-danger);
+      display: block;
+      line-height: 1;
+    }
+    
+    .calories-unit {
+      font-size: 1.2rem;
+      color: var(--ion-color-medium);
+      font-weight: 500;
+    }
+  }
+
+  .calories-breakdown-grid {
+    display: grid;
+    gap: 1rem;
+
+    .breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--ion-color-light);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: var(--ion-color-light-shade);
+        transform: translateX(4px);
+      }
+      
+      &.bmr {
+        border-left: 4px solid var(--ion-color-primary);
+      }
+      
+      &.activity {
+        border-left: 4px solid var(--ion-color-success);
+      }
+      
+      &.goal {
+        border-left: 4px solid var(--ion-color-warning);
+      }
+      
+      .label {
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        font-size: 1rem;
+      }
+      
+      .value {
+        font-weight: 700;
+        font-size: 1.1rem;
+        
+        &.positive {
+          color: var(--ion-color-success);
+        }
+        
+        &.negative {
+          color: var(--ion-color-danger);
+        }
+      }
+    }
+  }
+}
+
+// Hydration Overview
+.hydration-overview {
+  .water-amount {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    
+    .amount-number {
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--ion-color-primary);
+      display: block;
+      line-height: 1;
+    }
+    
+    .amount-unit {
+      font-size: 1.1rem;
+      color: var(--ion-color-medium);
+      font-weight: 500;
+    }
+  }
+
+  .hydration-tip {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--ion-color-primary-tint);
+    border-radius: 8px;
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ion-color-primary);
+    
+    ion-icon {
+      font-size: 1.2rem;
+      color: var(--ion-color-warning);
+    }
+  }
+}
+
+// Macros Layout
+.macros-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 2rem;
+  align-items: center;
+
+  .macros-chart-section {
+    display: flex;
+    justify-content: center;
+    
+    .macros-chart {
+      max-width: 180px;
+      max-height: 180px;
+    }
+  }
+
+  .macros-details-section {
+    .macro-item {
+      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+      background: var(--ion-color-light);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: var(--ion-color-light-shade);
+        transform: translateY(-2px);
+      }
+      
+      .macro-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        
+        .macro-icon {
+          font-size: 2rem;
+          width: 40px;
+          text-align: center;
+        }
+        
+        .macro-info {
+          flex: 1;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          
+          .macro-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--ion-color-dark);
+          }
+          
+          .macro-percentage {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--ion-color-primary);
+          }
+        }
+      }
+      
+      .macro-values {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        
+        .grams {
+          font-weight: 700;
+          font-size: 1.2rem;
+          color: var(--ion-color-dark);
+        }
+        
+        .calories {
+          font-size: 1rem;
+          color: var(--ion-color-medium);
+        }
+      }
+      
+      .macro-bar {
+        height: 8px;
+        background: var(--ion-color-step-200);
+        border-radius: 4px;
+        overflow: hidden;
+        
+        .bar-fill {
+          height: 100%;
+          transition: width 0.8s ease;
+          
+          &.protein {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+          }
+          
+          &.carbs {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+          }
+          
+          &.fats {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Mobile Layout (Original)
+.mobile-layout .goals-container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 2rem;
+
+  // Goal Card
+  .goal-card {
+    margin-bottom: 1.5rem;
+    border-radius: profile.$card-border-radius;
+    background: linear-gradient(135deg, var(--ion-color-primary-tint), var(--ion-color-primary));
+    color: white;
+    
+    ion-card-content {
+      padding: 1.5rem;
+      
+      .current-goal {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        
+        .goal-info {
+          flex: 1;
+          
+          h2 {
+            margin: 0 0 1rem 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+          }
+          
+          ion-chip {
+            --background: rgba(255, 255, 255, 0.2);
+            --color: white;
+            font-weight: 600;
+            
+            ion-icon {
+              margin-right: 0.5rem;
+            }
+          }
+        }
+        
+        ion-button {
+          --color: white;
+          --border-color: rgba(255, 255, 255, 0.5);
+          margin: 0;
+        }
+      }
+      
+      .goal-description {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  // Calories Card
+  .calories-card {
+    margin-bottom: 1.5rem;
+    border-radius: profile.$card-border-radius;
+    
+    ion-card-header {
+      ion-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        
+        ion-icon {
+          font-size: 1.5rem;
+        }
+      }
+    }
+    
+    .calories-display {
+      .main-calories {
+        text-align: center;
+        margin-bottom: 2rem;
+        
+        .calories-number {
+          font-size: 3.5rem;
+          font-weight: 700;
+          color: var(--ion-color-danger);
+          display: block;
+          line-height: 1;
+        }
+        
+        .calories-unit {
+          font-size: 1.1rem;
+          color: var(--ion-color-medium);
+          font-weight: 500;
+        }
+      }
+      
+      .calories-breakdown {
+        .breakdown-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem 1rem;
+          margin-bottom: 0.5rem;
+          background: var(--ion-color-light);
+          border-radius: 8px;
+          
+          &.positive .value {
+            color: var(--ion-color-success);
+            font-weight: 600;
+          }
+          
+          &.negative .value {
+            color: var(--ion-color-danger);
+            font-weight: 600;
+          }
+          
+          .label {
+            font-weight: 500;
+            color: var(--ion-color-dark);
+          }
+          
+          .value {
+            font-weight: 600;
+            color: var(--ion-color-medium);
+          }
+        }
+      }
+    }
+  }
+
+  // Macros Card
+  .macros-card {
+    margin-bottom: 1.5rem;
+    border-radius: profile.$card-border-radius;
+    
+    .macros-chart {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      
+      .chart-container {
+        flex-shrink: 0;
+        
+        canvas {
+          max-width: 150px;
+          max-height: 150px;
+        }
+      }
+      
+      .chart-legend {
+        flex: 1;
+        
+        .legend-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 0.75rem;
+          font-weight: 500;
+          
+          .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            
+            &.protein {
+              background: #e74c3c;
+            }
+            
+            &.carbs {
+              background: #2ecc71;
+            }
+            
+            &.fats {
+              background: #f39c12;
+            }
+          }
+        }
+      }
+    }
+    
+    .macros-details {
+      .macro-item {
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: var(--ion-color-light);
+        border-radius: 8px;
+        
+        .macro-header {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          margin-bottom: 0.75rem;
+          
+          ion-icon {
+            font-size: 1.2rem;
+          }
+          
+          .macro-name {
+            flex: 1;
+            font-weight: 600;
+            font-size: 1rem;
+          }
+          
+          .macro-percentage {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--ion-color-primary);
+          }
+        }
+        
+        .macro-values {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 0.75rem;
+          
+          .grams {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--ion-color-dark);
+          }
+          
+          .calories {
+            font-size: 0.9rem;
+            color: var(--ion-color-medium);
+          }
+        }
+        
+        .macro-bar {
+          height: 6px;
+          background: var(--ion-color-light-shade);
+          border-radius: 3px;
+          overflow: hidden;
+          
+          .bar-fill {
+            height: 100%;
+            transition: width 0.6s ease;
+            
+            &.protein {
+              background: linear-gradient(90deg, #e74c3c, #c0392b);
+            }
+            
+            &.carbs {
+              background: linear-gradient(90deg, #2ecc71, #27ae60);
+            }
+            
+            &.fats {
+              background: linear-gradient(90deg, #f39c12, #e67e22);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Hydration Card
+  .hydration-card {
+    margin-bottom: 1.5rem;
+    border-radius: profile.$card-border-radius;
+    
+    .hydration-info {
+      .water-amount {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        
+        .amount-number {
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: var(--ion-color-primary);
+          display: block;
+          line-height: 1;
+        }
+        
+        .amount-unit {
+          font-size: 1rem;
+          color: var(--ion-color-medium);
+          font-weight: 500;
+        }
+      }
+      
+      .water-breakdown {
+        .water-tip {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 1rem;
+          background: var(--ion-color-warning-tint);
+          border-radius: 8px;
+          margin-bottom: 1rem;
+          font-size: 0.9rem;
+          
+          ion-icon {
+            font-size: 1.2rem;
+            color: var(--ion-color-warning);
+          }
+        }
+        
+        .water-suggestion {
+          text-align: center;
+          font-size: 1.1rem;
+          font-weight: 500;
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+  }
+
+  // Details Card
+  .details-card {
+    margin-bottom: 1.5rem;
+    border-radius: profile.$card-border-radius;
+    
+    .accordion-content {
+      padding: 1rem;
+      
+      p {
+        margin-bottom: 1rem;
+        line-height: 1.5;
+        color: var(--ion-color-dark);
+      }
+      
+      .formula {
+        padding: 1rem;
+        background: var(--ion-color-primary-tint);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border-left: 4px solid var(--ion-color-primary);
+        
+        strong {
+          color: var(--ion-color-primary);
+        }
+      }
+      
+      .calculation-details {
+        ul {
+          margin: 0.5rem 0;
+          padding-left: 1.5rem;
+          
+          li {
+            margin-bottom: 0.25rem;
+            color: var(--ion-color-dark);
+          }
+        }
+      }
+      
+      .activity-levels {
+        .activity-level {
+          padding: 0.75rem;
+          margin-bottom: 0.5rem;
+          border-radius: 6px;
+          border: 2px solid transparent;
+          transition: all 0.3s ease;
+          
+          &.current {
+            background: var(--ion-color-primary-tint);
+            border-color: var(--ion-color-primary);
+            
+            strong {
+              color: var(--ion-color-primary);
+            }
+          }
+          
+          strong {
+            display: block;
+            margin-bottom: 0.25rem;
+          }
+        }
+      }
+      
+      .goal-explanations {
+        .goal-explanation {
+          padding: 0.75rem;
+          margin-bottom: 0.5rem;
+          border-radius: 6px;
+          border: 2px solid transparent;
+          transition: all 0.3s ease;
+          
+          &.current {
+            background: var(--ion-color-success-tint);
+            border-color: var(--ion-color-success);
+            
+            strong {
+              color: var(--ion-color-success);
+            }
+          }
+          
+          strong {
+            display: block;
+            margin-bottom: 0.25rem;
+          }
+        }
+      }
+      
+      .macro-explanations {
+        .macro-explanation {
+          margin-bottom: 1rem;
+          padding: 0.75rem;
+          background: var(--ion-color-light);
+          border-radius: 6px;
+          
+          strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--ion-color-dark);
+          }
+          
+          p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--ion-color-medium);
+          }
+        }
+      }
+    }
+  }
+
+  // Update Notice
+  .update-notice {
+    text-align: center;
+    padding: 1rem;
+    background: var(--ion-color-step-50);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    
+    ion-icon {
+      font-size: 1.2rem;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  gap: 1rem;
+  
+  ion-spinner {
+    --color: var(--ion-color-primary);
+  }
+  
+  p {
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .goals-container {
+    padding: 0.75rem;
+    
+    .goal-card,
+    .calories-card,
+    .macros-card,
+    .hydration-card,
+    .details-card {
+      margin-bottom: 1rem;
+      
+      ion-card-content {
+        padding: 1rem;
+      }
+    }
+    
+    .goal-card {
+      ion-card-content {
+        .current-goal {
+          flex-direction: column;
+          gap: 1rem;
+          
+          .goal-info {
+            text-align: center;
+          }
+        }
+      }
+    }
+    
+    .calories-card {
+      .calories-display {
+        .main-calories {
+          .calories-number {
+            font-size: 2.5rem;
+          }
+        }
+      }
+    }
+    
+    .macros-card {
+      .macros-chart {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        
+        .chart-legend {
+          .legend-item {
+            justify-content: center;
+          }
+        }
+      }
+    }
+    
+    .hydration-card {
+      .hydration-info {
+        .water-amount {
+          .amount-number {
+            font-size: 2rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Dark Theme Support
+@media (prefers-color-scheme: dark) {
+  .goals-container {
+    .calories-card,
+    .macros-card,
+    .hydration-card,
+    .details-card {
+      .calories-breakdown .breakdown-item,
+      .macro-item,
+      .water-tip,
+      .macro-explanation {
+        background: var(--ion-color-dark);
+        
+        .label,
+        strong {
+          color: var(--ion-text-color);
+        }
+      }
+    }
+    
+    .details-card {
+      .accordion-content {
+        .activity-levels .activity-level,
+        .goal-explanations .goal-explanation {
+          background: var(--ion-color-dark);
+          
+          &:not(.current) {
+            color: var(--ion-text-color);
+          }
+        }
+      }
+    }
+    
+    .update-notice {
+      background: var(--ion-color-dark);
+      
+      p {
+        color: var(--ion-text-color);
+      }
+    }
+  }
+}

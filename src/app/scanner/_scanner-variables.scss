@@ -1,0 +1,26 @@
+// ===================================
+// SCANNER VARIABLES - MAPPATURA A SISTEMA GLOBALE  
+// Mantiene valori identici, ora centralizzati
+// ===================================
+
+@use '../../styles/global-variables' as *;
+
+// Mapping Scanner → Sistema Globale (valori identici)
+$scanner-primary: $app-primary;                    // #667eea
+$scanner-secondary: $app-secondary;                // #764ba2
+$scanner-gradient: $app-gradient;                  // linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+$scanner-success: $app-success;                    // #28a745
+$scanner-warning: $app-warning;                    // #ffc107
+$scanner-danger: $app-danger;                      // #dc3545
+
+// Colori background mapping
+$scanner-desktop-bg: $app-gray-desktop;            // #d0d0d0
+$scanner-card-bg: $app-white;                      // #ffffff
+$scanner-overlay-bg: rgba(0, 0, 0, 0.8);          // Mantiene valore specifico
+
+// Dimensioni mapping
+$scanner-padding-small: $app-spacing-md;           // 1rem
+$scanner-padding-medium: $app-spacing-xl;          // 2rem
+$scanner-padding-large: $app-spacing-xxxl;         // 3rem
+$scanner-border-radius: $app-radius-xl;            // 24px
+$scanner-border-radius-small: $app-radius-md;      // 12px

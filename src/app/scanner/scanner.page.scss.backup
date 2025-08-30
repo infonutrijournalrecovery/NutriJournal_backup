@@ -1,16 +1,13 @@
 // Scanner Page Styles - NutriJournal
 // Responsive design for barcode scanning
 
-@use 'scanner-variables' as *;
-
-// Override variabili CSS con valori SCSS (mantiene grafica identica)
 :root {
-  --scanner-primary: #{$scanner-primary};
-  --scanner-secondary: #{$scanner-secondary};
-  --scanner-gradient: #{$scanner-gradient};
-  --scanner-success: #{$scanner-success};
-  --scanner-warning: #{$scanner-warning};
-  --scanner-danger: #{$scanner-danger};
+  --scanner-primary: #667eea;
+  --scanner-secondary: #764ba2;
+  --scanner-gradient: linear-gradient(135deg, var(--scanner-primary) 0%, var(--scanner-secondary) 100%);
+  --scanner-success: #28a745;
+  --scanner-warning: #ffc107;
+  --scanner-danger: #dc3545;
 }
 
 // ===========================================
@@ -19,7 +16,7 @@
 
 .desktop-scanner-layout {
   min-height: 100vh;
-  background: #{$scanner-desktop-bg};
+  background: #d0d0d0;
 }
 
 .desktop-header {
@@ -71,10 +68,10 @@
 .search-card {
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
-  background: #{$scanner-desktop-bg};
+  background: #d0d0d0;
   
   ion-card-header {
-    background: #{$scanner-desktop-bg};
+    background: #d0d0d0;
     border-radius: 16px 16px 0 0;
     
     ion-card-title {
@@ -89,7 +86,7 @@
   .search-container {
     ion-item {
       --background: #f0f0f0;
-      --border-radius: #{$scanner-border-radius-small};
+      --border-radius: 12px;
       margin-bottom: 1.5rem;
       margin-top: 1.5rem;
       height: 100px;
@@ -261,7 +258,7 @@
   width: 280px;
   height: 160px;
   border: 2px solid white;
-  border-radius: #{$scanner-border-radius-small};
+  border-radius: 12px;
   position: relative;
   background: rgba(255, 255, 255, 0.1);
   

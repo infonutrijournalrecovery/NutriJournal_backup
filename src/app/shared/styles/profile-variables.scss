@@ -1,0 +1,33 @@
+// ===================================
+// PROFILE VARIABLES - MAPPATURA A SISTEMA GLOBALE
+// Mantiene valori identici al design system
+// ===================================
+
+@use '../../../styles/global-variables' as *;
+
+// Mapping Profile → Sistema Globale (valori identici)
+$profile-bg: $app-gray-light;                     // #f8f9fb
+$profile-card-bg: $app-white;                     // #ffffff
+$profile-primary: $app-primary;                   // #667eea
+$profile-secondary: $app-secondary;               // #764ba2
+$profile-gradient: $app-gradient;                 // Gradiente primario
+
+// Colori testo
+$profile-text-primary: $app-text-dark;           // #2c3e50
+$profile-text-secondary: $app-text-gray;         // #6c757d
+$profile-text-light: $app-text-light;            // #ffffff
+
+// Bordi e stati
+$profile-border: $app-border;                     // #e3e8f0
+$profile-success: $app-success;                   // #10dc60
+$profile-warning: $app-warning;                   // #ffce00
+$profile-danger: $app-danger;                     // #f04141
+
+// Stati interattivi
+$profile-item-hover: $app-gray-lightest;         // #f8f9fa
+$profile-toggle-bg: $app-gray;                   // #dee2e6
+
+// Shadows
+$profile-shadow-light: $app-shadow-light;        // 0 2px 4px rgba(0,0,0,0.1)
+$profile-shadow-medium: $app-shadow-medium;      // 0 4px 6px rgba(0,0,0,0.1)
+$profile-shadow-heavy: $app-shadow-heavy;        // 0 10px 15px rgba(0,0,0,0.1)

@@ -1,0 +1,39 @@
+// ===================================
+// DASHBOARD VARIABLES - MAPPATURA A SISTEMA GLOBALE
+// Mantiene valori identici, ora centralizzati
+// ===================================
+
+@use '../../styles/global-variables' as *;
+
+// Mapping Dashboard → Sistema Globale (valori identici)
+$dashboard-bg: $app-gray-light;                    // #f8f9fb
+$dashboard-card-bg: $app-white;                    // #ffffff  
+$dashboard-header-bg: $app-gray-medium;            // #e8f0fe
+$dashboard-text-primary: $app-gray-dark;           // #1a1c1e
+$dashboard-text-header: $app-gray-darker;          // #001d35
+$dashboard-button-text: $app-white;                // white
+
+// Gradients mapping
+$dashboard-primary: $app-primary;                  // #667eea
+$dashboard-secondary: $app-secondary;              // #764ba2
+$dashboard-gradient: $app-gradient;                // linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+
+// Stili card mapping
+$dashboard-card-shadow: $app-shadow-light;         // 0 4px 16px rgba(0, 0, 0, 0.1)
+$dashboard-card-shadow-strong: $app-shadow-medium; // 0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08)
+$dashboard-card-radius: $app-radius-lg;            // 16px
+
+// Padding mapping
+$dashboard-padding-small: $app-spacing-sm;         // 0.75rem
+$dashboard-padding-medium: $app-spacing-md;        // 1rem
+$dashboard-padding-large: $app-spacing-lg;         // 1.5rem
+$dashboard-padding-xl: $app-spacing-xl;            // 2rem
+$dashboard-padding-xxl: $app-spacing-xxl;          // 2.5rem
+
+// Border radius mapping
+$dashboard-radius-small: $app-radius-md;           // 12px
+$dashboard-radius-large: $app-radius-lg;           // 16px
+
+// Font sizes mapping
+$dashboard-font-large: $app-font-xl;               // 1.5rem
+$dashboard-font-xl: $app-font-xxxl;                // 2.5rem

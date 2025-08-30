@@ -2,16 +2,86 @@
 
 export interface User {
   id: number;
-  name: string;
+  name?: string; // Per compatibilità
+  firstName?: string;
+  lastName?: string;
   email: string;
-  birth_date: string;
-  gender: 'male' | 'female' | 'other';
-  height: number;
-  weight: number;
+  birth_date?: string;
+  birthDate?: string; // Per compatibilità frontend
+  dateOfBirth?: Date; // Per compatibilità frontend
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  height?: number;
+  weight?: number;
   activity_level?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
   nutritionGoals?: NutritionGoals;
+  avatar?: string | null;
+  preferences?: UserPreferences;
+  allergies?: UserAllergy[];
+  additives_sensitivity?: UserAdditiveSensitivity[];
+  totalMeals?: number;
+  currentStreak?: number;
+  joinDate?: Date;
   created_at: string;
   updated_at: string;
+}
+
+export interface UserPreferences {
+  notifications: boolean;
+  darkMode: boolean;
+  units: 'metric' | 'imperial';
+  language?: string;
+}
+
+export interface UserAllergy {
+  id?: number;
+  user_id?: number;
+  allergen_code: string;
+  allergen_name: string;
+  severity: 'mild' | 'moderate' | 'severe';
+  notes?: string;
+  created_at?: string;
+}
+
+export interface UserAdditiveSensitivity {
+  id?: number;
+  user_id?: number;
+  additive_code: string;
+  additive_name: string;
+  sensitivity_level: 'low' | 'medium' | 'high';
+  notes?: string;
+  created_at?: string;
+}
+
+export interface Allergen {
+  code: string;
+  name: string;
+  category: string;
+  description?: string;
+}
+
+export interface Additive {
+  code: string;
+  name: string;
+  category: string;
+  description?: string;
+}
+
+export interface Allergen {
+  code: string;
+  name: string;
+  description?: string;
+  common_sources?: string[];
+  category: string;
+}
+
+export interface Additive {
+  code: string;
+  name: string;
+  e_number?: string;
+  description?: string;
+  purpose?: string;
+  safety_level?: 'safe' | 'caution' | 'avoid';
+  category: string;
 }
 
 export interface AuthResponse {
@@ -110,6 +180,7 @@ export interface NutritionGoals {
   id?: number;
   user_id?: number;
   daily_calories: number;
+  dailyCalories?: number; // Per compatibilità frontend
   daily_proteins: number;
   daily_carbs: number;
   daily_fats: number;
@@ -117,6 +188,8 @@ export interface NutritionGoals {
   daily_water?: number;
   weight_goal?: number;
   goal_type: 'maintain' | 'lose' | 'gain';
+  goal?: 'maintain' | 'lose' | 'gain'; // Per compatibilità frontend
+  activityLevel?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
   created_at?: string;
   updated_at?: string;
 }

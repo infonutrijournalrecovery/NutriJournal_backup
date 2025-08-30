@@ -1,0 +1,394 @@
+// Profile Page Styles - NutriJournal
+// Seguendo lo stile delle pagine auth esistenti
+
+@use '../shared/styles/profile-variables' as *;
+
+// === LAYOUT CONTAINER ===
+.profile-content {
+  --background: #{$profile-bg};
+  background-color: $profile-bg !important;
+}
+
+.profile-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+// === HEADER PROFILO ===
+.profile-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 30px 20px;
+  background: $profile-gradient;
+  border-radius: 20px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.avatar-section {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.user-avatar {
+  width: 100px;
+  height: 100px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.edit-avatar-btn {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  --background: #{$profile-primary};
+  --color: white;
+  --border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.user-name {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.user-email {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin: 0 0 20px 0;
+}
+
+.user-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+}
+
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+// === CARDS PROFILO ===
+.profile-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-card {
+  --background: #{$profile-card-bg};
+  background-color: $profile-card-bg !important;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin: 0;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.profile-card ion-card-header {
+  --background: transparent;
+  padding: 20px 20px 10px 20px;
+}
+
+.profile-card ion-card-title {
+  --color: #{$profile-text-primary};
+  color: $profile-text-primary !important;
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  ion-icon {
+    font-size: 1.4rem;
+    color: $profile-primary;
+  }
+}
+
+.profile-card ion-card-content {
+  padding: 10px 20px 20px 20px;
+}
+
+// === LIST ITEMS ===
+.profile-card ion-list {
+  background: transparent !important;
+}
+
+.profile-card ion-item {
+  --background: transparent;
+  --border-color: #{$profile-border};
+  --color: #{$profile-text-primary};
+  --detail-icon-color: #{$profile-text-secondary};
+  --inner-padding-start: 0;
+  --inner-padding-end: 0;
+  --padding-start: 0;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    --background: #{$profile-item-hover};
+    transform: translateX(4px);
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.profile-card ion-item ion-icon[slot="start"] {
+  margin-right: 16px;
+  font-size: 1.2rem;
+}
+
+.profile-card ion-item ion-label h3 {
+  color: $profile-text-primary !important;
+  font-weight: 500;
+  font-size: 1rem;
+  margin: 0 0 4px 0;
+}
+
+.profile-card ion-item ion-label p {
+  color: $profile-text-secondary !important;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+// === TOGGLES ===
+ion-toggle {
+  --background: #{$profile-toggle-bg};
+  --background-checked: #{$profile-primary};
+  --handle-background: white;
+  --handle-background-checked: white;
+}
+
+// === DANGER CARD ===
+.danger-card {
+  border: 1px solid rgba(244, 67, 54, 0.2);
+}
+
+.danger-card ion-card-title {
+  --color: #{$profile-danger} !important;
+  color: $profile-danger !important;
+  
+  ion-icon {
+    color: $profile-danger !important;
+  }
+}
+
+.danger-card ion-item ion-icon[slot="start"] {
+  color: $profile-danger !important;
+}
+
+.danger-card ion-item ion-label h3 {
+  color: $profile-danger !important;
+}
+
+// === LOADING OVERLAY ===
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  color: white;
+  
+  ion-spinner {
+    --color: white;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+// === RESPONSIVE DESIGN ===
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 16px;
+  }
+  
+  .profile-header {
+    padding: 24px 16px;
+    margin-bottom: 20px;
+  }
+  
+  .user-avatar {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .user-name {
+    font-size: 1.5rem;
+  }
+  
+  .user-stats {
+    gap: 12px;
+  }
+  
+  .stat-number {
+    font-size: 1.3rem;
+  }
+  
+  .stat-label {
+    font-size: 0.75rem;
+  }
+  
+  .profile-sections {
+    gap: 16px;
+  }
+  
+  .profile-card {
+    border-radius: 12px;
+  }
+}
+
+@media (min-width: 769px) {
+  .profile-container {
+    padding: 40px;
+  }
+  
+  .profile-sections {
+    gap: 24px;
+  }
+  
+  // Layout a 2 colonne per desktop
+  @media (min-width: 1024px) {
+    .profile-sections {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    
+    .danger-card {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+// === ANIMATIONS ===
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.profile-card {
+  animation: slideInUp 0.6s ease forwards;
+  
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
+  &:nth-child(4) { animation-delay: 0.4s; }
+  &:nth-child(5) { animation-delay: 0.5s; }
+}
+
+// === UTILITY CLASSES ===
+.text-center {
+  text-align: center;
+}
+
+.text-primary {
+  color: $profile-primary !important;
+}
+
+.text-secondary {
+  color: $profile-text-secondary !important;
+}
+
+.text-danger {
+  color: $profile-danger !important;
+}
+
+// === ALLERGENI E ADDITIVI PREVIEW ===
+.allergens-preview,
+.additives-preview {
+  padding: 12px 16px;
+  margin: 8px 0;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: 12px;
+  border-left: 4px solid #ffc107;
+}
+
+.allergens-preview {
+  background: rgba(244, 67, 54, 0.1);
+  border-left-color: #f44336;
+}
+
+.allergens-title,
+.additives-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: $profile-text-primary;
+  font-size: 0.9rem;
+  
+  ion-icon {
+    font-size: 1rem;
+  }
+}
+
+.allergens-chips,
+.additives-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.allergens-chips ion-chip,
+.additives-chips ion-chip {
+  --background: transparent;
+  font-size: 0.8rem;
+  height: 28px;
+  
+  ion-icon {
+    font-size: 0.9rem;
+    margin-right: 4px;
+  }
+}
+
+// === BADGES ===
+ion-badge {
+  --background: #{$profile-warning};
+  --color: white;
+  font-weight: 600;
+}

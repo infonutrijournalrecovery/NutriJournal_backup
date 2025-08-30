@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { 
   ApiResponse, 
@@ -37,8 +36,7 @@ export class ApiService {
     if (dateFrom) url += `&date_from=${dateFrom}`;
     if (dateTo) url += `&date_to=${dateTo}`;
     
-    return this.http.get<ApiResponse<Meal[]>>(url, { headers })
-      .pipe(catchError(this.handleError('getMeals')));
+    return this.http.get<ApiResponse<Meal[]>>(url, { headers });
   }
 
   /**
@@ -46,8 +44,7 @@ export class ApiService {
    */
   getMeal(id: number): Observable<ApiResponse<Meal>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.get<ApiResponse<Meal>>(`${this.baseUrl}/meals/${id}`, { headers })
-      .pipe(catchError(this.handleError('getMeal')));
+    return this.http.get<ApiResponse<Meal>>(`${this.baseUrl}/meals/${id}`, { headers });
   }
 
   /**
@@ -55,8 +52,7 @@ export class ApiService {
    */
   createMeal(meal: Partial<Meal>): Observable<ApiResponse<Meal>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.post<ApiResponse<Meal>>(`${this.baseUrl}/meals`, meal, { headers })
-      .pipe(catchError(this.handleError('createMeal')));
+    return this.http.post<ApiResponse<Meal>>(`${this.baseUrl}/meals`, meal, { headers });
   }
 
   /**
@@ -64,8 +60,7 @@ export class ApiService {
    */
   updateMeal(id: number, meal: Partial<Meal>): Observable<ApiResponse<Meal>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.put<ApiResponse<Meal>>(`${this.baseUrl}/meals/${id}`, meal, { headers })
-      .pipe(catchError(this.handleError('updateMeal')));
+    return this.http.put<ApiResponse<Meal>>(`${this.baseUrl}/meals/${id}`, meal, { headers });
   }
 
   /**
@@ -73,8 +68,7 @@ export class ApiService {
    */
   deleteMeal(id: number): Observable<ApiResponse<any>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/meals/${id}`, { headers })
-      .pipe(catchError(this.handleError('deleteMeal')));
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/meals/${id}`, { headers });
   }
 
   // =================== PRODUCTS ===================
@@ -87,7 +81,7 @@ export class ApiService {
     return this.http.get<ApiResponse<Product[]>>(
       `${this.baseUrl}/products/search?q=${encodeURIComponent(query)}&page=${page}&limit=${limit}`, 
       { headers }
-    ).pipe(catchError(this.handleError('searchProducts')));
+    );
   }
 
   /**
@@ -95,8 +89,7 @@ export class ApiService {
    */
   getProductByBarcode(barcode: string): Observable<ApiResponse<Product>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.get<ApiResponse<Product>>(`${this.baseUrl}/products/barcode/${barcode}`, { headers })
-      .pipe(catchError(this.handleError('getProductByBarcode')));
+    return this.http.get<ApiResponse<Product>>(`${this.baseUrl}/products/barcode/${barcode}`, { headers });
   }
 
   /**
@@ -104,8 +97,7 @@ export class ApiService {
    */
   getProduct(id: number): Observable<ApiResponse<Product>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.get<ApiResponse<Product>>(`${this.baseUrl}/products/${id}`, { headers })
-      .pipe(catchError(this.handleError('getProduct')));
+    return this.http.get<ApiResponse<Product>>(`${this.baseUrl}/products/${id}`, { headers });
   }
 
   /**
@@ -113,8 +105,7 @@ export class ApiService {
    */
   createCustomProduct(product: Partial<Product>): Observable<ApiResponse<Product>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.post<ApiResponse<Product>>(`${this.baseUrl}/products/custom`, product, { headers })
-      .pipe(catchError(this.handleError('createCustomProduct')));
+    return this.http.post<ApiResponse<Product>>(`${this.baseUrl}/products/custom`, product, { headers });
   }
 
   // =================== ACTIVITIES ===================
@@ -124,8 +115,7 @@ export class ApiService {
    */
   getActivities(page = 1, limit = 20): Observable<ApiResponse<Activity[]>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.get<ApiResponse<Activity[]>>(`${this.baseUrl}/activities?page=${page}&limit=${limit}`, { headers })
-      .pipe(catchError(this.handleError('getActivities')));
+    return this.http.get<ApiResponse<Activity[]>>(`${this.baseUrl}/activities?page=${page}&limit=${limit}`, { headers });
   }
 
   /**
@@ -133,8 +123,7 @@ export class ApiService {
    */
   createActivity(activity: Partial<Activity>): Observable<ApiResponse<Activity>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.post<ApiResponse<Activity>>(`${this.baseUrl}/activities`, activity, { headers })
-      .pipe(catchError(this.handleError('createActivity')));
+    return this.http.post<ApiResponse<Activity>>(`${this.baseUrl}/activities`, activity, { headers });
   }
 
   /**
@@ -142,8 +131,7 @@ export class ApiService {
    */
   updateActivity(id: number, activity: Partial<Activity>): Observable<ApiResponse<Activity>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.put<ApiResponse<Activity>>(`${this.baseUrl}/activities/${id}`, activity, { headers })
-      .pipe(catchError(this.handleError('updateActivity')));
+    return this.http.put<ApiResponse<Activity>>(`${this.baseUrl}/activities/${id}`, activity, { headers });
   }
 
   /**
@@ -151,8 +139,7 @@ export class ApiService {
    */
   deleteActivity(id: number): Observable<ApiResponse<any>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/activities/${id}`, { headers })
-      .pipe(catchError(this.handleError('deleteActivity')));
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/activities/${id}`, { headers });
   }
 
   // =================== NUTRITION GOALS ===================
@@ -162,8 +149,7 @@ export class ApiService {
    */
   getNutritionGoals(): Observable<ApiResponse<NutritionGoals>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.get<ApiResponse<NutritionGoals>>(`${this.baseUrl}/nutrition/goals`, { headers })
-      .pipe(catchError(this.handleError('getNutritionGoals')));
+    return this.http.get<ApiResponse<NutritionGoals>>(`${this.baseUrl}/nutrition/goals`, { headers });
   }
 
   /**
@@ -171,8 +157,7 @@ export class ApiService {
    */
   updateNutritionGoals(goals: Partial<NutritionGoals>): Observable<ApiResponse<NutritionGoals>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.put<ApiResponse<NutritionGoals>>(`${this.baseUrl}/nutrition/goals`, goals, { headers })
-      .pipe(catchError(this.handleError('updateNutritionGoals')));
+    return this.http.put<ApiResponse<NutritionGoals>>(`${this.baseUrl}/nutrition/goals`, goals, { headers });
   }
 
   /**
@@ -180,8 +165,7 @@ export class ApiService {
    */
   getDailyNutrition(date: string): Observable<ApiResponse<any>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/nutrition/daily/${date}`, { headers })
-      .pipe(catchError(this.handleError('getDailyNutrition')));
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/nutrition/daily/${date}`, { headers });
   }
 
   // =================== ANALYTICS ===================
@@ -191,8 +175,7 @@ export class ApiService {
    */
   getDashboardAnalytics(period: 'week' | 'month' | 'year' = 'week'): Observable<ApiResponse<Analytics>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.get<ApiResponse<Analytics>>(`${this.baseUrl}/analytics/dashboard?period=${period}`, { headers })
-      .pipe(catchError(this.handleError('getDashboardAnalytics')));
+    return this.http.get<ApiResponse<Analytics>>(`${this.baseUrl}/analytics/dashboard?period=${period}`, { headers });
   }
 
   /**
@@ -205,8 +188,7 @@ export class ApiService {
     if (dateFrom) url += `&date_from=${dateFrom}`;
     if (dateTo) url += `&date_to=${dateTo}`;
     
-    return this.http.get<ApiResponse<any>>(url, { headers })
-      .pipe(catchError(this.handleError('getNutritionTrends')));
+    return this.http.get<ApiResponse<any>>(url, { headers });
   }
 
   // =================== PANTRY ===================
@@ -216,8 +198,7 @@ export class ApiService {
    */
   getPantryItems(): Observable<ApiResponse<PantryItem[]>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.get<ApiResponse<PantryItem[]>>(`${this.baseUrl}/pantry`, { headers })
-      .pipe(catchError(this.handleError('getPantryItems')));
+    return this.http.get<ApiResponse<PantryItem[]>>(`${this.baseUrl}/pantry`, { headers });
   }
 
   /**
@@ -225,8 +206,7 @@ export class ApiService {
    */
   addToPantry(item: Partial<PantryItem>): Observable<ApiResponse<PantryItem>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.post<ApiResponse<PantryItem>>(`${this.baseUrl}/pantry`, item, { headers })
-      .pipe(catchError(this.handleError('addToPantry')));
+    return this.http.post<ApiResponse<PantryItem>>(`${this.baseUrl}/pantry`, item, { headers });
   }
 
   /**
@@ -234,8 +214,7 @@ export class ApiService {
    */
   updatePantryItem(id: number, item: Partial<PantryItem>): Observable<ApiResponse<PantryItem>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.put<ApiResponse<PantryItem>>(`${this.baseUrl}/pantry/${id}`, item, { headers })
-      .pipe(catchError(this.handleError('updatePantryItem')));
+    return this.http.put<ApiResponse<PantryItem>>(`${this.baseUrl}/pantry/${id}`, item, { headers });
   }
 
   /**
@@ -243,8 +222,7 @@ export class ApiService {
    */
   removeFromPantry(id: number): Observable<ApiResponse<any>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/pantry/${id}`, { headers })
-      .pipe(catchError(this.handleError('removeFromPantry')));
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/pantry/${id}`, { headers });
   }
 
   // =================== ITALIAN RECIPES ===================
@@ -265,8 +243,7 @@ export class ApiService {
       url += '?' + params.join('&');
     }
     
-    return this.http.get<ApiResponse<ItalianDish[]>>(url, { headers })
-      .pipe(catchError(this.handleError('searchItalianRecipes')));
+    return this.http.get<ApiResponse<ItalianDish[]>>(url, { headers });
   }
 
   /**
@@ -274,24 +251,16 @@ export class ApiService {
    */
   getItalianDish(id: number): Observable<ApiResponse<ItalianDish>> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.get<ApiResponse<ItalianDish>>(`${this.baseUrl}/italian-food/${id}`, { headers })
-      .pipe(catchError(this.handleError('getItalianDish')));
+    return this.http.get<ApiResponse<ItalianDish>>(`${this.baseUrl}/italian-food/${id}`, { headers });
   }
 
-  // =================== UTILITY ===================
+  // =================== USER MANAGEMENT ===================
 
   /**
-   * Gestione errori
+   * Cambia password utente
    */
-  private handleError<T>(operation = 'operation') {
-    return (error: any): Observable<T> => {
-      console.error(`${operation} failed:`, error);
-      
-      return of({
-        success: false,
-        message: error.error?.message || 'Si è verificato un errore',
-        errors: error.error?.errors || []
-      } as T);
-    };
+  changePassword(data: { currentPassword: string; newPassword: string }): Observable<ApiResponse<any>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/auth/change-password`, data, { headers });
   }
 }

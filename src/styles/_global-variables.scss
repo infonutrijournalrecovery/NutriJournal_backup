@@ -1,0 +1,75 @@
+// ===================================
+// NUTRIJOURNAL - GLOBAL VARIABLES
+// Sistema unificato mantenendo stili identici esistenti
+// ===================================
+
+// === COLORI PRIMARI UNIFICATI ===
+// (Estratti da Dashboard + Scanner esistenti)
+$app-primary: #667eea;           // Blu primario condiviso
+$app-secondary: #764ba2;         // Viola secondario condiviso
+$app-gradient: linear-gradient(135deg, $app-primary 0%, $app-secondary 100%);
+
+// === COLORI SEMANTICI ===
+$app-success: #28a745;           // Verde successo
+$app-warning: #ffc107;           // Giallo warning  
+$app-danger: #dc3545;            // Rosso errore
+$app-info: #2196f3;              // Blu informativo
+
+// === COLORI NEUTRI ===
+$app-white: #ffffff;
+$app-black: #000000;
+$app-gray-light: #f8f9fb;        // Background principale
+$app-gray-lightest: #f8f9fa;     // Background hover
+$app-gray: #dee2e6;              // Bordi e toggle
+$app-gray-medium: #e8f0fe;       // Header background
+$app-gray-dark: #1a1c1e;         // Testo principale
+$app-gray-darker: #001d35;       // Testo header
+$app-gray-desktop: #d0d0d0;      // Background desktop scanner
+
+// === COLORI TESTO ===
+$app-text-dark: #2c3e50;         // Testo principale scuro
+$app-text-gray: #6c757d;         // Testo secondario
+$app-text-light: #ffffff;        // Testo chiaro
+$app-border: #e3e8f0;            // Bordi standard
+
+// === SHADOWS UNIFICATI ===
+$app-shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+$app-shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.1);
+$app-shadow-heavy: 0 10px 15px rgba(0, 0, 0, 0.1);
+$app-shadow-strong: 0 4px 16px rgba(0, 0, 0, 0.8);
+
+// === SPACING SYSTEM ===
+$app-spacing-xs: 0.5rem;         // 8px
+$app-spacing-sm: 0.75rem;        // 12px  
+$app-spacing-md: 1rem;           // 16px
+$app-spacing-lg: 1.5rem;         // 24px
+$app-spacing-xl: 2rem;           // 32px
+$app-spacing-xxl: 2.5rem;        // 40px
+$app-spacing-xxxl: 3rem;         // 48px
+
+// === BORDER RADIUS SYSTEM ===
+$app-radius-sm: 8px;
+$app-radius-md: 12px;
+$app-radius-lg: 16px;
+$app-radius-xl: 24px;
+
+// === FONT SIZES ===
+$app-font-sm: 0.875rem;          // 14px
+$app-font-md: 1rem;              // 16px
+$app-font-lg: 1.25rem;           // 20px
+$app-font-xl: 1.5rem;            // 24px
+$app-font-xxl: 2rem;             // 32px
+$app-font-xxxl: 2.5rem;          // 40px
+
+// === BREAKPOINTS RESPONSIVE ===
+$app-mobile: 768px;
+$app-tablet: 1024px;
+$app-desktop: 1200px;
+
+// === Z-INDEX LAYERS ===
+$app-z-dropdown: 1000;
+$app-z-sticky: 1020;
+$app-z-fixed: 1030;
+$app-z-modal: 1040;
+$app-z-popover: 1060;
+$app-z-tooltip: 1070;

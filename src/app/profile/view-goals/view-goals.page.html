@@ -1,0 +1,568 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Obiettivi Nutrizionali</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="selectGoal()">
+        <ion-icon name="push-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" [class]="'goals-content ' + (isDesktop ? 'desktop-layout' : 'mobile-layout')">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="dots"></ion-spinner>
+    <p>Calcolo obiettivi...</p>
+  </div>
+
+  <!-- Desktop Layout -->
+  <div *ngIf="!isLoading && calculatedGoals && isDesktop" class="desktop-goals-container">
+    
+    <!-- Desktop Header -->
+    <div class="desktop-goals-header">
+      <div class="header-content">
+        <h1>I Tuoi Obiettivi Nutrizionali</h1>
+        <p class="header-subtitle">Calcolati automaticamente in base ai tuoi dati personali</p>
+      </div>
+      <div class="header-actions">
+        <ion-button fill="outline" size="default" (click)="selectGoal()">
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          Cambia Obiettivo
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Desktop Grid Layout -->
+    <div class="desktop-goals-grid">
+      
+      <!-- Left Column -->
+      <div class="goals-left-column">
+        
+        <!-- Current Goal Card -->
+        <ion-card class="desktop-goal-card">
+          <ion-card-content>
+            <div class="goal-overview">
+              <div class="goal-badge">
+                <ion-chip [color]="getGoalColor(currentGoal)" size="large">
+                  <ion-icon [name]="getGoalIcon(currentGoal)"></ion-icon>
+                  <ion-label>{{ getGoalLabel(currentGoal) }}</ion-label>
+                </ion-chip>
+              </div>
+              <p class="goal-description">{{ getGoalDescription(currentGoal) }}</p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Calories Overview -->
+        <ion-card class="desktop-calories-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="flame-outline" color="danger"></ion-icon>
+              Calorie Giornaliere
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="calories-overview">
+              <div class="main-calories">
+                <span class="calories-number">{{ calculatedGoals.dailyCalories }}</span>
+                <span class="calories-unit">kcal</span>
+              </div>
+              <div class="calories-breakdown-grid">
+                <div class="breakdown-item bmr">
+                  <span class="label">Metabolismo Basale</span>
+                  <span class="value">{{ Math.round(calculatedGoals.bmr) }} kcal</span>
+                </div>
+                <div class="breakdown-item activity">
+                  <span class="label">Attività Fisica</span>
+                  <span class="value positive">+{{ Math.round(calculatedGoals.activityCalories) }} kcal</span>
+                </div>
+                <div class="breakdown-item goal">
+                  <span class="label">Aggiustamento Obiettivo</span>
+                  <span class="value" [class.positive]="calculatedGoals.goalAdjustment > 0" [class.negative]="calculatedGoals.goalAdjustment < 0">
+                    {{ calculatedGoals.goalAdjustment > 0 ? '+' : '' }}{{ calculatedGoals.goalAdjustment }} kcal
+                  </span>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Hydration Card -->
+        <ion-card class="desktop-hydration-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="water-outline" color="primary"></ion-icon>
+              Idratazione
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="hydration-overview">
+              <div class="water-amount">
+                <span class="amount-number">{{ calculatedGoals.waterIntake }}</span>
+                <span class="amount-unit">ml</span>
+              </div>
+              <p class="hydration-tip">
+                <ion-icon name="bulb-outline"></ion-icon>
+                Distribuisci l'assunzione durante l'arco della giornata
+              </p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <!-- Right Column -->
+      <div class="goals-right-column">
+        
+        <!-- Macronutrients Card -->
+        <ion-card class="desktop-macros-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="nutrition-outline" color="success"></ion-icon>
+              Distribuzione Macronutrienti
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="macros-layout">
+              <div class="macros-chart-section">
+                <canvas #macrosChart class="macros-chart"></canvas>
+              </div>
+              <div class="macros-details-section">
+                <div class="macro-item protein">
+                  <div class="macro-header">
+                    <div class="macro-icon">🥩</div>
+                    <div class="macro-info">
+                      <span class="macro-name">Proteine</span>
+                      <span class="macro-percentage">{{ calculatedGoals.macros.proteins.percentage }}%</span>
+                    </div>
+                  </div>
+                  <div class="macro-values">
+                    <span class="grams">{{ Math.round(calculatedGoals.macros.proteins.grams) }}g</span>
+                    <span class="calories">{{ Math.round(calculatedGoals.macros.proteins.calories) }} kcal</span>
+                  </div>
+                  <div class="macro-bar">
+                    <div class="bar-fill protein" [style.width.%]="calculatedGoals.macros.proteins.percentage"></div>
+                  </div>
+                </div>
+                
+                <div class="macro-item carbs">
+                  <div class="macro-header">
+                    <div class="macro-icon">🍞</div>
+                    <div class="macro-info">
+                      <span class="macro-name">Carboidrati</span>
+                      <span class="macro-percentage">{{ calculatedGoals.macros.carbohydrates.percentage }}%</span>
+                    </div>
+                  </div>
+                  <div class="macro-values">
+                    <span class="grams">{{ Math.round(calculatedGoals.macros.carbohydrates.grams) }}g</span>
+                    <span class="calories">{{ Math.round(calculatedGoals.macros.carbohydrates.calories) }} kcal</span>
+                  </div>
+                  <div class="macro-bar">
+                    <div class="bar-fill carbs" [style.width.%]="calculatedGoals.macros.carbohydrates.percentage"></div>
+                  </div>
+                </div>
+                
+                <div class="macro-item fats">
+                  <div class="macro-header">
+                    <div class="macro-icon">🥑</div>
+                    <div class="macro-info">
+                      <span class="macro-name">Grassi</span>
+                      <span class="macro-percentage">{{ calculatedGoals.macros.fats.percentage }}%</span>
+                    </div>
+                  </div>
+                  <div class="macro-values">
+                    <span class="grams">{{ Math.round(calculatedGoals.macros.fats.grams) }}g</span>
+                    <span class="calories">{{ Math.round(calculatedGoals.macros.fats.calories) }} kcal</span>
+                  </div>
+                  <div class="macro-bar">
+                    <div class="bar-fill fats" [style.width.%]="calculatedGoals.macros.fats.percentage"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Calculation Details -->
+        <ion-card class="desktop-details-card">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="calculator-outline" color="tertiary"></ion-icon>
+              Dettagli Calcolo
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-accordion-group>
+              <ion-accordion value="bmr">
+                <ion-item slot="header" color="light">
+                  <ion-label>Metabolismo Basale (BMR)</ion-label>
+                </ion-item>
+                <div class="accordion-content" slot="content">
+                  <p>Il tuo metabolismo basale è calcolato usando la formula Mifflin-St Jeor:</p>
+                  <div class="formula">
+                    <strong>Formula utilizzata:</strong><br>
+                    BMR = (10 × peso) + (6.25 × altezza) - (5 × età) {{ userGender === 'male' ? '+ 5' : '- 161' }}
+                  </div>
+                  <p>Il BMR rappresenta l'energia necessaria per le funzioni vitali di base a riposo.</p>
+                </div>
+              </ion-accordion>
+              
+              <ion-accordion value="activity">
+                <ion-item slot="header" color="light">
+                  <ion-label>Livello di Attività</ion-label>
+                </ion-item>
+                <div class="accordion-content" slot="content">
+                  <p>Il tuo livello di attività attuale: <strong>{{ getActivityLevelLabel(userActivityLevel) }}</strong></p>
+                  <div class="activity-levels">
+                    <div class="activity-level" [class.current]="userActivityLevel === 'sedentary'">
+                      <strong>Sedentario (×1.2)</strong> - Poco o nessun esercizio
+                    </div>
+                    <div class="activity-level" [class.current]="userActivityLevel === 'light'">
+                      <strong>Leggermente attivo (×1.375)</strong> - Esercizio leggero 1-3 giorni/settimana
+                    </div>
+                    <div class="activity-level" [class.current]="userActivityLevel === 'moderate'">
+                      <strong>Moderatamente attivo (×1.55)</strong> - Esercizio moderato 3-5 giorni/settimana
+                    </div>
+                    <div class="activity-level" [class.current]="userActivityLevel === 'very_active'">
+                      <strong>Molto attivo (×1.725)</strong> - Esercizio intenso 6-7 giorni/settimana
+                    </div>
+                    <div class="activity-level" [class.current]="userActivityLevel === 'extra_active'">
+                      <strong>Estremamente attivo (×1.9)</strong> - Esercizio molto intenso, lavoro fisico
+                    </div>
+                  </div>
+                </div>
+              </ion-accordion>
+              
+              <ion-accordion value="goal">
+                <ion-item slot="header" color="light">
+                  <ion-label>Aggiustamento Obiettivo</ion-label>
+                </ion-item>
+                <div class="accordion-content" slot="content">
+                  <div class="goal-explanations">
+                    <div class="goal-explanation" [class.current]="currentGoal === 'lose_weight'">
+                      <strong>Perdita Peso (-500 kcal)</strong>
+                      Deficit calorico per perdere circa 0.5 kg a settimana
+                    </div>
+                    <div class="goal-explanation" [class.current]="currentGoal === 'maintain_weight'">
+                      <strong>Mantenimento (0 kcal)</strong>
+                      Equilibrio tra calorie consumate e spese
+                    </div>
+                    <div class="goal-explanation" [class.current]="currentGoal === 'gain_weight'">
+                      <strong>Aumento Peso (+500 kcal)</strong>
+                      Surplus calorico per aumentare circa 0.5 kg a settimana
+                    </div>
+                  </div>
+                </div>
+              </ion-accordion>
+            </ion-accordion-group>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Layout (Original) -->
+  <div *ngIf="!isLoading && calculatedGoals && !isDesktop" class="goals-container">
+    
+    <!-- Current Goal Card -->
+    <ion-card class="goal-card">
+      <ion-card-content>
+        <div class="current-goal">
+          <div class="goal-info">
+            <h2>Il Tuo Obiettivo</h2>
+            <ion-chip [color]="getGoalColor(currentGoal)" size="large">
+              <ion-icon [name]="getGoalIcon(currentGoal)"></ion-icon>
+              <ion-label>{{ getGoalLabel(currentGoal) }}</ion-label>
+            </ion-chip>
+          </div>
+          <ion-button fill="outline" size="small" (click)="selectGoal()">
+            <ion-icon name="create-outline"></ion-icon>
+            Cambia
+          </ion-button>
+        </div>
+        <p class="goal-description">{{ getGoalDescription(currentGoal) }}</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Calories Card -->
+    <ion-card class="calories-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="flame-outline" color="danger"></ion-icon>
+          Calorie Giornaliere
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="calories-display">
+          <div class="main-calories">
+            <span class="calories-number">{{ calculatedGoals.dailyCalories }}</span>
+            <span class="calories-unit">kcal/giorno</span>
+          </div>
+          <div class="calories-breakdown">
+            <div class="breakdown-item">
+              <span class="label">Metabolismo Basale</span>
+              <span class="value">{{ calculatedGoals.bmr }} kcal</span>
+            </div>
+            <div class="breakdown-item">
+              <span class="label">Attività Fisica</span>
+              <span class="value">+{{ calculatedGoals.activityCalories }} kcal</span>
+            </div>
+            <div class="breakdown-item" [class.positive]="calculatedGoals.goalAdjustment > 0" [class.negative]="calculatedGoals.goalAdjustment < 0">
+              <span class="label">{{ getAdjustmentLabel() }}</span>
+              <span class="value">{{ calculatedGoals.goalAdjustment > 0 ? '+' : '' }}{{ calculatedGoals.goalAdjustment }} kcal</span>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Macronutrients Card -->
+    <ion-card class="macros-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="nutrition-outline" color="success"></ion-icon>
+          Macronutrienti
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        
+        <!-- Macros Chart -->
+        <div class="macros-chart">
+          <div class="chart-container">
+            <canvas #macrosChart width="200" height="200"></canvas>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item">
+              <div class="legend-color protein"></div>
+              <span>Proteine</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color carbs"></div>
+              <span>Carboidrati</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color fats"></div>
+              <span>Grassi</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Macros Details -->
+        <div class="macros-details">
+          <div class="macro-item">
+            <div class="macro-header">
+              <ion-icon name="fitness-outline" color="danger"></ion-icon>
+              <span class="macro-name">Proteine</span>
+              <span class="macro-percentage">{{ calculatedGoals.macros.proteinPercentage }}%</span>
+            </div>
+            <div class="macro-values">
+              <span class="grams">{{ calculatedGoals.macros.proteinGrams }}g</span>
+              <span class="calories">{{ calculatedGoals.macros.proteinCalories }} kcal</span>
+            </div>
+            <div class="macro-bar">
+              <div class="bar-fill protein" [style.width.%]="calculatedGoals.macros.proteinPercentage"></div>
+            </div>
+          </div>
+
+          <div class="macro-item">
+            <div class="macro-header">
+              <ion-icon name="leaf-outline" color="success"></ion-icon>
+              <span class="macro-name">Carboidrati</span>
+              <span class="macro-percentage">{{ calculatedGoals.macros.carbsPercentage }}%</span>
+            </div>
+            <div class="macro-values">
+              <span class="grams">{{ calculatedGoals.macros.carbsGrams }}g</span>
+              <span class="calories">{{ calculatedGoals.macros.carbsCalories }} kcal</span>
+            </div>
+            <div class="macro-bar">
+              <div class="bar-fill carbs" [style.width.%]="calculatedGoals.macros.carbsPercentage"></div>
+            </div>
+          </div>
+
+          <div class="macro-item">
+            <div class="macro-header">
+              <ion-icon name="water-outline" color="warning"></ion-icon>
+              <span class="macro-name">Grassi</span>
+              <span class="macro-percentage">{{ calculatedGoals.macros.fatsPercentage }}%</span>
+            </div>
+            <div class="macro-values">
+              <span class="grams">{{ calculatedGoals.macros.fatsGrams }}g</span>
+              <span class="calories">{{ calculatedGoals.macros.fatsCalories }} kcal</span>
+            </div>
+            <div class="macro-bar">
+              <div class="bar-fill fats" [style.width.%]="calculatedGoals.macros.fatsPercentage"></div>
+            </div>
+          </div>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Hydration Card -->
+    <ion-card class="hydration-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="water" color="primary"></ion-icon>
+          Idratazione
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="hydration-info">
+          <div class="water-amount">
+            <span class="amount-number">{{ calculatedGoals.dailyWater }}</span>
+            <span class="amount-unit">litri/giorno</span>
+          </div>
+          <div class="water-breakdown">
+            <div class="water-tip">
+              <ion-icon name="bulb-outline" color="warning"></ion-icon>
+              <span>Distribuisci l'assunzione durante tutta la giornata</span>
+            </div>
+            <div class="water-suggestion">
+              <span>💧 {{ Math.round(calculatedGoals.dailyWater * 4) }} bicchieri da 250ml</span>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Calculation Details Card -->
+    <ion-card class="details-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="calculator-outline" color="medium"></ion-icon>
+          Come Sono Calcolati
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        
+        <ion-accordion-group>
+          
+          <!-- BMR Calculation -->
+          <ion-accordion value="bmr">
+            <ion-item slot="header">
+              <ion-icon name="pulse-outline" slot="start" color="danger"></ion-icon>
+              <ion-label>
+                <h3>Metabolismo Basale (BMR)</h3>
+                <p>{{ calculatedGoals.bmr }} kcal</p>
+              </ion-label>
+            </ion-item>
+            <div class="accordion-content" slot="content">
+              <p>Il metabolismo basale rappresenta le calorie che il tuo corpo brucia a riposo per le funzioni vitali.</p>
+              <div class="formula">
+                <strong>Formula utilizzata:</strong> {{ getFormulaUsed() }}
+              </div>
+              <div class="calculation-details">
+                <p><strong>I tuoi dati:</strong></p>
+                <ul>
+                  <li>Età: {{ userAge }} anni</li>
+                  <li>Sesso: {{ getUserGender() }}</li>
+                  <li>Peso: {{ userWeight }} kg</li>
+                  <li>Altezza: {{ userHeight }} cm</li>
+                </ul>
+              </div>
+            </div>
+          </ion-accordion>
+
+          <!-- Activity Factor -->
+          <ion-accordion value="activity">
+            <ion-item slot="header">
+              <ion-icon name="fitness-outline" slot="start" color="success"></ion-icon>
+              <ion-label>
+                <h3>Fattore di Attività</h3>
+                <p>Moltiplicatore: {{ getActivityMultiplier() }}x</p>
+              </ion-label>
+            </ion-item>
+            <div class="accordion-content" slot="content">
+              <p>Il fattore di attività tiene conto del tuo livello di movimento quotidiano.</p>
+              <div class="activity-levels">
+                <div class="activity-level" [class.current]="userActivityLevel === 'sedentary'">
+                  <strong>Sedentario (1.2x):</strong> Lavoro da scrivania, poco o nessun esercizio
+                </div>
+                <div class="activity-level" [class.current]="userActivityLevel === 'light'">
+                  <strong>Leggero (1.375x):</strong> Esercizio leggero 1-3 giorni/settimana
+                </div>
+                <div class="activity-level" [class.current]="userActivityLevel === 'moderate'">
+                  <strong>Moderato (1.55x):</strong> Esercizio moderato 3-5 giorni/settimana
+                </div>
+                <div class="activity-level" [class.current]="userActivityLevel === 'active'">
+                  <strong>Attivo (1.725x):</strong> Esercizio intenso 6-7 giorni/settimana
+                </div>
+                <div class="activity-level" [class.current]="userActivityLevel === 'very_active'">
+                  <strong>Molto Attivo (1.9x):</strong> Esercizio molto intenso, lavoro fisico
+                </div>
+              </div>
+            </div>
+          </ion-accordion>
+
+          <!-- Goal Adjustment -->
+          <ion-accordion value="goal">
+            <ion-item slot="header">
+              <ion-icon name="push-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Aggiustamento per Obiettivo</h3>
+                <p>{{ calculatedGoals.goalAdjustment > 0 ? '+' : '' }}{{ calculatedGoals.goalAdjustment }} kcal</p>
+              </ion-label>
+            </ion-item>
+            <div class="accordion-content" slot="content">
+              <p>L'aggiustamento calorico per raggiungere il tuo obiettivo:</p>
+              <div class="goal-explanations">
+                <div class="goal-explanation" [class.current]="currentGoal === 'lose_weight'">
+                  <strong>Perdere Peso (-500 kcal):</strong> Deficit per perdita di ~0.5kg/settimana
+                </div>
+                <div class="goal-explanation" [class.current]="currentGoal === 'maintain_weight'">
+                  <strong>Mantenere Peso (0 kcal):</strong> Equilibrio tra calorie consumate e bruciate
+                </div>
+                <div class="goal-explanation" [class.current]="currentGoal === 'gain_muscle'">
+                  <strong>Aumentare Massa (+300 kcal):</strong> Surplus moderato per crescita muscolare
+                </div>
+                <div class="goal-explanation" [class.current]="currentGoal === 'gain_weight'">
+                  <strong>Aumentare Peso (+500 kcal):</strong> Surplus per aumento di peso generale
+                </div>
+              </div>
+            </div>
+          </ion-accordion>
+
+          <!-- Macronutrients -->
+          <ion-accordion value="macros">
+            <ion-item slot="header">
+              <ion-icon name="nutrition-outline" slot="start" color="warning"></ion-icon>
+              <ion-label>
+                <h3>Distribuzione Macronutrienti</h3>
+                <p>Bilanciamento ottimale</p>
+              </ion-label>
+            </ion-item>
+            <div class="accordion-content" slot="content">
+              <p>La distribuzione dei macronutrienti è ottimizzata per il tuo obiettivo:</p>
+              <div class="macro-explanations">
+                <div class="macro-explanation">
+                  <strong>Proteine ({{ calculatedGoals.macros.proteinPercentage }}%):</strong>
+                  <p>Essenziali per riparazione muscolare e sazietà. 4 kcal per grammo.</p>
+                </div>
+                <div class="macro-explanation">
+                  <strong>Carboidrati ({{ calculatedGoals.macros.carbsPercentage }}%):</strong>
+                  <p>Fonte primaria di energia per cervello e muscoli. 4 kcal per grammo.</p>
+                </div>
+                <div class="macro-explanation">
+                  <strong>Grassi ({{ calculatedGoals.macros.fatsPercentage }}%):</strong>
+                  <p>Importanti per ormoni e assorbimento vitamine. 9 kcal per grammo.</p>
+                </div>
+              </div>
+            </div>
+          </ion-accordion>
+
+        </ion-accordion-group>
+
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Update Notice -->
+    <div class="update-notice">
+      <ion-icon name="refresh-outline" color="medium"></ion-icon>
+      <p>Gli obiettivi si aggiornano automaticamente quando modifichi i tuoi dati personali</p>
+    </div>
+
+  </div>
+</ion-content>

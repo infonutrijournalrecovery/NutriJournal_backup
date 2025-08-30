@@ -9,6 +9,12 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+// ===================================
+// NUTRIJOURNAL GLOBAL SYSTEM (MUST BE FIRST!)
+// ===================================
+@use 'styles/global-variables' as *;
+@use 'styles/global-mixins' as *;
+
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
