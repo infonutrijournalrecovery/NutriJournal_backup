@@ -101,6 +101,13 @@ export class DashboardPage implements OnInit, OnDestroy {
   isLoading = false;
   selectedSegment = 'nutrition';
 
+  waterAmount: number = 0;
+
+  confirmWater() {
+    console.log("Acqua bevuta:", this.waterAmount, "ml");
+    // Qui puoi aggiungere la logica per salvare i dati
+  }
+
   // Proprietà per la navigazione temporale
   currentDate = new Date();
   

@@ -1826,20 +1826,20 @@ ion-content.dashboard-content {
   display: flex;           /* usa il flexbox 
   flex-direction: column;  i bottoni uno sotto l'altro */
   align-items: center;     /* centra i bottoni orizzontalmente */
-  gap: 65px;               /* spazio tra i bottoni */
+  gap: 140px;               /* spazio tra i bottoni */
 }
 
 .action-btn.scan-btn{
 //  width: 90%;           /* pi� largo */
   height: 50px;         /* pi� alto */
-  font-size: 16px;      /* testo pi� leggibile */
+  font-size: 20px;      /* testo pi� leggibile */
   --background: #28a745;
 }
 
 .action-btn.pantry-btn{
   //  width: 90%;           /* pi� largo */
     height: 50px;         /* pi� alto */
-    font-size: 16px;      /* testo pi� leggibile */
+    font-size: 20px;      /* testo pi� leggibile */
     --background: #cf0020;
   }
 
@@ -1849,3 +1849,41 @@ ion-content.dashboard-content {
       font-size: 16px;      /* testo pi� leggibile */
       --background: #002085;
     }
+
+    ion-input {
+      flex: 1;               /* occupa tutto lo spazio disponibile */
+      --padding-start: 10px;
+      --padding-end: 10px;
+      height: 45px;           /* altezza della casella */
+      font-size: 16px;
+      --background: #ffffff;  /* sfondo bianco */
+      --border-radius: 8px;   /* bordi arrotondati */
+      --color: #333;          /* colore testo */
+    }
+
+  .bicchiere-btn{
+    width: 70%;           /* pi� largo */
+    height: 40px;         /* pi� alto */
+    font-size: 13px;      /* testo pi� leggibile */
+    --background: #6070ff;
+  }
+
+  .page-centered {
+    display: flex;
+    justify-content: center;   /* orizzontale */
+    align-items: center;       /* verticale */
+    height: 40px;             /* altezza della viewport */
+    flex-direction: column;    /* se vuoi che elementi multipli siano impilati verticalmente */
+  }
+  
+  .today-btn {
+    width: 100px;           /* larghezza fissa */
+    min-width: 80px;        /* opzionale, per garantire leggibilità */
+    font-size: 0.9rem;      /* dimensione testo */
+    height: 30px;           /* mantiene altezza originale se vuoi */
+    --color: #0051d0 !important;         /* colore testo */
+    color: #0051d0 !important;         /* colore testo */
+    --background: transparent;
+
+  }
+  

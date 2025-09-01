@@ -42,11 +42,61 @@
       </div>
     </div>
 
+
+              
+              <!-- Controlli di navigazione temporale -->
+              <div class="page-centered">
+              <div class="date-navigation-controls" style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+                <ion-button 
+                  fill="clear" 
+                  size="big" 
+                  (click)="goToPreviousDay()"
+                  style="--color: #1976d2; color: #1976d2 !important;">
+                  <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+                
+                <div class="date-display" style="flex: 1; text-align: center; font-weight: 500; font-size: 0.9rem;">
+                  {{ getDateDisplayText() }}
+                </div>
+                
+                <ion-button 
+                  fill="clear" 
+                  size="big" 
+                  (click)="goToNextDay()"
+                  [disabled]="!canGoToNextDay()"
+                  style="--color: #1976d2; color: #1976d2 !important;">
+                  <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+                
+             <!--   <ion-button 
+                  *ngIf="!isToday()"
+                  fill="outline" 
+                  size="big" 
+                  (click)="goToToday()"
+                  style="--border-color: #1976d2; --color: #1976d2; border-color: #1976d2 !important; color: #1976d2 !important; font-size: 0.8rem; height: 28px;">
+                  Oggi
+                </ion-button> -->
+
+                <ion-button 
+                  *ngIf="!isToday()"
+                  fill="outline" 
+                  size="big" 
+                   (click)="goToToday()"
+                    class="today-btn">
+                    Oggi
+                  </ion-button>
+
+
+              </div>
+              </div>
+
     <!-- Content Desktop in Grid -->
     <div class="desktop-grid">
-      
+    
       <!-- Colonna Sinistra -->
       <div class="desktop-left-column">
+
+        
         
         <!-- Nutrition Progress Desktop - NUOVA VERSIONE -->
         <ion-card class="desktop-nutrition-card modern-nutrition" style="--background: #ffffff; background-color: #ffffff !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;">
@@ -55,7 +105,7 @@
               <ion-icon name="nutrition-outline"></ion-icon>
               Stato Nutrizionale
               
-              <!-- Controlli di navigazione temporale -->
+              <!-- Controlli di navigazione temporale 
               <div class="date-navigation-controls" style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
                 <ion-button 
                   fill="clear" 
@@ -86,7 +136,7 @@
                   style="--border-color: #1976d2; --color: #1976d2; border-color: #1976d2 !important; color: #1976d2 !important; font-size: 0.8rem; height: 28px;">
                   Oggi
                 </ion-button>
-              </div>
+              </div> -->
             </ion-card-title>
           </ion-card-header>
           <ion-card-content style="--background: #ffffff; background-color: #ffffff !important; --color: #1a1c1e; color: #1a1c1e !important;">
@@ -555,16 +605,58 @@
               Dispensa
           </ion-button>
           
-          
+          <!--
             <ion-button 
                 fill="solid" 
                 class="action-btn water-btn"
                 expand="block">
                   <ion-icon slot="start" name="water-outline"></ion-icon>
                   Bevi acqua
-            </ion-button>
+            </ion-button> -->
           </div>
         </ion-card-content>
+
+        <ion-item>
+          <!-- Casella di testo -->
+          <ion-input 
+            type="number" 
+            placeholder="ml" 
+            [(ngModel)]="waterAmount">
+          </ion-input>
+        
+          <!-- Pulsante accanto
+          <ion-button (click)="confirmWater()">
+            Conferma
+          </ion-button> -->
+          <ion-button 
+                fill="solid" 
+                class="action-btn water-btn"
+                expand="block">
+                  <ion-icon slot="start" name="water-outline"></ion-icon>
+                  Bevi acqua
+            </ion-button>
+        </ion-item>
+        <ion-item>
+          <ion-button 
+                fill="solid" 
+                class="bicchiere-btn"
+                expand="block">
+                  Bicchiere piccolo (100ml)
+            </ion-button>
+            <ion-button 
+                fill="solid" 
+                class="bicchiere-btn"
+                expand="block">
+                  Bicchiere medio (250ml)
+            </ion-button>
+            <ion-button 
+                fill="solid" 
+                class="bicchiere-btn"
+                expand="block">
+                  Bottiglietta (500ml)
+            </ion-button>
+        </ion-item>
+
       </ion-card>
 
         <!-- Attività Recenti Desktop
