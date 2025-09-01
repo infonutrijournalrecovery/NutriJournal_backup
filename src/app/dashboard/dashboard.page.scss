@@ -1832,3 +1832,31 @@ ion-content.dashboard-content {
   opacity: 0.6 !important;
   transform: scale(0.98) !important;
 }
+
+.button-container {
+  display: flex;           /* usa il flexbox 
+  flex-direction: column;  i bottoni uno sotto l'altro */
+  align-items: center;     /* centra i bottoni orizzontalmente */
+  gap: 65px;               /* spazio tra i bottoni */
+}
+
+.action-btn.scan-btn{
+//  width: 90%;           /* pi� largo */
+  height: 50px;         /* pi� alto */
+  font-size: 16px;      /* testo pi� leggibile */
+  --background: #28a745;
+}
+
+.action-btn.pantry-btn{
+  //  width: 90%;           /* pi� largo */
+    height: 50px;         /* pi� alto */
+    font-size: 16px;      /* testo pi� leggibile */
+    --background: #cf0020;
+  }
+
+  .action-btn.water-btn{
+    //  width: 90%;           /* pi� largo */
+      height: 50px;         /* pi� alto */
+      font-size: 16px;      /* testo pi� leggibile */
+      --background: #002085;
+    }

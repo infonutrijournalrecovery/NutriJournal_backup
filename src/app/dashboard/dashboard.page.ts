@@ -52,7 +52,7 @@ import {
   moonOutline,
   chevronBackOutline,
   chevronForwardOutline,
-  calendarOutline, wineOutline, fastFoodOutline } from 'ionicons/icons';
+  calendarOutline, wineOutline, fastFoodOutline, barcodeOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
 // Commentiamo temporaneamente questi import per far funzionare l'app
@@ -226,7 +226,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     private loadingController: LoadingController,
     private router: Router
   ) {
-    addIcons({personOutline,nutritionOutline,chevronBackOutline,chevronForwardOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,flameOutline,wineOutline,fastFoodOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,calendarOutline});
+    addIcons({personOutline,nutritionOutline,chevronBackOutline,chevronForwardOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,barcodeOutline,fastFoodOutline,flameOutline,wineOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,calendarOutline});
   }
 
   ngOnInit() {

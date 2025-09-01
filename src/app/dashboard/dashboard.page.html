@@ -528,6 +528,45 @@
           </ion-card-content>
         </ion-card>
 
+
+         <!-- Attività Recenti Desktop -->
+         <ion-card class="desktop-activities-card" style="box-shadow: none; border: none;">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="trending-up-outline"></ion-icon>
+              Azioni Rapide
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="button-container">
+              <ion-button 
+              fill="solid" 
+              class="action-btn scan-btn"
+              [routerLink]="['/scanner']">
+              <ion-icon slot="start" name="barcode-outline"></ion-icon>
+              Scansiona prodotto
+            </ion-button>
+          
+          <ion-button 
+              fill="solid" 
+              class="action-btn pantry-btn"
+              [routerLink]="['/dispensa']">
+              <ion-icon slot="start" name="fast-food-outline"></ion-icon>
+              Dispensa
+          </ion-button>
+          
+          
+            <ion-button 
+                fill="solid" 
+                class="action-btn water-btn"
+                expand="block">
+                  <ion-icon slot="start" name="water-outline"></ion-icon>
+                  Bevi acqua
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
         <!-- Attività Recenti Desktop
         <ion-card class="desktop-activities-card" style="box-shadow: none; border: none;">
           <ion-card-header>

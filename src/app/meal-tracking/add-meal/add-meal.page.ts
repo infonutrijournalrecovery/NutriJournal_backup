@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -281,6 +282,15 @@ export class AddMealPage implements OnInit, OnDestroy {
       case 'Latticini': return 'nutrition-outline';
       default: return 'nutrition-outline';
     }
+  }
+
+  goToScanner() {
+    this.router.navigate(['/scanner']);
+  }
+  
+  
+  goToPantry() {
+    this.router.navigate(['/pantry']);
   }
 
   /**
@@ -619,3 +629,4 @@ export class AddMealPage implements OnInit, OnDestroy {
     await toast.present();
   }
 }
+
