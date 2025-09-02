@@ -47,6 +47,14 @@ export const routes: Routes = [
     loadComponent: () => import('./meal-tracking/add-meal/add-meal.page').then((m) => m.AddMealPage),
   },
   
+  {
+    path: 'activity/add',
+    loadComponent: () => import('./activity-tracking/add-activity/add-Activity.page').then((m) => m.AddActivityPage),
+  },
+  {
+    path: 'pantry',
+    loadComponent: () => import('./pantry/pantry.page').then((m) => m.PantryPage),
+  },
   // Main app with tabs
   {
     path: 'tabs',

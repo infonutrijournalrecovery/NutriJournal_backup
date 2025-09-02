@@ -278,6 +278,20 @@
                 </ion-progress-bar>
               </div>
 
+              <!-- Acqua -->
+              <div class="macro-item water">
+                <div class="macro-header">
+                  <ion-icon name="fitness-outline" class="macro-icon water"></ion-icon>
+                  <span class="macro-label">Acqua</span>
+                  <span class="macro-values">{{ dailyStats.water.consumed }}/{{ dailyStats.water.goal }}ml</span>
+                </div>
+                <ion-progress-bar 
+                  [value]="dailyStats.water.percentage / 100"
+                  [color]="getProgressColor(dailyStats.water.percentage)"
+                  class="macro-progress">
+                </ion-progress-bar>
+              </div>
+
             </div>
           </ion-card-content>
         </ion-card>
@@ -294,9 +308,14 @@
             <div *ngIf="recentActivities.length === 0" class="desktop-empty-state">
               <ion-icon name="trending-up-outline" style="color: #ff0000;"></ion-icon>
               <p>Nessuna attività registrata</p>
-                <ion-button fill="outline" size="small" style="--ion-color-contrast: #505050;"  (click)="handleQuickAction({action: 'addActivity'})">
-                + Registra Attività
-                </ion-button>
+              <ion-button 
+              fill="outline"
+              size="small"
+              class="action-btn activity-btn"
+              (click)="goToActivity()">
+              <ion-icon slot="start" name="fitness-outline"></ion-icon>
+              + Registra Attività
+            </ion-button>
             </div>
             
             <div *ngFor="let activity of recentActivities" class="desktop-activity-item">
@@ -346,7 +365,7 @@
                       fill="solid" 
                       size="small"
                       class="add-meal-btn"
-                      (click)="addMeal('breakfast')">
+                      (click)="openMeal()">
                       <ion-icon name="add-outline"></ion-icon>
                       Aggiungi
                     </ion-button>

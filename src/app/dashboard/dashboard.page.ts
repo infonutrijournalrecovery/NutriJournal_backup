@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 import { 
   IonContent, 
   IonHeader, 
@@ -132,7 +133,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     carbs: { consumed: 203, goal: 275, percentage: 0 },
     proteins: { consumed: 87, goal: 110, percentage: 0 },
     fats: { consumed: 51, goal: 73, percentage: 0 },
-    water: { consumed: 1250, goal: 2000 }, // ml
+    water: { consumed: 1250, goal: 2000, percentage: 0 }, // ml
     activities: 3,
     // Nuovi campi per calcoli nutrizionali
     userProfile: {
@@ -161,6 +162,8 @@ export class DashboardPage implements OnInit, OnDestroy {
     gain_weight: { carbs: 0.55, proteins: 0.25, fats: 0.2 },
     gain_muscle: { carbs: 0.45, proteins: 0.3, fats: 0.25 }
   };
+
+  
 
   // Quick actions
   quickActions = [
@@ -231,7 +234,8 @@ export class DashboardPage implements OnInit, OnDestroy {
     private deviceService: DeviceService,
     private toastController: ToastController,
     private loadingController: LoadingController,
-    private router: Router
+    private router: Router,
+    private navCtrl: NavController
   ) {
     addIcons({personOutline,nutritionOutline,chevronBackOutline,chevronForwardOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,barcodeOutline,fastFoodOutline,flameOutline,wineOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,calendarOutline});
   }
@@ -260,6 +264,15 @@ export class DashboardPage implements OnInit, OnDestroy {
         this.updateLayoutForDevice();
       })
     );
+  }
+
+
+  goToActivity() {
+    this.navCtrl.navigateForward('/activity/add');
+  }
+  openMeal() {   // \u2705 dentro la classe
+    console.log("Navigo verso /meal/add"); 
+    this.router.navigate(['/meal/add']);
   }
 
   private updateLayoutForDevice() {
@@ -627,6 +640,7 @@ export class DashboardPage implements OnInit, OnDestroy {
         italianMealType = 'Colazione';
     }
     
+
     // Naviga alla pagina di aggiunta pasto con parametri
     this.router.navigate(['/meal/add'], {
       queryParams: {
@@ -710,3 +724,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     });
   }
 }
+function openMeal() {
+  throw new Error('Function not implemented.');
+}
+
