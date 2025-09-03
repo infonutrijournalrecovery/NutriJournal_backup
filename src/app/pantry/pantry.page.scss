@@ -20,7 +20,7 @@
 
 .desktop-pantry-layout {
   min-height: 100vh;
-  background: #{$pantry-desktop-bg};
+  background: #ff0000;
 }
 
 .desktop-header {
@@ -72,10 +72,10 @@
 .search-card {
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
-  background: #{$pantry-desktop-bg};
+  background: #ff0000;
   
   ion-card-header {
-    background: #{$pantry-desktop-bg};
+    background: #ff0000;
     border-radius: 16px 16px 0 0;
     
     ion-card-title {
@@ -90,7 +90,7 @@
   .search-container {
     ion-item {
       --background: #f0f0f0;
-      --border-radius: #{$pantry-border-radius-small};
+      --border-radius: 0 0 24px 24px;
       margin-bottom: 1.5rem;
       margin-top: 1.5rem;
       height: 100px;
@@ -262,7 +262,7 @@
   width: 280px;
   height: 160px;
   border: 2px solid white;
-  border-radius: #{$pantry-border-radius-small};
+  border-radius: 0 0 24px 24px;
   position: relative;
   background: rgba(255, 255, 255, 0.1);
   
