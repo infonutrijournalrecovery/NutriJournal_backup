@@ -371,7 +371,6 @@ export class AddMealPage implements OnInit, OnDestroy {
   getTotalFats(): number {
     return Math.round(this.mealItems.reduce((total, item) => total + item.totalNutrition.fats, 0) * 10) / 10;
   }
-
   /**
    * Edit item quantity
    */

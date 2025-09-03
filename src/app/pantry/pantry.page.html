@@ -1,294 +1,46 @@
-<ion-header [translucent]="true">
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
-      </ion-buttons>
-      <ion-title>Scanner Prodotti</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  
-  <ion-content [fullscreen]="true">
-    
-    <!-- Desktop Layout -->
-    <div *ngIf="isDesktop" class="desktop-scanner-layout">
-      
-      <!-- Header Section -->
-      <div class="scanner-header desktop-header">
-        <div class="header-content">
-          <h1>
-            <ion-icon name="barcode-outline"></ion-icon>
-            Scanner Prodotti
-          </h1>
-          <p>Inserisci il codice EAN o scansiona il barcode per analizzare il prodotto</p>
-        </div>
-      </div>
-      
-      <!-- Search Section -->
-      <div class="desktop-search-section">
-        <ion-card class="search-card">
-          <ion-card-header>
-            <ion-card-title>
-              <ion-icon name="search-outline"></ion-icon>
-              Ricerca per Codice EAN
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <div class="search-container">
-              <ion-item>
-                <ion-label position="stacked" style="color: #505050">Codice Barcode (EAN)</ion-label>
-                <ion-input 
-                  [(ngModel)]="searchCode" 
-                  placeholder="es. 8076809513726"
-                  type="text"
-                  (keyup.enter)="searchByCode()">
-                </ion-input>
-              </ion-item>
-              
-              <ion-button 
-                expand="block" 
-                (click)="searchByCode()"
-                [disabled]="!searchCode || isLoading"
-                class="search-button">
-                <ion-icon name="search-outline" slot="start"></ion-icon>
-                <span *ngIf="!isLoading">Cerca Prodotto</span>
-                <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
-              </ion-button>
-            </div>
-          </ion-card-content>
-        </ion-card>
-        
-        <!-- Future ESP32-CAM Integration -->
-        <ion-card class="camera-card">
-          <ion-card-header>
-            <ion-card-title>
-              <ion-icon name="camera-outline"></ion-icon>
-              Scansione Camera (Presto Disponibile)
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <p>Connetti una ESP32-CAM per la scansione automatica</p>
-            <ion-button fill="outline" disabled>
-              <ion-icon name="camera-outline" slot="start"></ion-icon>
-              Configura Camera
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </div>
-      
+<ion-header class="desktop-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
+    </ion-buttons>
+
+    <div class="header-content">
+      <h1>
+        <ion-icon name="cart-outline"></ion-icon>
+        La tua dispensa
+      </h1>
+      <p>Gestisci e tieni traccia di quello che hai in casa</p>
+
+      <ion-item class="search-bar">
+        <ion-input 
+          placeholder="Cerca un prodotto..."
+          [(ngModel)]="searchQuery"
+          (ionInput)="filterPantry()">
+        </ion-input>
+      </ion-item>
     </div>
-    
-    <!-- Mobile Layout -->
-    <div *ngIf="isMobile" class="mobile-scanner-layout">
-      
-      <!-- Scanner Camera View -->
-      <div *ngIf="isScanning" class="camera-scanner">
-        <div class="scanner-overlay">
-          <div class="scan-area">
-            <div class="scan-line"></div>
-          </div>
-          <div class="scanner-instructions">
-            <p>Inquadra il codice a barre del prodotto</p>
-            <ion-button fill="clear" color="light" (click)="stopScanning()">
-              <ion-icon name="close-outline"></ion-icon>
-              Annulla
-            </ion-button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Mobile Controls -->
-      <div *ngIf="!isScanning" class="mobile-controls">
-        <div class="scanner-header mobile-header">
-          <h1>Scanner Prodotti</h1>
-          <p>Scansiona il barcode per analizzare il prodotto</p>
-        </div>
-        
-        <!-- Primary Scanner Button -->
-        <div class="scan-button-container">
-          <ion-button 
-            expand="block" 
-            size="large" 
-            (click)="startScanning()"
-            class="primary-scan-button">
-            <ion-icon name="scan-outline" slot="start"></ion-icon>
-            Scansiona Prodotto
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content [fullscreen]="true">
+  <ion-list>
+    <ion-item *ngFor="let item of filteredItems">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ item.title }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>{{ item.description }}</p>
+          <p>Marca: {{ item.brand }}</p>
+          <ion-button class= "visualizza-btn" fill="solid" (click)="goToProduct()">
+            Visualizza
           </ion-button>
-        </div>
-        
-        <!-- Manual Input Option -->
-        <div class="manual-input-section">
-          <ion-button 
-            fill="outline" 
-            expand="block" 
-            (click)="showManualInput = !showManualInput">
-            <ion-icon name="create-outline" slot="start"></ion-icon>
-            Inserisci Codice Manualmente
+          <ion-button class= "elimina-btn" fill="solid" (click)="onButtonClick(item)">
+            Elimina
           </ion-button>
-          
-          <div *ngIf="showManualInput" class="manual-input-form">
-            <ion-item>
-              <ion-label position="stacked">Codice Barcode</ion-label>
-              <ion-input 
-                [(ngModel)]="searchCode" 
-                placeholder="es. 8076809513726"
-                type="number">
-              </ion-input>
-            </ion-item>
-            
-            <ion-button 
-              expand="block" 
-              (click)="searchByCode()"
-              [disabled]="!searchCode || isLoading"
-              class="manual-search-button">
-              <ion-icon name="search-outline" slot="start"></ion-icon>
-              <span *ngIf="!isLoading">Cerca</span>
-              <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
-            </ion-button>
-          </div>
-        </div>
-      </div>
-      
-    </div>
-  
-  </ion-content>
-  
-  <!-- Product Details Modal -->
-  <ion-modal [isOpen]="showProductModal" (willDismiss)="closeProductModal()">
-    <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Dettagli Prodotto</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="closeProductModal()">
-              <ion-icon name="close-outline"></ion-icon>
-            </ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-      
-      <ion-content *ngIf="selectedProduct">
-        
-        <!-- Product Header -->
-        <div class="product-header">
-          <ion-avatar class="product-avatar">
-            <img [src]="selectedProduct.imageUrl || 'assets/images/product-placeholder.png'" 
-                 [alt]="selectedProduct.name">
-          </ion-avatar>
-          <div class="product-info">
-            <h2>{{ selectedProduct.name }}</h2>
-            <p *ngIf="selectedProduct.brand" class="brand">{{ selectedProduct.brand }}</p>
-            <ion-chip class="barcode-chip">
-              <ion-icon name="barcode-outline"></ion-icon>
-              <ion-label>{{ selectedProduct.code }}</ion-label>
-            </ion-chip>
-          </div>
-        </div>
-        
-        <!-- Nutrition Facts -->
-        <ion-card class="nutrition-card">
-          <ion-card-header>
-            <ion-card-title>
-              <ion-icon name="nutrition-outline"></ion-icon>
-              Valori Nutrizionali (per 100g)
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <div class="nutrition-grid">
-              <div class="nutrition-item">
-                <span class="label">Energia</span>
-                <span class="value">{{ selectedProduct.nutrition.energy }} kcal</span>
-              </div>
-              <div class="nutrition-item">
-                <span class="label">Proteine</span>
-                <span class="value">{{ selectedProduct.nutrition.proteins }}g</span>
-              </div>
-              <div class="nutrition-item">
-                <span class="label">Carboidrati</span>
-                <span class="value">{{ selectedProduct.nutrition.carbohydrates }}g</span>
-              </div>
-              <div class="nutrition-item">
-                <span class="label">Grassi</span>
-                <span class="value">{{ selectedProduct.nutrition.fats }}g</span>
-              </div>
-              <div class="nutrition-item">
-                <span class="label">Zuccheri</span>
-                <span class="value">{{ selectedProduct.nutrition.sugars }}g</span>
-              </div>
-              <div class="nutrition-item">
-                <span class="label">Sale</span>
-                <span class="value">{{ selectedProduct.nutrition.salt }}g</span>
-              </div>
-            </div>
-          </ion-card-content>
-        </ion-card>
-        
-        <!-- Additives -->
-        <ion-card *ngIf="selectedProduct.additives.length > 0" class="additives-card">
-          <ion-card-header>
-            <ion-card-title>
-              <ion-icon name="warning-outline"></ion-icon>
-              Additivi
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <div class="additives-list">
-              <div *ngFor="let additive of selectedProduct.additives" class="additive-item">
-                <ion-chip [color]="getRiskLevelColor(additive.riskLevel)">
-                  <ion-icon [name]="getRiskLevelIcon(additive.riskLevel)"></ion-icon>
-                  <ion-label>{{ additive.code }}</ion-label>
-                </ion-chip>
-                <div class="additive-info">
-                  <strong>{{ additive.name }}</strong>
-                  <span class="risk-level">Rischio: {{ additive.riskLevel === 'low' ? 'Basso' : additive.riskLevel === 'medium' ? 'Medio' : 'Alto' }}</span>
-                </div>
-              </div>
-            </div>
-          </ion-card-content>
-        </ion-card>
-        
-        <!-- Allergens -->
-        <ion-card *ngIf="selectedProduct.allergens.length > 0" class="allergens-card">
-          <ion-card-header>
-            <ion-card-title>
-              <ion-icon name="warning-outline"></ion-icon>
-              Allergeni
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <div class="allergens-list">
-              <ion-chip *ngFor="let allergen of selectedProduct.allergens" color="warning">
-                <ion-label>{{ allergen }}</ion-label>
-              </ion-chip>
-            </div>
-          </ion-card-content>
-        </ion-card>
-        
-        <!-- Ingredients -->
-        <ion-card *ngIf="selectedProduct.ingredients" class="ingredients-card">
-          <ion-card-header>
-            <ion-card-title>
-              <ion-icon name="list-outline"></ion-icon>
-              Ingredienti
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <p class="ingredients-text">{{ selectedProduct.ingredients }}</p>
-          </ion-card-content>
-        </ion-card>
-        
-        <!-- Action Buttons -->
-        <div class="modal-actions">
-          <ion-button expand="block" (click)="addToMeal()" class="add-meal-button">
-            <ion-icon name="add-outline" slot="start"></ion-icon>
-            Aggiungi al Pasto
-          </ion-button>
-          
-          <ion-button expand="block" fill="outline" (click)="closeProductModal()">
-            Chiudi
-          </ion-button>
-        </div>
-        
-      </ion-content>
-    </ng-template>
-  </ion-modal>
-  
+        </ion-card-content>
+      </ion-card>
+    </ion-item>
+  </ion-list>
+</ion-content>

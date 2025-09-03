@@ -31,9 +31,9 @@ import {
 import { DeviceService } from '../shared/services/device.service';
 
 @Component({
-  selector: 'app-pantry',
-  templateUrl: './pantry.page.html',
-  styleUrls: ['./pantry.page.scss'],
+  selector: 'app-product',
+  templateUrl: './product.page.html',
+  styleUrls: ['./product.page.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -59,7 +59,7 @@ import { DeviceService } from '../shared/services/device.service';
     IonSpinner,
   ]
 })
-export class PantryPage {
+export class ProductPage {
   private deviceService = inject(DeviceService);
   private router = inject(Router);
   private alertController = inject(AlertController);
@@ -77,8 +77,6 @@ export class PantryPage {
     { title: 'Pane', description: 'Pan bauletto 500g', brand: 2 },
   ];
 
-  filteredItems = [...this.items];
-  searchQuery = '';
 
   constructor() {
     this.isDesktop = this.deviceService.isDesktop();
@@ -92,17 +90,5 @@ export class PantryPage {
       buttons: ['OK']
     });
     await alert.present();
-  }
-
-  filterPantry() {
-    const q = this.searchQuery.toLowerCase();
-    this.filteredItems = this.items.filter(item =>
-      item.title.toLowerCase().includes(q) ||
-      item.description.toLowerCase().includes(q)
-    );
-  }
-
-  goToProduct() {
-    this.router.navigate(['/product']);
   }
 }

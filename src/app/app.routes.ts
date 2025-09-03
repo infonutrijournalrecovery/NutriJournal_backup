@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // Auth routes
   {
     path: 'login',
     loadComponent: () => import('./auth/login/login.page').then((m) => m.LoginPage),
@@ -54,6 +53,10 @@ export const routes: Routes = [
   {
     path: 'pantry',
     loadComponent: () => import('./pantry/pantry.page').then((m) => m.PantryPage),
+  },
+  {
+    path: 'product',
+    loadComponent: () => import('./product/product.page').then((m) => m.ProductPage),
   },
   // Main app with tabs
   {
