@@ -1,7 +1,7 @@
 @use '../../styles/profile-variables' as profile;
 
 .add-Activity-content {
-  --background: var(--ion-color-light-tint);
+  --background: #c0c0c0;
 }
 
 .Activity-container {
@@ -262,25 +262,38 @@
   }
 }
 
+ion-input{
+  --padding-start: 0.5rem;
+  --padding-end: 0.5rem;
+  --border-radius: 8px;
+  --background: #f0f0f0;
+}
+
 // Modal Styling
 ion-modal {
+  --width: 380px;
+  --height: 500px;
+  --border-radius: 16px;
+  --backdrop-opacity: 0.4;
+
   ion-content {
     --padding-top: 1rem;
     --padding-bottom: 1rem;
     --padding-start: 1rem;
     --padding-end: 1rem;
+    --color: #ffffff !important;
+    --background: #404040 !important;
   }
   
   ion-datetime {
-    --background: white;
-    --background-rgb: 255, 255, 255;
+    background: #404040;
   }
   
   ion-list {
-    background: transparent;
+    background: #404040;
     
     ion-item {
-      --background: white;
+      --background: #ff0000;
       --border-radius: 8px;
       margin-bottom: 0.5rem;
       

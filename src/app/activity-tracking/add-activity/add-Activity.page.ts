@@ -30,10 +30,11 @@ import {
   IonFab,
   IonFabButton,
   IonFabList,
+  IonInput,
   ToastController,
   AlertController,
   ModalController,
-  LoadingController
+  LoadingController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -100,7 +101,8 @@ import {
     IonRadio,
     IonFab,
     IonFabButton,
-    IonFabList
+    IonFabList,
+    IonInput
   ]
 })
 export class AddActivityPage implements OnInit, OnDestroy {
@@ -131,7 +133,7 @@ export class AddActivityPage implements OnInit, OnDestroy {
   
   // Constants
   today = new Date().toISOString();
-  ActivityTypes: ActivityType[] = ['Colazione', 'Pranzo', 'Spuntini', 'Cena'];
+  ActivityTypes: ActivityType[] = ['Colazione', 'Pranzo', 'Spuntini', 'Cena', 'Cena', 'Cena', 'Cena', 'Cena', 'Cena', 'Cena', 'Cena'];
   
   // Exposed Math for template
   Math = Math;
@@ -261,6 +263,13 @@ export class AddActivityPage implements OnInit, OnDestroy {
       case 'Colazione': return 'cafe-outline';
       case 'Pranzo': return 'restaurant-outline';
       case 'Spuntini': return 'fast-food-outline';
+      case 'Cena': return 'wine-outline';
+      case 'Cena': return 'wine-outline';
+      case 'Cena': return 'wine-outline';
+      case 'Cena': return 'wine-outline';
+      case 'Cena': return 'wine-outline';
+      case 'Cena': return 'wine-outline';
+      case 'Cena': return 'wine-outline';
       case 'Cena': return 'wine-outline';
       default: return 'restaurant-outline';
     }
