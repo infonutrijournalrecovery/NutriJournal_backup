@@ -59,6 +59,10 @@ export const routes: Routes = [
     loadComponent: () => import('./activity-tracking/add-activity/add-Activity.page').then((m) => m.AddActivityPage),
   },
   {
+    path: 'activity/view',
+    loadComponent: () => import('./activity-tracking/view-activity/view-activity.page').then((m) => m.ViewActivityPage),
+  },
+  {
     path: 'pantry',
     loadComponent: () => import('./pantry/pantry.page').then((m) => m.PantryPage),
   },
