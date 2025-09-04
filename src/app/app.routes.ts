@@ -67,6 +67,41 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./dashboard/dashboard.page').then((m) => m.DashboardPage),
       },
+
+      {
+
+
+        path: 'meal/add',
+
+
+        loadComponent: () => import('./meal-tracking/add-meal/add-meal.page').then((m) => m.AddMealPage),
+
+
+      },
+
+
+      {
+
+
+        path: 'meal/edit/:id',
+
+
+        loadComponent: () => import('./meal-tracking/add-meal/add-meal.page').then((m) => m.AddMealPage),
+
+
+      },
+
+
+      {
+
+
+        path: 'activity/add',
+
+
+        loadComponent: () => import('./activity-tracking/add-activity/add-Activity.page').then((m) => m.AddActivityPage),
+
+
+      },
       {
         path: 'scanner',
         loadComponent: () => import('./scanner/scanner.page').then((m) => m.ScannerPage),

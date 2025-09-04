@@ -43,7 +43,7 @@
     </div>
 
 
-            
+              
               <!-- Controlli di navigazione temporale -->
               <div class="page-centered">
               <div class="date-navigation-controls" style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
@@ -365,7 +365,7 @@
                       fill="solid" 
                       size="small"
                       class="add-meal-btn"
-                      (click)="openMeal()">
+                      (click)="addMeal('breakfast')">
                       <ion-icon name="add-outline"></ion-icon>
                       Aggiungi
                     </ion-button>
@@ -619,7 +619,7 @@
           <ion-button 
               fill="solid" 
               class="action-btn pantry-btn"
-              [routerLink]="['/pantry']">
+              [routerLink]="['/dispensa']">
               <ion-icon slot="start" name="fast-food-outline"></ion-icon>
               Dispensa
           </ion-button>
@@ -637,11 +637,13 @@
 
         <ion-item>
           <!-- Casella di testo -->
-          <ion-input 
-            type="number" 
-            placeholder="ml" 
-            [(ngModel)]="waterAmount">
-          </ion-input>
+          <ion-item>
+            <ion-input 
+              type="number" 
+              [formControl]="waterAmount"
+              label="ml">
+            </ion-input>
+          </ion-item>
         
           <!-- Pulsante accanto
           <ion-button (click)="confirmWater()">
@@ -650,7 +652,8 @@
           <ion-button 
                 fill="solid" 
                 class="action-btn water-btn"
-                expand="block">
+                expand="block"
+                (click)="addWater()">
                   <ion-icon slot="start" name="water-outline"></ion-icon>
                   Bevi acqua
             </ion-button>
@@ -659,19 +662,22 @@
           <ion-button 
                 fill="solid" 
                 class="bicchiere-btn"
-                expand="block">
+                expand="block"
+                (click)="waterForm.get('waterAmount')?.setValue(100); confirmWater()">
                   Bicchiere piccolo (100ml)
             </ion-button>
             <ion-button 
                 fill="solid" 
                 class="bicchiere-btn"
-                expand="block">
+                expand="block"
+                (click)="waterForm.get('waterAmount')?.setValue(250); confirmWater()">
                   Bicchiere medio (250ml)
             </ion-button>
             <ion-button 
                 fill="solid" 
                 class="bicchiere-btn"
-                expand="block">
+                expand="block"
+                (click)="waterForm.get('waterAmount')?.setValue(500); confirmWater()">
                   Bottiglietta (500ml)
             </ion-button>
         </ion-item>

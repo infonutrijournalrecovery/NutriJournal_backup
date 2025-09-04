@@ -47,16 +47,22 @@ export class DeviceService {
     const width = window.innerWidth;
     const height = window.innerHeight;
     
-    // Determina il tipo di dispositivo basato sulla larghezza dello schermo
-    const isMobile = width < 768;
-    const isTablet = width >= 768 && width < 1024;
-    const isDesktop = width >= 1024;
-    
-    // Controlla se è un'app ibrida (Capacitor/Cordova)
+    // Controlla se � un'app ibrida (Capacitor/Cordova)
     const isHybrid = this.platform.is('hybrid') || 
                      this.platform.is('capacitor') || 
                      this.platform.is('cordova');
-
+    
+    // Usa una combinazione di fattori per determinare il tipo di dispositivo
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    
+    // Determina il tipo di dispositivo basato su pi� fattori
+    const isMobile = width < 768 && (isMobileDevice || hasTouch);
+    const isTablet = (width >= 768 && width < 1200 && hasTouch) || 
+                     (this.platform.is('tablet')) || 
+                     (isMobileDevice && Math.min(width, height) > 768);
+    const isDesktop = !isMobile && !isTablet;
+    
     // Determina l'orientamento
     const orientation: 'portrait' | 'landscape' = height > width ? 'portrait' : 'landscape';
 
@@ -73,10 +79,18 @@ export class DeviceService {
 
   private updateDeviceInfo() {
     const newDeviceInfo = this.getDeviceInfo();
+    console.log('Device Detection Details:', {
+      width: window.innerWidth,
+      height: window.innerHeight,
+      userAgent: navigator.userAgent,
+      hasTouch: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+      isPlatformTablet: this.platform.is('tablet'),
+      deviceInfo: newDeviceInfo
+    });
     this.deviceInfoSubject.next(newDeviceInfo);
   }
 
-  // Metodi di utilità
+  // Metodi di utilit�
   getCurrentDeviceInfo(): DeviceInfo {
     return this.deviceInfoSubject.value;
   }
@@ -138,6 +152,6 @@ export class DeviceService {
     
     if (info.isMobile) return 1; // Full screen
     if (info.isTablet) return 0.8;
-    return 0.6; // Desktop modal più piccolo
+    return 0.6; // Desktop modal pi� piccolo
   }
 }

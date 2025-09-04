@@ -1,37 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
-import { 
-  IonContent, 
-  IonHeader, 
-  IonToolbar, 
-  IonTitle,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
-  IonCardContent,
-  IonButton,
-  IonIcon,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonItem,
-  IonLabel,
-  IonBadge,
-  IonProgressBar,
-  IonFab,
-  IonFabButton,
-  IonFabList,
-  IonRefresher,
-  IonRefresherContent,
-  IonSegment,
-  IonSegmentButton,
-  ToastController,
-  LoadingController
-} from '@ionic/angular/standalone';
+import { NavController, ToastController, LoadingController, IonContent, IonHeader, IonToolbar, IonTitle, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonBadge, IonProgressBar, IonFab, IonFabButton, IonFabList, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonInput } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
   addOutline,
@@ -55,10 +26,6 @@ import {
   chevronForwardOutline,
   calendarOutline, wineOutline, fastFoodOutline, barcodeOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
-
-// Commentiamo temporaneamente questi import per far funzionare l'app
-// import { AuthService } from '../auth/auth.service';
-// import { ApiService } from '../shared/services/api.service';
 import { DeviceService } from '../shared/services/device.service';
 import { User, DailyNutrition, Meal, Activity } from '../shared/interfaces/types';
 
@@ -70,6 +37,7 @@ import { User, DailyNutrition, Meal, Activity } from '../shared/interfaces/types
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterModule,
     IonContent,
     IonCard,
@@ -91,7 +59,8 @@ import { User, DailyNutrition, Meal, Activity } from '../shared/interfaces/types
     IonRefresher,
     IonRefresherContent,
     IonSegment,
-    IonSegmentButton
+    IonSegmentButton,
+    IonInput
   ]
 })
 export class DashboardPage implements OnInit, OnDestroy {
@@ -101,86 +70,13 @@ export class DashboardPage implements OnInit, OnDestroy {
   recentActivities: Activity[] = [];
   isLoading = false;
   selectedSegment = 'nutrition';
-
-  waterAmount: number = 0;
-
-  confirmWater() {
-    console.log("Acqua bevuta:", this.waterAmount, "ml");
-    // Qui puoi aggiungere la logica per salvare i dati
-  }
-
-  // Proprietà per la navigazione temporale
+  waterForm: FormGroup;
   currentDate = new Date();
-  
-  // Proprietà per il layout responsive
   isDesktop = false;
   isTablet = false;
   isMobile = true;
   deviceLayout: 'mobile' | 'tablet' | 'desktop' = 'mobile';
-
   private subscriptions = new Subscription();
-
-  // Statistiche giornaliere con nuovo sistema di calcolo
-  dailyStats = {
-    calories: { 
-      consumed: 1847, 
-      burned: 247, 
-      goal: 2200, 
-      adjustedGoal: 2447, // goal + burned
-      percentage: 0,
-      remaining: 0
-    },
-    carbs: { consumed: 203, goal: 275, percentage: 0 },
-    proteins: { consumed: 87, goal: 110, percentage: 0 },
-    fats: { consumed: 51, goal: 73, percentage: 0 },
-    water: { consumed: 1250, goal: 2000, percentage: 0 }, // ml
-    activities: 3,
-    // Nuovi campi per calcoli nutrizionali
-    userProfile: {
-      age: 30,
-      weight: 70, // kg
-      height: 175, // cm
-      gender: 'male' as 'male' | 'female',
-      activityLevel: 'moderately_active' as 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extremely_active',
-      goal: 'maintain' as 'lose_weight' | 'maintain' | 'gain_weight' | 'gain_muscle'
-    }
-  };
-
-  // Fattori attività per Harris-Benedict
-  private activityFactors = {
-    sedentary: 1.2,
-    lightly_active: 1.375,
-    moderately_active: 1.55,
-    very_active: 1.725,
-    extremely_active: 1.9
-  };
-
-  // Distribuzioni macronutrienti per obiettivi
-  private macroDistributions = {
-    lose_weight: { carbs: 0.4, proteins: 0.3, fats: 0.3 },
-    maintain: { carbs: 0.5, proteins: 0.2, fats: 0.3 },
-    gain_weight: { carbs: 0.55, proteins: 0.25, fats: 0.2 },
-    gain_muscle: { carbs: 0.45, proteins: 0.3, fats: 0.25 }
-  };
-
-  
-
-  // Quick actions
-  quickActions = [
-    { icon: 'cafe-outline', label: 'Colazione', action: 'addMeal', color: 'warning' },
-    { icon: 'restaurant-outline', label: 'Pranzo', action: 'addMeal', color: 'success' },
-    { icon: 'scan-outline', label: 'Scanner', action: 'openScanner', color: 'secondary' },
-    { icon: 'water-outline', label: 'Acqua', action: 'addWater', color: 'primary' },
-    { icon: 'trending-up-outline', label: 'Attività', action: 'addActivity', color: 'tertiary' }
-  ];
-
-  // Distribuzione ottimale dei pasti (percentuali del fabbisogno giornaliero)
-  mealDistribution = {
-    breakfast: { calories: 0.25, carbs: 0.30, proteins: 0.20, fats: 0.20 }, // 25% calorie, 30% carbs, etc.
-    lunch: { calories: 0.35, carbs: 0.40, proteins: 0.35, fats: 0.35 },     // 35% calorie (pasto principale)
-    snack: { calories: 0.15, carbs: 0.15, proteins: 0.15, fats: 0.15 },     // 15% calorie
-    dinner: { calories: 0.25, carbs: 0.15, proteins: 0.30, fats: 0.30 }     // 25% calorie, meno carbs sera
-  };
 
   // Dati nutrizionali per ogni pasto (simulati per ora)
   mealStats = {
@@ -214,36 +110,110 @@ export class DashboardPage implements OnInit, OnDestroy {
     }
   };
 
-  // Getter per progress bar separate (calorie consumate e bruciate)
-  get consumedCaloriesProgressOffset(): number {
-    const percentage = Math.min(100, (this.dailyStats.calories.consumed / this.dailyStats.calories.adjustedGoal) * 100);
-    const circumference = 377.0; // circonferenza del semicerchio più grande (raggio 120)
-    return circumference - (circumference * percentage / 100);
-  }
+  // Statistiche giornaliere
+  dailyStats = {
+    calories: { 
+      consumed: 1847, 
+      burned: 247, 
+      goal: 2200, 
+      adjustedGoal: 2447,
+      percentage: 0,
+      remaining: 0
+    },
+    carbs: { consumed: 203, goal: 275, percentage: 0 },
+    proteins: { consumed: 87, goal: 110, percentage: 0 },
+    fats: { consumed: 51, goal: 73, percentage: 0 },
+    water: { consumed: 1250, goal: 2000, percentage: 0 },
+    activities: 3,
+    userProfile: {
+      age: 30,
+      weight: 70,
+      height: 175,
+      gender: 'male' as 'male' | 'female',
+      activityLevel: 'moderately_active' as 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extremely_active',
+      goal: 'maintain' as 'lose_weight' | 'maintain' | 'gain_weight' | 'gain_muscle'
+    }
+  };
 
-  get burnedCaloriesProgressOffset(): number {
-    const percentage = Math.min(100, (this.dailyStats.calories.burned / this.dailyStats.calories.adjustedGoal) * 100);
-    const circumference = 267.0; // circonferenza del semicerchio (raggio 85)
-    return circumference - (circumference * percentage / 100);
-  }
+  // Quick actions
+  quickActions = [
+    { icon: 'cafe-outline', label: 'Colazione', action: 'addMeal', color: 'warning' },
+    { icon: 'restaurant-outline', label: 'Pranzo', action: 'addMeal', color: 'success' },
+    { icon: 'scan-outline', label: 'Scanner', action: 'openScanner', color: 'secondary' },
+    { icon: 'water-outline', label: 'Acqua', action: 'addWater', color: 'primary' },
+    { icon: 'trending-up-outline', label: 'Attività', action: 'addActivity', color: 'tertiary' }
+  ];
+
+  // Distribuzione pasti
+  mealDistribution = {
+    breakfast: { calories: 0.25, carbs: 0.30, proteins: 0.20, fats: 0.20 },
+    lunch: { calories: 0.35, carbs: 0.40, proteins: 0.35, fats: 0.35 },
+    snack: { calories: 0.15, carbs: 0.15, proteins: 0.15, fats: 0.15 },
+    dinner: { calories: 0.25, carbs: 0.15, proteins: 0.30, fats: 0.30 }
+  };
+
+  // Fattori attività
+  private activityFactors = {
+    sedentary: 1.2,
+    lightly_active: 1.375,
+    moderately_active: 1.55,
+    very_active: 1.725,
+    extremely_active: 1.9
+  };
+
+  // Distribuzioni macronutrienti
+  private macroDistributions = {
+    lose_weight: { carbs: 0.4, proteins: 0.3, fats: 0.3 },
+    maintain: { carbs: 0.5, proteins: 0.2, fats: 0.3 },
+    gain_weight: { carbs: 0.55, proteins: 0.25, fats: 0.2 },
+    gain_muscle: { carbs: 0.45, proteins: 0.3, fats: 0.25 }
+  };
 
   constructor(
-    // Commentiamo temporaneamente questi servizi
-    // private authService: AuthService,
-    // private apiService: ApiService,
     private deviceService: DeviceService,
     private toastController: ToastController,
     private loadingController: LoadingController,
     private router: Router,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private fb: FormBuilder
   ) {
-    addIcons({personOutline,nutritionOutline,chevronBackOutline,chevronForwardOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,barcodeOutline,fastFoodOutline,flameOutline,wineOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,calendarOutline});
+    this.waterForm = this.fb.group({
+      waterAmount: [0]
+    });
+
+    addIcons({
+      personOutline,
+      nutritionOutline,
+      chevronBackOutline,
+      chevronForwardOutline,
+      fitnessOutline,
+      restaurantOutline,
+      waterOutline,
+      trendingUpOutline,
+      cafeOutline,
+      addOutline,
+      pizzaOutline,
+      moonOutline,
+      barcodeOutline,
+      fastFoodOutline,
+      flameOutline,
+      wineOutline,
+      timeOutline,
+      checkmarkCircleOutline,
+      alertCircleOutline,
+      statsChartOutline,
+      refreshOutline,
+      scanOutline,
+      calendarOutline,
+      checkmarkCircle: checkmarkCircleOutline,
+      alertCircle: alertCircleOutline
+    });
   }
 
   ngOnInit() {
     this.initializeDeviceDetection();
     this.loadUserData();
-    this.updateNutritionGoals(); // Calcola obiettivi nutrizionali
+    this.updateNutritionGoals();
     this.loadDashboardData();
   }
 
@@ -251,32 +221,81 @@ export class DashboardPage implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  // Form Control Getters
+  get waterAmount() {
+    return this.waterForm.get('waterAmount') as FormControl;
+  }
+
+  // Progress Getters
+  get consumedCaloriesProgressOffset(): number {
+    const percentage = Math.min(100, (this.dailyStats.calories.consumed / this.dailyStats.calories.adjustedGoal) * 100);
+    const circumference = 377.0;
+    return circumference - (circumference * percentage / 100);
+  }
+
+  get burnedCaloriesProgressOffset(): number {
+    const percentage = Math.min(100, (this.dailyStats.calories.burned / this.dailyStats.calories.adjustedGoal) * 100);
+    const circumference = 267.0;
+    return circumference - (circumference * percentage / 100);
+  }
+
+  // Device Detection
   private initializeDeviceDetection() {
-    // Sottoscrivi ai cambiamenti del dispositivo
+    console.log('Initializing device detection');
     this.subscriptions.add(
       this.deviceService.deviceInfo$.subscribe(deviceInfo => {
+        console.log('Device info updated:', deviceInfo);
         this.isDesktop = deviceInfo.isDesktop;
         this.isTablet = deviceInfo.isTablet;
         this.isMobile = deviceInfo.isMobile;
         this.deviceLayout = this.deviceService.getOptimalLayout();
-        
-        // Aggiorna il layout del dashboard in base al dispositivo
         this.updateLayoutForDevice();
       })
     );
   }
 
-
-  goToActivity() {
-    this.navCtrl.navigateForward('/activity/add');
+  // Navigation Methods
+  async goToActivity() {
+    try {
+      console.log('Navigating to activity/add');
+      await this.navCtrl.navigateForward('/tabs/activity/add');
+    } catch (error) {
+      console.error('Error navigating to activity:', error);
+      await this.showToast('Errore durante la navigazione', 'danger');
+    }
   }
-  openMeal() {   // \u2705 dentro la classe
-    console.log("Navigo verso /meal/add"); 
-    this.router.navigate(['/meal/add']);
+
+  async addMeal(type: string) {
+    try {
+      console.log('Navigating to meal/add with type:', type);
+      const mealTypes: { [key: string]: string } = {
+        'breakfast': 'Colazione',
+        'lunch': 'Pranzo',
+        'snack': 'Spuntini',
+        'dinner': 'Cena',
+        'colazione': 'Colazione',
+        'pranzo': 'Pranzo',
+        'spuntino': 'Spuntini',
+        'cena': 'Cena'
+      };
+      
+      const italianMealType = mealTypes[type.toLowerCase()] || 'Colazione';
+      console.log('Mapped meal type:', italianMealType);
+      
+      await this.navCtrl.navigateForward('/tabs/meal/add', {
+        queryParams: {
+          type: italianMealType,
+          date: this.currentDate.toISOString().split('T')[0]
+        }
+      });
+    } catch (error) {
+      console.error('Error navigating to meal/add:', error);
+      await this.showToast('Errore durante la navigazione', 'danger');
+    }
   }
 
+  // Layout Methods
   private updateLayoutForDevice() {
-    // Aggiorna le azioni rapide in base al dispositivo
     if (this.isDesktop) {
       this.quickActions = [
         { icon: 'cafe-outline', label: 'Aggiungi Colazione', action: 'addMeal', color: 'warning' },
@@ -296,15 +315,12 @@ export class DashboardPage implements OnInit, OnDestroy {
     }
   }
 
-  // Metodi per calcoli nutrizionali
+  // Nutrition Calculation Methods
   private calculateBMR(): number {
     const { age, weight, height, gender } = this.dailyStats.userProfile;
-    
-    if (gender === 'male') {
-      return 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
-    } else {
-      return 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
-    }
+    return gender === 'male'
+      ? 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)
+      : 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
   }
 
   private calculateTDEE(): number {
@@ -314,82 +330,29 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   private updateNutritionGoals() {
-    // Calcola TDEE (Total Daily Energy Expenditure)
     const tdee = this.calculateTDEE();
-    
-    // Aggiusta per l'obiettivo dell'utente
     let calorieGoal = tdee;
+    
     switch (this.dailyStats.userProfile.goal) {
-      case 'lose_weight':
-        calorieGoal = tdee - 500; // Deficit di 500 kcal per perdere ~0.5kg/settimana
-        break;
-      case 'gain_weight':
-        calorieGoal = tdee + 500; // Surplus di 500 kcal
-        break;
-      case 'gain_muscle':
-        calorieGoal = tdee + 300; // Surplus più moderato
-        break;
-      default:
-        calorieGoal = tdee; // Mantenimento
+      case 'lose_weight': calorieGoal = tdee - 500; break;
+      case 'gain_weight': calorieGoal = tdee + 500; break;
+      case 'gain_muscle': calorieGoal = tdee + 300; break;
     }
 
-    // Aggiorna goal calorico
     this.dailyStats.calories.goal = calorieGoal;
     this.dailyStats.calories.adjustedGoal = calorieGoal + this.dailyStats.calories.burned;
 
-    // Calcola macronutrienti basati sulla distribuzione dell'obiettivo
     const distribution = this.macroDistributions[this.dailyStats.userProfile.goal];
-    
-    // Proteine: 4 kcal/g, Carboidrati: 4 kcal/g, Grassi: 9 kcal/g
     this.dailyStats.proteins.goal = Math.round((calorieGoal * distribution.proteins) / 4);
     this.dailyStats.carbs.goal = Math.round((calorieGoal * distribution.carbs) / 4);
     this.dailyStats.fats.goal = Math.round((calorieGoal * distribution.fats) / 9);
 
-    // Calcola obiettivi per ogni pasto
     this.updateMealGoals();
-
-    // Calcola percentuali
     this.updateNutritionPercentages();
   }
 
-  private updateMealGoals() {
-    // Calcola obiettivi per ogni pasto basati sulla distribuzione
-    const mealTypes = ['breakfast', 'lunch', 'snack', 'dinner'] as const;
-    
-    mealTypes.forEach(mealType => {
-      const distribution = this.mealDistribution[mealType];
-      
-      // Calcola obiettivi per questo pasto
-      this.mealStats[mealType].calories.goal = Math.round(this.dailyStats.calories.goal * distribution.calories);
-      this.mealStats[mealType].carbs.goal = Math.round(this.dailyStats.carbs.goal * distribution.carbs);
-      this.mealStats[mealType].proteins.goal = Math.round(this.dailyStats.proteins.goal * distribution.proteins);
-      this.mealStats[mealType].fats.goal = Math.round(this.dailyStats.fats.goal * distribution.fats);
-      
-      // Calcola percentuali (consumed/goal)
-      this.updateMealPercentages(mealType);
-    });
-  }
-
-  private updateMealPercentages(mealType: 'breakfast' | 'lunch' | 'snack' | 'dinner') {
-    const meal = this.mealStats[mealType];
-    
-    meal.calories.percentage = meal.calories.goal > 0 ? Math.round((meal.calories.consumed / meal.calories.goal) * 100) : 0;
-    meal.carbs.percentage = meal.carbs.goal > 0 ? Math.round((meal.carbs.consumed / meal.carbs.goal) * 100) : 0;
-    meal.proteins.percentage = meal.proteins.goal > 0 ? Math.round((meal.proteins.consumed / meal.proteins.goal) * 100) : 0;
-    meal.fats.percentage = meal.fats.goal > 0 ? Math.round((meal.fats.consumed / meal.fats.goal) * 100) : 0;
-  }
-
-  private updateNutritionPercentages() {
-    this.dailyStats.calories.percentage = Math.round((this.dailyStats.calories.consumed / this.dailyStats.calories.adjustedGoal) * 100);
-    this.dailyStats.calories.remaining = this.dailyStats.calories.adjustedGoal - this.dailyStats.calories.consumed;
-    
-    this.dailyStats.proteins.percentage = Math.round((this.dailyStats.proteins.consumed / this.dailyStats.proteins.goal) * 100);
-    this.dailyStats.carbs.percentage = Math.round((this.dailyStats.carbs.consumed / this.dailyStats.carbs.goal) * 100);
-    this.dailyStats.fats.percentage = Math.round((this.dailyStats.fats.consumed / this.dailyStats.fats.goal) * 100);
-  }
-
+  // Data Loading Methods
   private loadUserData() {
-    // Simuliamo un utente per ora
     this.user = {
       id: 1,
       name: 'Demo User',
@@ -418,14 +381,7 @@ export class DashboardPage implements OnInit, OnDestroy {
         this.isLoading = true;
       }
 
-      // Simula dati per ora (fino a quando non connettiamo il backend)
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // TODO: Sostituire con chiamate API reali basate su this.currentDate
-      // const formattedDate = this.currentDate.toISOString().split('T')[0];
-      // await this.apiService.getDailyNutrition(formattedDate);
-      
-      // Per ora simuliamo dati diversi in base alla data per test
       const dayOffset = Math.floor((new Date().getTime() - this.currentDate.getTime()) / (1000 * 60 * 60 * 24));
       
       this.dailyStats.calories.consumed = Math.max(800, 1200 - (dayOffset * 100));
@@ -436,10 +392,9 @@ export class DashboardPage implements OnInit, OnDestroy {
       this.dailyStats.activities = Math.max(0, 2 - Math.floor(dayOffset / 2));
 
       this.updateDailyStatsPercentages();
-
     } catch (error) {
       console.error('Errore nel caricamento dei dati dashboard:', error);
-      this.showToast('Errore nel caricamento dei dati', 'danger');
+      await this.showToast('Errore nel caricamento dei dati', 'danger');
     } finally {
       this.isLoading = false;
       if (event) {
@@ -448,115 +403,91 @@ export class DashboardPage implements OnInit, OnDestroy {
     }
   }
 
-  private updateDailyStatsPercentages() {
-    this.dailyStats.calories.percentage = Math.min(
-      (this.dailyStats.calories.consumed / this.dailyStats.calories.goal) * 100, 
-      100
-    );
-
-    this.dailyStats.carbs.percentage = Math.min(
-      (this.dailyStats.carbs.consumed / this.dailyStats.carbs.goal) * 100, 
-      100
-    );
-
-    this.dailyStats.proteins.percentage = Math.min(
-      (this.dailyStats.proteins.consumed / this.dailyStats.proteins.goal) * 100, 
-      100
-    );
-
-    this.dailyStats.fats.percentage = Math.min(
-      (this.dailyStats.fats.consumed / this.dailyStats.fats.goal) * 100, 
-      100
-    );
-  }
-
-  private updateDailyStats() {
-    if (!this.todayNutrition) return;
-
-    // Aggiorna calorie
-    this.dailyStats.calories.consumed = Math.round(this.todayNutrition.totalCalories || 0);
-    this.dailyStats.calories.percentage = Math.min(
-      (this.dailyStats.calories.consumed / this.dailyStats.calories.goal) * 100, 
-      100
-    );
-
-    // Aggiorna macronutrienti
-    this.dailyStats.carbs.consumed = Math.round(this.todayNutrition.totalCarbohydrates || 0);
-    this.dailyStats.carbs.percentage = Math.min(
-      (this.dailyStats.carbs.consumed / this.dailyStats.carbs.goal) * 100, 
-      100
-    );
-
-    this.dailyStats.proteins.consumed = Math.round(this.todayNutrition.totalProteins || 0);
-    this.dailyStats.proteins.percentage = Math.min(
-      (this.dailyStats.proteins.consumed / this.dailyStats.proteins.goal) * 100, 
-      100
-    );
-
-    this.dailyStats.fats.consumed = Math.round(this.todayNutrition.totalFats || 0);
-    this.dailyStats.fats.percentage = Math.min(
-      (this.dailyStats.fats.consumed / this.dailyStats.fats.goal) * 100, 
-      100
-    );
-  }
-
-  // Metodi per gestire calorie bruciate
-  addBurnedCalories(calories: number) {
-    this.dailyStats.calories.burned += calories;
-    this.dailyStats.calories.adjustedGoal = this.dailyStats.calories.goal + this.dailyStats.calories.burned;
-    this.updateNutritionPercentages();
-  }
-
-  // Helper per colori progress bar
-  getProgressColor(percentage: number): string {
-    if (percentage < 50) return 'danger';
-    if (percentage < 80) return 'warning';
-    if (percentage <= 100) return 'success';
-    return 'tertiary'; // Over target
-  }
-
-  // Helper per circular progress
-  getCircularProgressColor(percentage: number): string {
-    if (percentage < 70) return '#ff4444'; // Rosso
-    if (percentage < 90) return '#ffaa00'; // Arancione  
-    if (percentage <= 100) return '#00dd00'; // Verde
-    return '#6600cc'; // Viola per over target
-  }
-
-  // Helper per Math.abs nel template
-  getMathAbs(value: number): number {
-    return Math.abs(value);
-  }
-
-  async handleQuickAction(action: any) {
-    if (action.action === 'addWater') {
-      await this.addWater();
-    } else if (action.action === 'addMeal') {
-      this.showToast('Funzionalità in arrivo!', 'primary');
-    } else if (action.action === 'addActivity') {
-      this.showToast('Funzionalità in arrivo!', 'primary');
-    } else if (action.action === 'openScanner') {
-      this.openScanner();
+  // Helper Methods
+  getMealIcon(mealType: string): string {
+    switch (mealType) {
+      case 'breakfast': return 'cafe-outline';
+      case 'lunch': return 'restaurant-outline';
+      case 'snack': return 'pizza-outline';
+      case 'dinner': return 'moon-outline';
+      default: return 'restaurant-outline';
     }
   }
 
-  async addWater() {
-    this.dailyStats.water.consumed += 250; // Aggiungi 250ml
-    this.showToast('250ml di acqua aggiunti!', 'success');
-    
-    // TODO: Salvare nel backend
+  getMealName(mealType: string): string {
+    switch (mealType) {
+      case 'breakfast': return 'Colazione';
+      case 'lunch': return 'Pranzo';
+      case 'snack': return 'Spuntino';
+      case 'dinner': return 'Cena';
+      default: return mealType;
+    }
   }
 
-  openScanner() {
-    this.router.navigate(['/scanner']);
+  getWelcomeMessage(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Buongiorno';
+    if (hour < 18) return 'Buon pomeriggio';
+    return 'Buonasera';
+  }
+
+  private async showToast(message: string, color: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      color,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('it-IT', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  formatTime(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('it-IT', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  // Water Methods
+  confirmWater() {
+    const amount = this.waterForm.get('waterAmount')?.value || 0;
+    console.log("Acqua bevuta:", amount, "ml");
+    this.dailyStats.water.consumed += amount;
+    this.waterForm.get('waterAmount')?.setValue(0);
+    this.showToast(`${amount}ml di acqua aggiunti!`, 'success');
+  }
+
+  async addWater() {
+    this.dailyStats.water.consumed += 250;
+    await this.showToast('250ml di acqua aggiunti!', 'success');
+  }
+
+  // Navigation Methods
+  async openScanner() {
+    try {
+      await this.navCtrl.navigateForward('/tabs/scanner');
+    } catch (error) {
+      console.error('Error navigating to scanner:', error);
+      await this.showToast('Errore durante la navigazione', 'danger');
+    }
   }
 
   openUserProfile() {
-    // TODO: Implementare navigazione al profilo utente
     this.router.navigate(['/profile']);
   }
 
-  // Metodi per la navigazione temporale
+  // Time Navigation Methods
   goToPreviousDay() {
     const newDate = new Date(this.currentDate);
     newDate.setDate(newDate.getDate() - 1);
@@ -567,8 +498,6 @@ export class DashboardPage implements OnInit, OnDestroy {
   goToNextDay() {
     const newDate = new Date(this.currentDate);
     newDate.setDate(newDate.getDate() + 1);
-    
-    // Non permettere di andare oltre oggi
     const today = new Date();
     today.setHours(23, 59, 59, 999);
     
@@ -583,7 +512,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     this.loadDashboardData();
   }
 
-  // Metodi helper per la visualizzazione date
+  // Date Helper Methods
   getDateDisplayText(): string {
     const today = new Date();
     const yesterday = new Date(today);
@@ -619,112 +548,114 @@ export class DashboardPage implements OnInit, OnDestroy {
     return tomorrow <= today;
   }
 
-  addMeal(mealType: string) {
-    // Converti il mealType dal formato inglese a quello italiano
-    let italianMealType: string;
-    
-    switch (mealType) {
-      case 'breakfast':
-        italianMealType = 'Colazione';
-        break;
-      case 'lunch':
-        italianMealType = 'Pranzo';
-        break;
-      case 'snack':
-        italianMealType = 'Spuntini';
-        break;
-      case 'dinner':
-        italianMealType = 'Cena';
-        break;
-      default:
-        italianMealType = 'Colazione';
-    }
-    
-
-    // Naviga alla pagina di aggiunta pasto con parametri
-    this.router.navigate(['/meal/add'], {
-      queryParams: {
-        type: italianMealType,
-        date: new Date().toISOString().split('T')[0] // Data corrente
+  // Quick Actions Handler
+  async handleQuickAction(action: any) {
+    try {
+      if (action.action === 'addWater') {
+        await this.addWater();
+      } else if (action.action === 'addMeal') {
+        const mealType = action.label.replace('Aggiungi ', '').toLowerCase();
+        await this.addMeal(mealType);
+      } else if (action.action === 'addActivity') {
+        await this.goToActivity();
+      } else if (action.action === 'openScanner') {
+        await this.router.navigate(['/tabs/scanner']);
       }
+    } catch (error) {
+      console.error('Errore durante l\'esecuzione dell\'azione:', error);
+      await this.showToast('Si è verificato un errore. Riprova.', 'danger');
+    }
+  }
+
+  // Nutrition Update Methods
+  private updateMealGoals() {
+    const mealTypes = ['breakfast', 'lunch', 'snack', 'dinner'] as const;
+    
+    mealTypes.forEach(mealType => {
+      const distribution = this.mealDistribution[mealType];
+      this.mealStats[mealType].calories.goal = Math.round(this.dailyStats.calories.goal * distribution.calories);
+      this.mealStats[mealType].carbs.goal = Math.round(this.dailyStats.carbs.goal * distribution.carbs);
+      this.mealStats[mealType].proteins.goal = Math.round(this.dailyStats.proteins.goal * distribution.proteins);
+      this.mealStats[mealType].fats.goal = Math.round(this.dailyStats.fats.goal * distribution.fats);
+      this.updateMealPercentages(mealType);
     });
   }
 
-  // Metodo helper per ottenere i dati di un pasto specifico
+  private updateMealPercentages(mealType: 'breakfast' | 'lunch' | 'snack' | 'dinner') {
+    const meal = this.mealStats[mealType];
+    meal.calories.percentage = meal.calories.goal > 0 ? Math.round((meal.calories.consumed / meal.calories.goal) * 100) : 0;
+    meal.carbs.percentage = meal.carbs.goal > 0 ? Math.round((meal.carbs.consumed / meal.carbs.goal) * 100) : 0;
+    meal.proteins.percentage = meal.proteins.goal > 0 ? Math.round((meal.proteins.consumed / meal.proteins.goal) * 100) : 0;
+    meal.fats.percentage = meal.fats.goal > 0 ? Math.round((meal.fats.consumed / meal.fats.goal) * 100) : 0;
+  }
+
+  private updateNutritionPercentages() {
+    this.dailyStats.calories.percentage = Math.round((this.dailyStats.calories.consumed / this.dailyStats.calories.adjustedGoal) * 100);
+    this.dailyStats.calories.remaining = this.dailyStats.calories.adjustedGoal - this.dailyStats.calories.consumed;
+    
+    this.dailyStats.proteins.percentage = Math.round((this.dailyStats.proteins.consumed / this.dailyStats.proteins.goal) * 100);
+    this.dailyStats.carbs.percentage = Math.round((this.dailyStats.carbs.consumed / this.dailyStats.carbs.goal) * 100);
+    this.dailyStats.fats.percentage = Math.round((this.dailyStats.fats.consumed / this.dailyStats.fats.goal) * 100);
+  }
+
+  private updateDailyStatsPercentages() {
+    this.dailyStats.calories.percentage = Math.min(
+      (this.dailyStats.calories.consumed / this.dailyStats.calories.goal) * 100, 
+      100
+    );
+    this.dailyStats.carbs.percentage = Math.min(
+      (this.dailyStats.carbs.consumed / this.dailyStats.carbs.goal) * 100, 
+      100
+    );
+    this.dailyStats.proteins.percentage = Math.min(
+      (this.dailyStats.proteins.consumed / this.dailyStats.proteins.goal) * 100, 
+      100
+    );
+    this.dailyStats.fats.percentage = Math.min(
+      (this.dailyStats.fats.consumed / this.dailyStats.fats.goal) * 100, 
+      100
+    );
+  }
+
+  // Stats Methods
+  addBurnedCalories(calories: number) {
+    this.dailyStats.calories.burned += calories;
+    this.dailyStats.calories.adjustedGoal = this.dailyStats.calories.goal + this.dailyStats.calories.burned;
+    this.updateNutritionPercentages();
+  }
+
+  getProgressColor(percentage: number): string {
+    if (percentage < 50) return 'danger';
+    if (percentage < 80) return 'warning';
+    if (percentage <= 100) return 'success';
+    return 'tertiary';
+  }
+
+  getCircularProgressColor(percentage: number): string {
+    if (percentage < 70) return '#ff4444';
+    if (percentage < 90) return '#ffaa00';
+    if (percentage <= 100) return '#00dd00';
+    return '#6600cc';
+  }
+
+  getMathAbs(value: number): number {
+    return Math.abs(value);
+  }
+
   getMealStats(mealType: 'breakfast' | 'lunch' | 'snack' | 'dinner') {
     return this.mealStats[mealType];
   }
 
-  /**
-   * Apre la pagina di aggiunta pasto generale senza tipo preselezionato
-   */
-  openGeneralMealAdd() {
-    this.router.navigate(['/meal/add'], {
-      queryParams: {
-        date: new Date().toISOString().split('T')[0] // Data corrente
-      }
-    });
-  }
-
-  // Metodo helper per ottenere l'icona del pasto
-  getMealIcon(mealType: string): string {
-    switch (mealType) {
-      case 'breakfast': return 'cafe-outline';
-      case 'lunch': return 'restaurant-outline';
-      case 'snack': return 'pizza-outline';
-      case 'dinner': return 'moon-outline';
-      default: return 'restaurant-outline';
+  async openGeneralMealAdd() {
+    try {
+      await this.navCtrl.navigateForward('/tabs/meal/add', {
+        queryParams: {
+          date: this.currentDate.toISOString().split('T')[0]
+        }
+      });
+    } catch (error) {
+      console.error('Error navigating to meal/add:', error);
+      await this.showToast('Errore durante la navigazione', 'danger');
     }
   }
-
-  // Metodo helper per ottenere il nome italiano del pasto
-  getMealName(mealType: string): string {
-    switch (mealType) {
-      case 'breakfast': return 'Colazione';
-      case 'lunch': return 'Pranzo';
-      case 'snack': return 'Spuntino';
-      case 'dinner': return 'Cena';
-      default: return mealType;
-    }
-  }
-
-  getWelcomeMessage(): string {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Buongiorno';
-    if (hour < 18) return 'Buon pomeriggio';
-    return 'Buonasera';
-  }
-
-  private async showToast(message: string, color: string) {
-    const toast = await this.toastController.create({
-      message,
-      duration: 2000,
-      color,
-      position: 'bottom'
-    });
-    await toast.present();
-  }
-
-  // Formattazione data per display
-  formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('it-IT', {
-      day: '2-digit',
-      month: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  formatTime(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('it-IT', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
 }
-function openMeal() {
-  throw new Error('Function not implemented.');
-}
-
