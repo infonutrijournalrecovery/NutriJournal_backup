@@ -236,6 +236,29 @@ ion-content.dashboard-content {
   gap: 2rem;
 }
 
+.date-display-btn {
+  flex: 1;
+  font-weight: 500;
+  min-height: 40px;
+  font-size: 1rem;          /* un po' pi� grande per leggibilit� */
+  min-width: 250px;         /* \U0001f448 larghezza minima leggibile */
+  justify-content: center;
+  text-transform: none;
+
+  /* Colore testo e sfondo pi� leggibili */
+  --background: #8090f0;    /* \U0001f448 sfondo chiaro ma non bianco puro */
+  --color: #222;            /* \U0001f448 testo pi� scuro per contrasto */
+  --border-radius: 12px;
+  --border-color: #ccc;
+
+  /* Effetto hover per evidenziare */
+  &:hover {
+    --background: #e0e0e0;
+  }
+}
+
+
+
 // Quick Actions Desktop con colori diretti
 .desktop-quick-actions {
   --background: #{$dashboard-card-bg} !important;
@@ -249,7 +272,7 @@ ion-content.dashboard-content {
     --color: #{$dashboard-text-header} !important;
     color: #{$dashboard-text-header} !important;
   }
-  
+
   .desktop-actions-grid {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;

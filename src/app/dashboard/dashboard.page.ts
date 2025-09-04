@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { NavController, ToastController, LoadingController, IonContent, IonHeader, IonToolbar, IonTitle, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonBadge, IonProgressBar, IonFab, IonFabButton, IonFabList, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonInput } from '@ionic/angular/standalone';
+import { NavController, ToastController, LoadingController, IonContent, IonHeader, IonToolbar, IonTitle, IonCard, IonCardHeader, IonCardTitle, IonCardSubtitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonBadge, IonProgressBar, IonFab, IonFabButton, IonFabList, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonInput,     IonModal,   IonDatetime} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
   addOutline,
@@ -28,6 +28,7 @@ import {
 import { Subscription } from 'rxjs';
 import { DeviceService } from '../shared/services/device.service';
 import { User, DailyNutrition, Meal, Activity } from '../shared/interfaces/types';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -60,9 +61,14 @@ import { User, DailyNutrition, Meal, Activity } from '../shared/interfaces/types
     IonRefresherContent,
     IonSegment,
     IonSegmentButton,
-    IonInput
+    IonInput,
+    IonModal,       // \U0001f448 AGGIUNTO
+    IonDatetime     // \U0001f448 AGGIUNTO
   ]
 })
+
+
+
 export class DashboardPage implements OnInit, OnDestroy {
   user: User | null = null;
   todayNutrition: DailyNutrition | null = null;
@@ -77,6 +83,62 @@ export class DashboardPage implements OnInit, OnDestroy {
   isMobile = true;
   deviceLayout: 'mobile' | 'tablet' | 'desktop' = 'mobile';
   private subscriptions = new Subscription();
+
+  selectedDate: string = new Date().toISOString();
+  isDatePickerOpen = false;
+
+  /** Torna alla data di oggi */
+  goToToday() {
+    this.selectedDate = new Date().toISOString();
+  }
+
+  /** Torna al giorno precedente */
+  goToPreviousDay() {
+    const current = new Date(this.selectedDate);
+    current.setDate(current.getDate() - 1);
+    this.selectedDate = current.toISOString();
+  }
+
+  /** Vai al giorno successivo */
+  goToNextDay() {
+    const current = new Date(this.selectedDate);
+    current.setDate(current.getDate() + 1);
+    this.selectedDate = current.toISOString();
+  }
+
+  /** Controlla se la data selezionata � oggi */
+  isToday(): boolean {
+    const today = new Date();
+    const current = new Date(this.selectedDate);
+    return (
+      today.getDate() === current.getDate() &&
+      today.getMonth() === current.getMonth() &&
+      today.getFullYear() === current.getFullYear()
+    );
+  }
+
+  /** Disabilita il pulsante "avanti" se la data � oggi */
+  canGoToNextDay(): boolean {
+    return !this.isToday();
+  }
+
+  /** Apre il modal per la selezione della data */
+  openDatePicker() {
+    this.isDatePickerOpen = true;
+  }
+
+  /** Chiude il modal */
+  closeDatePicker() {
+    this.isDatePickerOpen = false;
+  }
+
+  /** Quando l\u2019utente seleziona una nuova data dal calendario */
+  onDateSelected(event: any) {
+    if (event?.detail?.value) {
+      this.selectedDate = event.detail.value;
+    }
+    this.closeDatePicker();
+  }
 
   // Dati nutrizionali per ogni pasto (simulati per ora)
   mealStats = {
@@ -488,7 +550,7 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   // Time Navigation Methods
-  goToPreviousDay() {
+  /* goToPreviousDay() {
     const newDate = new Date(this.currentDate);
     newDate.setDate(newDate.getDate() - 1);
     this.currentDate = newDate;
@@ -510,7 +572,7 @@ export class DashboardPage implements OnInit, OnDestroy {
   goToToday() {
     this.currentDate = new Date();
     this.loadDashboardData();
-  }
+  } */
 
   // Date Helper Methods
   getDateDisplayText(): string {
@@ -536,7 +598,7 @@ export class DashboardPage implements OnInit, OnDestroy {
            date1.getMonth() === date2.getMonth() &&
            date1.getFullYear() === date2.getFullYear();
   }
-
+/*
   isToday(): boolean {
     return this.isSameDay(this.currentDate, new Date());
   }
@@ -547,7 +609,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     const today = new Date();
     return tomorrow <= today;
   }
-
+*/
   // Quick Actions Handler
   async handleQuickAction(action: any) {
     try {
