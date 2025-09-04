@@ -1,21 +1,98 @@
 <ion-header class="desktop-header">
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
-      </ion-buttons>
-  
-      <div class="header-content">
-        <h1>
-          <ion-icon name="cart-outline"></ion-icon>
-          Prodotto
-        </h1>
-        <p>Gestisci e tieni traccia di quello che hai in casa</p>
-      </div>
-    </ion-toolbar>
-  </ion-header>
-  
-  
-  <ion-content [fullscreen]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
+    </ion-buttons>
 
-  </ion-content>
-  
+    <div class="header-content">
+      <h1>
+        <ion-icon name="cart-outline"></ion-icon>
+        Prodotto
+      </h1>
+      <p>Gestisci e tieni traccia di quello che hai in casa</p>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-list lines="none" class="product-details">
+
+    <ion-item>
+      <ion-label>
+        <strong>NOME:</strong>
+        <div class="value">{{ prodotto.nome }}</div>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <strong>MARCA:</strong>
+        <div class="value">{{ prodotto.marca }}</div>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <strong>QUANTITÀ:</strong>
+        <div class="value">{{ prodotto.quantita }}</div>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <strong>ADDITIVI:</strong>
+        <div class="value-list">
+          <div *ngIf="prodotto.additivi?.length; else noAdditivi">
+            <div *ngFor="let additivo of prodotto.additivi">{{ additivo }}</div>
+          </div>
+          <ng-template #noAdditivi>Nessuno</ng-template>
+        </div>
+      </ion-label>
+    </ion-item>
+
+
+      <ion-item>
+        <ion-label>
+          <strong>ALLERGENI:</strong>
+          <div class="value-list">
+            <div *ngIf="prodotto.allergeni?.length; else noAllergeni">
+              <div *ngFor="let allergene of prodotto.allergeni">{{ allergene }}</div>
+            </div>
+            <ng-template #noAllergeni>Nessuno</ng-template>
+          </div>
+        </ion-label>
+      </ion-item>
+
+          <!-- Nutrienti -->
+    <ion-item lines="full">
+      <ion-label>
+        <h2><strong>Valori Nutrizionali</strong></h2>
+        <div class="nutrient-list">
+          <div class="nutrient">
+            <span class="label">Energia:</span>
+            <span class="value">{{ prodotto.nutrienti?.energia }} kcal</span>
+          </div>
+          <div class="nutrient">
+            <span class="label">Carboidrati:</span>
+            <span class="value">{{ prodotto.nutrienti?.carboidrati }} g</span>
+          </div>
+          <div class="nutrient">
+            <span class="label">Grassi:</span>
+            <span class="value">{{ prodotto.nutrienti?.grassi }} g</span>
+          </div>
+          <div class="nutrient">
+            <span class="label">Proteine:</span>
+            <span class="value">{{ prodotto.nutrienti?.proteine }} g</span>
+          </div>
+          <div class="nutrient">
+            <span class="label">Sale:</span>
+            <span class="value">{{ prodotto.nutrienti?.sale }} g</span>
+          </div>
+        </div>
+      </ion-label>
+    </ion-item>
+
+  </ion-list>
+</ion-content>
+

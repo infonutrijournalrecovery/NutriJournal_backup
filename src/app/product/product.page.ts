@@ -69,6 +69,9 @@ export class ProductPage {
   isDesktop = false;
   isMobile = false;
 
+  prodotto: any;
+  
+
   // Lista di elementi (mock, poi li carichi dal DB)
   items = [
     { title: 'Pasta', description: 'Pacco da 500g', brand: 5 },
@@ -90,5 +93,26 @@ export class ProductPage {
       buttons: ['OK']
     });
     await alert.present();
+  }
+
+  ngOnInit() {
+    // Esempio di caricamento dati (in un caso reale, useresti un service con HTTP)
+    this.prodotto = {
+      nome: 'Pasta di Semola',
+      marca: 'Barilla',
+      quantita: '500 g',
+      additivi: ['E300', 'E471'],
+      allergeni: ['Glutine'],
+      nutrienti: {
+        energia: 350,
+        carboidrati: 72,
+        zuccheri: 2.5,
+        grassi: 1.5,
+        saturi: 0.3,
+        proteine: 12,
+        fibre: 3.0,
+        sale: 0.01
+      }
+    };
   }
 }
