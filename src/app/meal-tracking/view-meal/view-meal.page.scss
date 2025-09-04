@@ -1,0 +1,99 @@
+/* Pantry Page Styles - NutriJournal */
+
+/* CSS Variables */
+:root {
+    --meal-primary: #fff000;
+    --meal-secondary: #0000ff;
+    --meal-gradient: #8030f0;
+    --meal-success: #00aa66;
+    --meal-warning: #ff8300;
+    --meal-danger: #ff0000;
+    --meal-desktop-bg: #f0f0f0;
+  }
+  
+  /* HEADER */
+  .desktop-header {
+    background: var(--meal-gradient);
+    color: white;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border-radius: 0 0 24px 24px;
+    margin-bottom: 1rem;s
+  
+    .header-content {
+      max-width: 7000px;
+      margin: 1%;
+      display: flex;
+      flex-direction: row;
+      gap: 10rem;
+  
+      h1 {
+        font-size: 2rem;
+        font-weight: 300;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 0;
+      }
+  
+      p {
+        font-size: 1rem;
+        opacity: 0.85;
+        margin: 0;
+      }
+    }
+  }
+  
+  /* SEARCH BAR SEMPRE VISIBILE */
+  .search-bar {
+    --background: white;
+    --border-radius: 12px;
+    --padding-start: 10px;
+    margin-top: 0.5rem;
+  
+    ion-input {
+      font-size: 1rem;
+      color: #333;
+    }
+  
+    ion-icon {
+      color: #606060;
+    }
+  }
+  
+  /* LISTA ELEMENTI */
+  ion-card {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 0.5rem 0;
+  }
+  
+  ion-card-title {
+    font-weight: 600;
+    color: #ff40c0;
+  }
+  
+  ion-card-content p {
+    margin: 0.3rem 0;
+  }
+  
+  ion-button.visualizza-btn {
+    --border-radius: 8px;
+    --background: #0060cc;
+  }
+  
+  ion-button.elimina-btn {
+    --border-radius: 8px;
+    --background: #ff4000;
+  }
+  
+  
+  /* RESPONSIVE */
+  @media (max-width: 8000px) {
+    .desktop-header {
+      padding: 1.5rem 1rem;
+    }
+  }
+  

@@ -1863,7 +1863,17 @@ ion-content.dashboard-content {
   //  width: 90%;           /* pi� largo */
     height: 50px;         /* pi� alto */
     font-size: 20px;      /* testo pi� leggibile */
+    --background: #f07000;
+  }
+
+  .action-btn.vals-btn {
+    height: 50px;
+    font-size: 20px;
     --background: #cf0020;
+  
+    ion-icon {
+      color: #001d35;
+    }
   }
 
   .action-btn.water-btn{

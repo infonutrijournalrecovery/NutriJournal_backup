@@ -45,7 +45,15 @@ export const routes: Routes = [
     path: 'meal/edit/:id',
     loadComponent: () => import('./meal-tracking/add-meal/add-meal.page').then((m) => m.AddMealPage),
   },
-  
+
+  {
+    path: 'meal/view',
+    loadComponent: () => import('./meal-tracking/view-meal/view-meal.page').then((m) => m.ViewMealPage),
+  },
+  {
+    path: 'vals',
+    loadComponent: () => import('./vals/vals.page').then((m) => m.ValsPage),
+  },
   {
     path: 'activity/add',
     loadComponent: () => import('./activity-tracking/add-activity/add-Activity.page').then((m) => m.AddActivityPage),
