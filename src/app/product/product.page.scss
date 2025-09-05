@@ -1,99 +1,236 @@
-/* Pantry Page Styles - NutriJournal */
 
-/* CSS Variables */
 :root {
-    --product-primary: #fff000;
-    --product-secondary: #0000ff;
-    --product-gradient: #8030f0;
-    --product-success: #00aa66;
-    --product-warning: #ff8300;
-    --product-danger: #ff0000;
-    --product-desktop-bg: #f0f0f0;
-  }
-  
-  /* HEADER */
-  .desktop-header {
-    background: var(--product-gradient);
-    color: white;
-    padding: 2rem 1.5rem;
-    text-align: center;
-    border-radius: 0 0 24px 24px;
-    margin-bottom: 1rem;
-  
-    .header-content {
-      max-width: 7000px;
-      margin: 1%;
+  --product-primary: #fff000;
+  --product-secondary: #0000ff;
+  --product-gradient: linear-gradient(135deg, #8030f0, #4b00b5);
+  --product-success: #00aa66;
+  --product-warning: #ff8300;
+  --product-danger: #ff0000;
+  --product-desktop-bg: #f8f8f8;
+  --product-text-dark: #222;
+  --product-text-light: #666;
+  --product-card-bg: #fff;
+
+}
+
+ion-toolbar {
+  position: relative;
+}
+
+/* HEADER */
+.desktop-header {
+  background: #202020;
+  color: white;
+  padding: 0.5rem 0; /* meno padding verticale, nessuno orizzontale */
+  text-align: center;
+  border-radius: 0 0 24px 24px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+  .header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.5rem 1rem; /* padding interno SOLO al contenitore del testo */
+    
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 500;
       display: flex;
-      flex-direction: row;
-      gap: 10rem;
-  
-      h1 {
-        font-size: 2rem;
-        font-weight: 300;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        margin: 0;
-      }
-  
-      p {
-        font-size: 1rem;
-        opacity: 0.85;
-        margin: 0;
-      }
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
     }
-  }
-  
-  /* SEARCH BAR SEMPRE VISIBILE */
-  .search-bar {
-    --background: white;
-    --border-radius: 12px;
-    --padding-start: 10px;
-    margin-top: 0.5rem;
-  
-    ion-input {
+
+    p {
       font-size: 1rem;
-      color: #333;
+      opacity: 0.9;
+      margin: 0;
     }
-  
-    ion-icon {
-      color: #606060;
+
+
+    
+  }
+}
+ion-content {
+  --background: #c0c0c0; 
+}
+.nav-btn-pantry {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-75%); /* \u2705 centrata verticalmente */
+  font-size: 1rem;
+  --background: #2030a0;
+  --color: white;
+  height: 50px;
+  display: flex;           /* flex per centrare contenuto */
+  align-items: center;     /* centraggio verticale */
+  justify-content: center; /* centraggio orizzontale */
+  padding: 0rem 0rem;  /* spazio interno */
+  gap: 3rem;             /* distanza tra testo e icona */
+  box-shadow: 0 4px 12px rgba(0,0,0,1);
+  border-radius: 8px;    /* bordi arrotondati */
+}
+
+.nav-btn-meal {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(+75%); /* \u2705 centrata verticalmente */
+  font-size: 1rem;
+  --background: #f9aa00;
+  --color: white;
+  height: 50px;
+  display: flex;           /* flex per centrare contenuto */
+  align-items: center;     /* centraggio verticale */
+  justify-content: center; /* centraggio orizzontale */
+  padding: 0rem 0rem;  /* spazio interno */
+  gap: 3rem;             /* distanza tra testo e icona */
+  box-shadow: 0 4px 12px rgba(0,0,0,1);
+  border-radius: 8px;    /* bordi arrotondati */
+}
+
+.nav-btn-meal-select {
+  --background: #f9aa00;
+  --color: white;
+  height: 50px;
+  font-size: 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,1);
+}
+
+/* CONTENT LIST */
+.product-details {
+  background: var(--product-card-bg);
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 1);
+
+  ion-item {
+    --background: transparent;
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: var(--product-text-dark);
+    border-bottom: 1px solid #e0e0e0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    strong {
+      display: block;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      color: var(--product-text-light);
+      margin-bottom: 0.2rem;
+    }
+
+    .value,
+  /*  .value-list {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--product-text-dark);
+    }
+
+    .value-list div {
+      background: #00ff00;
+      color: #000000;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      display: inline-block;
+      margin: 0.2rem 0.3rem 0 0;
+      font-size: 0.9rem;
+    }
+
+    
+    .value-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    
+    .value-list div {
+      background: #f3f3f3;
+      padding: 0.5rem 0.7rem;
+      border-radius: 8px;
+      display: block;
+      font-size: 0.95rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }   */ 
+
+
+    /* ---- Lista in colonna, ma i figli non si allungano ---- */
+.value-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start; /* <- fondamentale: impedisce lo stretch */
+}
+
+/* ---- Se non puoi modificare l'HTML: fallback che targetta i div interni (lo lascia come alternativa) ---- */
+.value-list > div > div {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  background: #00ffff;
+  color: #000000;
+}
+
+    
+  }
+
+  /* Nutrients section */
+  .nutrient-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+
+    .nutrient {
+      background: #ff0000;
+      padding: 0.5rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+
+      .label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--product-text-light);
+        margin-bottom: 0.2rem;
+      }
+
+      .value {
+        font-weight: 600;
+        font-size: 1rem;
+      }
     }
   }
-  
-  /* LISTA ELEMENTI */
-  ion-card {
-    width: 100%;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin: 0.5rem 0;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .product-details {
+    max-width: 700px;
+    margin: 2rem auto;
   }
-  
-  ion-card-title {
-    font-weight: 600;
-    color: #ff40c0;
+
+  .header-content h1 {
+    font-size: 2.4rem;
   }
-  
-  ion-card-content p {
-    margin: 0.3rem 0;
-  }
-  
-  ion-button.visualizza-btn {
-    --border-radius: 8px;
-    --background: #0060cc;
-  }
-  
-  ion-button.elimina-btn {
-    --border-radius: 8px;
-    --background: #ff4000;
-  }
-  
-  
-  /* RESPONSIVE */
-  @media (max-width: 8000px) {
-    .desktop-header {
-      padding: 1.5rem 1rem;
-    }
-  }
-  
+}

@@ -11,11 +11,39 @@
       </h1>
       <p>Gestisci e tieni traccia di quello che hai in casa</p>
     </div>
+
+    <!-- SPOSTATO FUORI DA .header-content -->
+
   </ion-toolbar>
 </ion-header>
 
+
+
 <ion-content [fullscreen]="true">
 
+  <!-- (click)="goToNextDay()"
+    [disabled]="!canGoToNextDay()" -->
+    <ion-button fill="solid" class="nav-btn-pantry">
+      Aggiungi in dispensa
+    </ion-button>
+    <ion-button fill="solid" class="nav-btn-meal">
+      Aggiungi al pasto
+    </ion-button>
+
+  <!--
+    <ion-item lines="none" class="meal-select-item">
+      <ion-label></ion-label>
+      <ion-select
+        placeholder="Seleziona pasto"
+        interface="popover"
+        [(ngModel)]="selectedMeal"
+        class="nav-btn-meal-select">
+        <ion-select-option *ngFor="let meal of meals" [value]="meal">
+          {{ meal }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>   -->
+    
   <ion-list lines="none" class="product-details">
 
     <ion-item>
