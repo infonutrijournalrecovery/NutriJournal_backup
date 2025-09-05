@@ -70,8 +70,17 @@
             <ion-item button (click)="editPersonalData()">
               <ion-icon slot="start" name="create-outline" color="primary"></ion-icon>
               <ion-label>
-                <h3>Informazioni Base</h3>
+                <h3>Modifica informazioni di base</h3>
                 <p>Nome, età, altezza, peso</p>
+              </ion-label>
+              <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+            </ion-item>
+
+            <ion-item button (click)="changePassword()">
+              <ion-icon slot="start" name="lock-closed-outline" color="warning"></ion-icon>
+              <ion-label>
+                <h3>Cambia Password</h3>
+                <p>Aggiorna la tua password di accesso</p>
               </ion-label>
               <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
             </ion-item>
@@ -178,15 +187,6 @@
               <ion-icon slot="start" name="analytics-outline" color="primary"></ion-icon>
               <ion-label>
                 <h3>Visualizza Obiettivi</h3>
-                <p>Calorie, macro, idratazione</p>
-              </ion-label>
-              <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-            </ion-item>
-            
-            <ion-item button (click)="editNutritionGoals()">
-              <ion-icon slot="start" name="create-outline" color="secondary"></ion-icon>
-              <ion-label>
-                <h3>Modifica Obiettivi</h3>
                 <p>Personalizza i tuoi obiettivi</p>
               </ion-label>
               <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
@@ -214,6 +214,24 @@
                 <h3>Livello Attività</h3>
                 <p>{{ getActivityLevelLabel() }}</p>
               </ion-label>
+            </ion-item>
+
+            <ion-item button (click)="viewDetailedStats()">
+              <ion-icon slot="start" name="stats-chart-outline" color="primary"></ion-icon>
+              <ion-label>
+                <h3>Statistiche Dettagliate</h3>
+                <p>Visualizza i tuoi progressi</p>
+              </ion-label>
+              <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+            </ion-item>
+            
+            <ion-item button (click)="exportData()">
+              <ion-icon slot="start" name="download-outline" color="success"></ion-icon>
+              <ion-label>
+                <h3>Esporta Dati</h3>
+                <p>Scarica i tuoi dati in CSV/PDF</p>
+              </ion-label>
+              <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
             </ion-item>
           </ion-list>
         </ion-card-content>
@@ -254,15 +272,9 @@
                 (ionChange)="toggleDarkMode($event)">
               </ion-toggle>
             </ion-item>
+
             
-            <ion-item button (click)="changePassword()">
-              <ion-icon slot="start" name="lock-closed-outline" color="warning"></ion-icon>
-              <ion-label>
-                <h3>Cambia Password</h3>
-                <p>Aggiorna la tua password di accesso</p>
-              </ion-label>
-              <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-            </ion-item>
+            
           </ion-list>
         </ion-card-content>
       </ion-card>
@@ -277,23 +289,7 @@
         </ion-card-header>
         <ion-card-content>
           <ion-list lines="none">
-            <ion-item button (click)="viewDetailedStats()">
-              <ion-icon slot="start" name="analytics-outline" color="primary"></ion-icon>
-              <ion-label>
-                <h3>Statistiche Dettagliate</h3>
-                <p>Visualizza i tuoi progressi</p>
-              </ion-label>
-              <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-            </ion-item>
             
-            <ion-item button (click)="exportData()">
-              <ion-icon slot="start" name="download-outline" color="success"></ion-icon>
-              <ion-label>
-                <h3>Esporta Dati</h3>
-                <p>Scarica i tuoi dati in CSV/PDF</p>
-              </ion-label>
-              <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-            </ion-item>
           </ion-list>
         </ion-card-content>
       </ion-card>

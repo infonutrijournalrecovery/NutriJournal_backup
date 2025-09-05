@@ -275,26 +275,21 @@ ion-toggle {
   }
 }
 
+/* \u2705 MODIFICA: Layout desktop pi� largo e griglia */
 @media (min-width: 769px) {
   .profile-container {
+    max-width: 1000px; /* pi� largo rispetto ai 600px originali */
     padding: 40px;
   }
   
   .profile-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
   }
   
-  // Layout a 2 colonne per desktop
-  @media (min-width: 1024px) {
-    .profile-sections {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-    
-    .danger-card {
-      grid-column: 1 / -1;
-    }
+  .danger-card {
+    grid-column: 1 / -1;
   }
 }
 
