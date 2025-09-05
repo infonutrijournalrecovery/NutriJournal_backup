@@ -1,98 +1,120 @@
 /* Pantry Page Styles - NutriJournal */
 
-/* CSS Variables */
+/* CSS Variables for Day Mode */
 :root {
-  --pantry-primary: #fff000;
-  --pantry-secondary: #0000ff;
-  --pantry-gradient: #8030f0;
-  --pantry-success: #00aa66;
-  --pantry-warning: #ff8300;
-  --pantry-danger: #ff0000;
-  --pantry-desktop-bg: #f0f0f0;
+  --ion-background-color: #ffffff !important;
+  --ion-text-color: #000000 !important;
+  --ion-toolbar-background: #ffffff !important;
+  --ion-toolbar-color: #000000 !important;
+  --ion-card-background: #ffffff !important;
+  --ion-item-background: #ffffff !important;
+  --ion-button-background: #0060cc !important;
+  --ion-button-color: #ffffff !important;
 }
 
 /* HEADER */
 .desktop-header {
-  background: var(--pantry-gradient);
-  color: white;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  border-radius: 0 0 24px 24px;
-  margin-bottom: 1rem;
+  background: #ffffff !important;
+  color: #000000 !important;
+  padding: 2rem 1.5rem !important;
+  text-align: center !important;
+  border-radius: 0 0 24px 24px !important;
+  margin-bottom: 1rem !important;
 
   .header-content {
-    max-width: 7000px;
-    margin: 1%;
-    display: flex;
-    flex-direction: row;
-    gap: 10rem;
+    max-width: 7000px !important;
+    margin: 1% !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 10rem !important;
+    background: #ffffff;
 
     h1 {
-      font-size: 2rem;
-      font-weight: 300;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      margin: 0;
+      font-size: 2rem !important;
+      font-weight: 600 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 0.5rem !important;
+      margin: 0 !important;
+      color: #000000 !important;
     }
 
     p {
-      font-size: 1rem;
-      opacity: 0.85;
-      margin: 0;
+      font-size: 1.1rem !important;
+      opacity: 0.85 !important;
+      margin: 0 !important;
+      color: #000000 !important;
     }
   }
 }
 
-/* SEARCH BAR SEMPRE VISIBILE */
+/* SEARCH BAR */
 .search-bar {
-  --background: white;
-  --border-radius: 12px;
-  --padding-start: 10px;
-  margin-top: 0.5rem;
+  --background: #d0d0d0 !important;
+  --border-radius: 12px !important;
+  --padding-start: 10px !important;
+  margin-top: 0.5rem !important;
 
   ion-input {
-    font-size: 1rem;
-    color: #333;
+    font-size: 1rem !important;
+    color: #000000 !important;
   }
 
   ion-icon {
-    color: #606060;
+    color: #606060 !important;
   }
 }
 
-/* LISTA ELEMENTI */
+/* LIST ELEMENTS */
+ion-toolbar {
+  --background: #ffffff !important;
+  --color: #000000 !important;
+  box-shadow: none !important;
+}
+
 ion-card {
-  width: 100%;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin: 0.5rem 0;
+  width: 100% !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+  margin: 0.5rem 0 !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
 }
 
 ion-card-title {
-  font-weight: 600;
-  color: #ff40c0;
+  font-weight: 600 !important;
+  color: #0060cc !important;
+  font-size: 1.4rem !important;
 }
 
 ion-card-content p {
-  margin: 0.3rem 0;
+  margin: 0.3rem 0 !important;
+  font-size: 1.1rem !important;
+  color: #000000 !important;
 }
 
 ion-button.visualizza-btn {
-  --border-radius: 8px;
-  --background: #0060cc;
+  --border-radius: 8px !important;
+  --background: #0060cc !important;
+  --color: #ffffff !important;
 }
 
 ion-button.elimina-btn {
-  --border-radius: 8px;
-  --background: #ff4000;
+  --border-radius: 8px !important;
+  --background: #ff4000 !important;
+  --color: #ffffff !important;
 }
 
+/* ION CONTENT */
+ion-content {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
 
 /* RESPONSIVE */
 @media (max-width: 8000px) {
   .desktop-header {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 1rem !important;
   }
 }
