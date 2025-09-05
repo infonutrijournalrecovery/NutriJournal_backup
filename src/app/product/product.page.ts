@@ -156,7 +156,7 @@ export class ProductPage {
   template: `
   <ion-header>
     <ion-toolbar>
-      <ion-title>Seleziona pasto e data</ion-title>
+      <ion-title>Seleziona pasto, data e quantità</ion-title>
       <ion-buttons slot="end">
         <ion-button (click)="dismiss()">Annulla</ion-button>
       </ion-buttons>
@@ -164,6 +164,7 @@ export class ProductPage {
   </ion-header>
 
   <ion-content class="ion-padding">
+    <!-- Selezione pasto -->
     <ion-label>Pasto</ion-label>
     <ion-radio-group [(ngModel)]="selectedMeal">
       <ion-item *ngFor="let meal of meals">
@@ -172,9 +173,17 @@ export class ProductPage {
       </ion-item>
     </ion-radio-group>
 
+    <!-- Selezione data -->
     <ion-label class="ion-margin-top">Data</ion-label>
     <ion-datetime [(ngModel)]="selectedDate" displayFormat="DD/MM/YYYY" pickerFormat="DD/MM/YYYY" presentation="date"></ion-datetime>
 
+    <!-- Input quantità -->
+    <ion-item class="ion-margin-top">
+      <ion-label position="stacked">Quantità (g)</ion-label>
+      <ion-input type="number" [(ngModel)]="quantity" placeholder="Inserisci grammi"></ion-input>
+    </ion-item>
+
+    <!-- Bottone conferma -->
     <ion-button expand="full" class="ion-margin-top" (click)="confirm()">Conferma</ion-button>
   </ion-content>
   `,
@@ -192,20 +201,23 @@ export class ProductPage {
     IonToolbar,
     IonTitle,
     IonButtons,
-    IonContent
+    IonContent,
+    IonInput
   ]
 })
 export class ModalMealDateComponent {
   meals: string[] = [];
   selectedMeal: string | null = null;
   selectedDate: string = new Date().toISOString().split('T')[0];
+  quantity: number | null = null;
 
   private modalController = inject(ModalController);
 
   confirm() {
     this.modalController.dismiss({
       selectedMeal: this.selectedMeal,
-      selectedDate: this.selectedDate
+      selectedDate: this.selectedDate,
+      quantity: this.quantity
     });
   }
 
