@@ -1,0 +1,563 @@
+// search Page Styles - NutriJournal
+// Responsive design for barcode scanning
+
+@use 'search-variables' as *;
+
+// Override variabili CSS con valori SCSS (mantiene grafica identica)
+:root {
+  --search-primary: #{$search-primary};
+  --search-secondary: #{$search-secondary};
+  --search-gradient: #{$search-gradient};
+  --search-success: #{$search-success};
+  --search-warning: #{$search-warning};
+  --search-danger: #{$search-danger};
+}
+
+// ===========================================
+// DESKTOP LAYOUT
+// ===========================================
+
+.desktop-search-layout {
+  min-height: 100vh;
+  background: #{$search-desktop-bg};
+}
+
+.desktop-header {
+  background: var(--search-gradient);
+  color: white;
+  padding: 3rem 2rem;
+  text-align: center;
+  border-radius: 0 0 24px 24px;
+  margin-bottom: 2rem;
+  
+  .header-content {
+    max-width: 800px;
+    margin: 0 auto;
+    
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 300;
+      margin: 0 0 1rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      color: #606060;
+      
+      ion-icon {
+        font-size: 3rem;
+      }
+    }
+    
+    p {
+      font-size: 1.2rem;
+      margin: 0;
+      opacity: 0.9;
+      color: #606060;
+
+    }
+  }
+}
+
+.desktop-search-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: center; /* \U0001f525 Centra orizzontalmente */
+}
+
+
+.search-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+  background: #{$search-desktop-bg};
+  
+  ion-card-header {
+    background: #{$search-desktop-bg};
+    border-radius: 16px 16px 0 0;
+    
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #606060;
+      font-size: 1.3rem;
+    }
+  }
+  
+  .search-container {
+    ion-item {
+      --background: #f0f0f0;
+      --border-radius: #{$search-border-radius-small};
+      margin-bottom: 1.5rem;
+      margin-top: 1.5rem;
+      height: 100px;
+      
+      ion-input {
+        font-size: 1.0rem;
+        color: #606060;
+      }
+    }
+    
+    .search-button {
+      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 50px;
+      font-size: 1.1rem;
+      --border-radius: 12px;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+      }
+    }
+  }
+}
+
+// ===========================================
+// MOBILE LAYOUT
+// ===========================================
+
+.mobile-search-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-header {
+  background: var(--search-gradient);
+  color: white;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-radius: 0 0 24px 24px;
+  margin-bottom: 2rem;
+  
+  h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  p {
+    font-size: 1rem;
+    margin: 0;
+    opacity: 0.9;
+  }
+}
+
+.mobile-controls {
+  flex: 1;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.scan-button-container {
+  text-align: center;
+  
+  .primary-scan-button {
+    --background: var(--search-gradient);
+    height: 60px;
+    font-size: 1.2rem;
+    --border-radius: 30px;
+    margin: 2rem 0;
+    
+    ion-icon {
+      font-size: 1.5rem;
+    }
+    
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+}
+
+.manual-input-section {
+  .manual-input-form {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 16px;
+    
+    ion-item {
+      --background: white;
+      --border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+    
+    .manual-search-button {
+      --background: var(--search-primary);
+      height: 45px;
+      --border-radius: 12px;
+    }
+  }
+}
+
+// ===========================================
+// CAMERA search (MOBILE)
+// ===========================================
+
+.camera-search {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-overlay {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.scan-area {
+  width: 280px;
+  height: 160px;
+  border: 2px solid white;
+  border-radius: #{$search-border-radius-small};
+  position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  
+  // Corner indicators
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--search-success);
+  }
+  
+  &::before {
+    top: -3px;
+    left: -3px;
+    border-right: none;
+    border-bottom: none;
+  }
+  
+  &::after {
+    bottom: -3px;
+    right: -3px;
+    border-left: none;
+    border-top: none;
+  }
+}
+
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--search-success);
+  animation: scanLine 2s linear infinite;
+}
+
+@keyframes scanLine {
+  0% { top: 0; }
+  100% { top: calc(100% - 2px); }
+}
+
+.search-instructions {
+  position: absolute;
+  bottom: 20%;
+  text-align: center;
+  color: white;
+  
+  p {
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  ion-button {
+    --background: rgba(255, 255, 255, 0.2);
+    --color: white;
+    --border-radius: 20px;
+  }
+}
+
+// ===========================================
+// PRODUCT MODAL
+// ===========================================
+
+.product-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--search-gradient);
+  color: white;
+  
+  .product-avatar {
+    width: 80px;
+    height: 80px;
+    border: 3px solid white;
+    
+    img {
+      object-fit: cover;
+    }
+  }
+  
+  .product-info {
+    flex: 1;
+    
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 500;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .brand {
+      font-size: 1rem;
+      opacity: 0.9;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .barcode-chip {
+      --background: rgb(255, 255, 255, 0.2);
+      --color: white;
+      
+      ion-icon {
+        color: white;
+      }
+    }
+  }
+}
+
+.nutrition-card {
+  margin: 1rem;
+  border-radius: 16px;
+  
+  .nutrition-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    
+    .nutrition-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      
+      .label {
+        font-weight: 500;
+        color: var(--ion-color-medium);
+      }
+      
+      .value {
+        font-weight: 600;
+        color: var(--search-primary);
+      }
+    }
+  }
+}
+
+.additives-card,
+.allergens-card,
+.ingredients-card {
+  margin: 1rem;
+  border-radius: 16px;
+  
+  ion-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+  }
+}
+
+.additives-list {
+  .additive-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    
+    .additive-info {
+      flex: 1;
+      
+      strong {
+        display: block;
+        font-size: 0.9rem;
+        color: var(--ion-color-dark);
+      }
+      
+      .risk-level {
+        font-size: 0.8rem;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+.allergens-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ingredients-text {
+  line-height: 1.6;
+  color: var(--ion-color-dark);
+  font-size: 0.9rem;
+}
+
+.modal-actions {
+  padding: 1rem;
+  
+  .add-meal-button {
+    --background: var(--search-gradient);
+    height: 50px;
+    font-size: 1.1rem;
+    --border-radius: 12px;
+    margin-bottom: 1rem;
+  }
+  
+  ion-button[fill="outline"] {
+    --color: var(--ion-color-medium);
+    --border-color: var(--ion-color-medium);
+  }
+}
+
+// ===========================================
+// RESPONSIVE DESIGN
+// ===========================================
+
+@media (max-width: 767px) {
+  .nutrition-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .desktop-search-section {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .product-header {
+    flex-direction: column;
+    text-align: center;
+    
+    .product-avatar {
+      width: 100px;
+      height: 100px;
+    }
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .desktop-search-section {
+    grid-template-columns: 1fr;
+    max-width: 600px;
+  }
+  
+  .nutrition-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .nutrition-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .modal-actions {
+    display: flex;
+    gap: 1rem;
+    
+    .add-meal-button {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// ===========================================
+// DARK MODE SUPPORT
+// ===========================================
+/*
+@media (prefers-color-scheme: dark) {
+  .desktop-search-layout {
+    background: #29304a;
+  }
+  
+  .search-card,
+  .camera-card,
+  .nutrition-card,
+  .additives-card,
+  .allergens-card,
+  .ingredients-card {
+    --background: #161b22;
+    border: 1px solid #30363d;
+  }
+  
+  .search-card ion-card-header,
+  .camera-card ion-card-header {
+    background: #21262d;
+  }
+  
+  .nutrition-item {
+    background: #21262d !important;
+  }
+  
+  .manual-input-form {
+    background: #21262d !important;
+  }
+}
+*/
+// ===========================================
+// ANIMATIONS
+// ===========================================
+
+.search-card,
+.camera-card,
+.nutrition-card,
+.additives-card,
+.allergens-card,
+.ingredients-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Button hover effects
+ion-button:not([disabled]):hover {
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+// Accessibility
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .scan-line {
+    animation: none;
+  }
+  
+  ion-button:hover {
+    transform: none;
+  }
+}

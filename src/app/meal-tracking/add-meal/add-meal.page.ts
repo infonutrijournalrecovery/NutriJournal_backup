@@ -287,6 +287,11 @@ export class AddMealPage implements OnInit, OnDestroy {
   goToScanner() {
     this.router.navigate(['/scanner']);
   }
+
+  goToSearch() {
+    this.router.navigate(['/search']);
+  }
+  
   
   
   goToPantry() {

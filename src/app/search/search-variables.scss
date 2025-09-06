@@ -1,0 +1,26 @@
+// ===================================
+// search VARIABLES - MAPPATURA A SISTEMA GLOBALE  
+// Mantiene valori identici, ora centralizzati
+// ===================================
+
+@use '../../styles/global-variables' as *;
+
+// Mapping search → Sistema Globale (valori identici)
+$search-primary: $app-primary;                    // #667eea
+$search-secondary: $app-secondary;                // #764ba2
+$search-gradient: $app-gradient;                  // linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+$search-success: $app-success;                    // #28a745
+$search-warning: $app-warning;                    // #ffc107
+$search-danger: $app-danger;                      // #dc3545
+
+// Colori background mapping
+$search-desktop-bg: $app-gray-desktop;            // #d0d0d0
+$search-card-bg: $app-white;                      // #ffffff
+$search-overlay-bg: rgba(0, 0, 0, 0.8);          // Mantiene valore specifico
+
+// Dimensioni mapping
+$search-padding-small: $app-spacing-md;           // 1rem
+$search-padding-medium: $app-spacing-xl;          // 2rem
+$search-padding-large: $app-spacing-xxxl;         // 3rem
+$search-border-radius: $app-radius-xl;            // 24px
+$search-border-radius-small: $app-radius-md;      // 12px
