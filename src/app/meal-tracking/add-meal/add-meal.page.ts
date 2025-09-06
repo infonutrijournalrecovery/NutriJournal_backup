@@ -30,6 +30,8 @@ import {
   IonFab,
   IonFabButton,
   IonFabList,
+  IonAvatar,
+  IonNote,
   ToastController,
   AlertController,
   ModalController,
@@ -100,7 +102,9 @@ import {
     IonRadio,
     IonFab,
     IonFabButton,
-    IonFabList
+    IonFabList,
+    IonAvatar,
+    IonNote
   ]
 })
 export class AddMealPage implements OnInit, OnDestroy {
@@ -113,6 +117,8 @@ export class AddMealPage implements OnInit, OnDestroy {
 
   @ViewChild('dateModal') dateModal!: IonModal;
   @ViewChild('mealTypeModal') mealTypeModal!: IonModal;
+
+  recentProducts: any[] = []; // \u2705 lista dinamica di prodotti recenti
 
   // State
   isLoading = false;
@@ -161,10 +167,37 @@ export class AddMealPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.initializePage();
+
+    // \u2705 Simulazione prodotti recenti - qui puoi sostituire con chiamata HTTP
+    this.recentProducts = [
+      {
+        name: 'Pasta Barilla',
+        brand: 'Barilla',
+        quantity: '150 g',
+        image: 'assets/img/pasta.png',
+        lastUsed: '2025-09-06T12:30:00'
+      },
+      {
+        name: 'Latte Intero',
+        brand: 'Parmalat',
+        quantity: '1 L',
+        image: 'assets/img/latte.png',
+        lastUsed: '2025-09-05T19:20:00'
+      }
+    ];
   }
 
   ngOnDestroy() {
     // Cleanup if needed
+  }
+
+  /**
+   * Gestisce il click su un prodotto recente
+   */
+  selectProduct(product: any) {
+    console.log('Prodotto selezionato:', product);
+    // TODO: Aggiungi logica per aggiungerlo al pasto o aprire modal dettagli
+    this.showToast(`${product.name} selezionato`);
   }
 
   /**
@@ -174,21 +207,17 @@ export class AddMealPage implements OnInit, OnDestroy {
     try {
       this.isLoading = true;
       
-      // Get route parameters
       const params = this.route.snapshot.queryParams;
       const mealId = this.route.snapshot.paramMap.get('id');
       
-      // Set date from params or current date
       if (params['date']) {
         this.selectedDate = params['date'];
       }
       
-      // Set meal type from params
       if (params['type'] && this.mealTypes.includes(params['type'])) {
         this.selectedMealType = params['type'] as MealType;
       }
       
-      // If editing existing meal
       if (mealId) {
         this.isEditing = true;
         await this.loadExistingMeal(mealId);
@@ -202,36 +231,19 @@ export class AddMealPage implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Load existing meal for editing
-   */
   private async loadExistingMeal(mealId: string) {
     try {
       // TODO: Implement API call to load meal
-      // const meal = await this.mealService.getMealById(mealId);
-      // this.originalMeal = meal;
-      // this.selectedDate = meal.date;
-      // this.selectedMealType = meal.type;
-      // this.mealItems = [...meal.items];
     } catch (error) {
       console.error('Error loading meal:', error);
       throw error;
     }
   }
 
-  /**
-   * Get back route based on context
-   */
   getBackRoute(): string {
-    if (this.isEditing) {
-      return '/tabs/dashboard';
-    }
     return '/tabs/dashboard';
   }
 
-  /**
-   * Format date for display
-   */
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     const today = new Date();
@@ -251,9 +263,6 @@ export class AddMealPage implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Get icon for meal type
-   */
   getMealTypeIcon(type?: MealType): string {
     if (!type) return 'restaurant-outline';
     
@@ -266,9 +275,6 @@ export class AddMealPage implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Get icon for product category
-   */
   getCategoryIcon(category?: ProductCategory): string {
     if (!category) return 'nutrition-outline';
     
@@ -292,110 +298,70 @@ export class AddMealPage implements OnInit, OnDestroy {
     this.router.navigate(['/search']);
   }
   
-  
-  
   goToPantry() {
     this.router.navigate(['/pantry']);
   }
 
-  /**
-   * Open date picker
-   */
   openDatePicker() {
     this.showDatePicker = true;
   }
 
-  /**
-   * Close date picker
-   */
   closeDatePicker() {
     this.showDatePicker = false;
   }
 
-  /**
-   * Handle date change
-   */
   onDateChange(event: any) {
     this.selectedDate = event.detail.value;
     this.closeDatePicker();
   }
 
-  /**
-   * Open meal type selector
-   */
   openMealTypeSelector() {
     this.showMealTypeSelector = true;
   }
 
-  /**
-   * Close meal type selector
-   */
   closeMealTypeSelector() {
     this.showMealTypeSelector = false;
   }
 
-  /**
-   * Select meal type
-   */
   selectMealType(type: MealType) {
     this.selectedMealType = type;
     this.closeMealTypeSelector();
   }
 
-  /**
-   * Track by function for meal items
-   */
   trackByItemId(index: number, item: MealItem): string {
     return item.id || index.toString();
   }
 
-  /**
-   * Get total calories
-   */
   getTotalCalories(): number {
     return Math.round(this.mealItems.reduce((total, item) => total + item.totalNutrition.calories, 0));
   }
 
-  /**
-   * Get total proteins
-   */
   getTotalProteins(): number {
     return Math.round(this.mealItems.reduce((total, item) => total + item.totalNutrition.proteins, 0) * 10) / 10;
   }
 
-  /**
-   * Get total carbs
-   */
   getTotalCarbs(): number {
     return Math.round(this.mealItems.reduce((total, item) => total + item.totalNutrition.carbohydrates, 0) * 10) / 10;
   }
 
-  /**
-   * Get total fats
-   */
   getTotalFats(): number {
     return Math.round(this.mealItems.reduce((total, item) => total + item.totalNutrition.fats, 0) * 10) / 10;
   }
-  /**
-   * Edit item quantity
-   */
+
   async editItemQuantity(item: MealItem) {
     const alert = await this.alertController.create({
-      header: 'Modifica Quantità',
+      header: 'Modifica Quantit�',
       subHeader: item.productName,
       inputs: [
         {
           name: 'quantity',
           type: 'number',
-          placeholder: 'Quantità',
+          placeholder: 'Quantit�',
           value: item.quantity.toString()
         }
       ],
       buttons: [
-        {
-          text: 'Annulla',
-          role: 'cancel'
-        },
+        { text: 'Annulla', role: 'cancel' },
         {
           text: 'Conferma',
           handler: (data) => {
@@ -411,9 +377,6 @@ export class AddMealPage implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  /**
-   * Update item quantity and recalculate nutrition
-   */
   private updateItemQuantity(item: MealItem, newQuantity: number) {
     item.quantity = newQuantity;
     item.totalNutrition = this.calculateNutritionForQuantity(
@@ -423,24 +386,19 @@ export class AddMealPage implements OnInit, OnDestroy {
     );
   }
 
-  /**
-   * Calculate nutrition for specific quantity
-   */
   private calculateNutritionForQuantity(
     nutritionPer100g: NutritionInfo, 
     quantity: number, 
     unit: QuantityUnit
   ): NutritionInfo {
-    // Convert quantity to grams/ml for calculation
     let quantityIn100gUnits = quantity;
     
     if (unit === 'porzione' || unit === 'pezzo') {
-      // Assume average portion sizes
-      quantityIn100gUnits = quantity * 100; // 1 portion = 100g
+      quantityIn100gUnits = quantity * 100;
     } else if (unit === 'tazza') {
-      quantityIn100gUnits = quantity * 240; // 1 cup = 240g/ml
+      quantityIn100gUnits = quantity * 240;
     } else if (unit === 'cucchiaio') {
-      quantityIn100gUnits = quantity * 15; // 1 tablespoon = 15g/ml
+      quantityIn100gUnits = quantity * 15;
     }
     
     const factor = quantityIn100gUnits / 100;
@@ -457,26 +415,18 @@ export class AddMealPage implements OnInit, OnDestroy {
     };
   }
 
-  /**
-   * Remove item from meal
-   */
   async removeItem(item: MealItem) {
     const alert = await this.alertController.create({
       header: 'Rimuovi Prodotto',
       message: `Vuoi rimuovere ${item.productName} dal pasto?`,
       buttons: [
-        {
-          text: 'Annulla',
-          role: 'cancel'
-        },
+        { text: 'Annulla', role: 'cancel' },
         {
           text: 'Rimuovi',
           role: 'destructive',
           handler: () => {
             const index = this.mealItems.findIndex(i => i.id === item.id);
-            if (index > -1) {
-              this.mealItems.splice(index, 1);
-            }
+            if (index > -1) this.mealItems.splice(index, 1);
           }
         }
       ]
@@ -485,68 +435,28 @@ export class AddMealPage implements OnInit, OnDestroy {
     await alert.present();
   }
 
-  /**
-   * Open search modal
-   */
   async openSearchModal() {
-    try {
-      // TODO: Implement search modal
-      console.log('Opening search modal');
-      await this.showToast('Funzionalità in sviluppo');
-    } catch (error) {
-      console.error('Error opening search modal:', error);
-    }
+    console.log('Opening search modal');
+    await this.showToast('Funzionalit� in sviluppo');
   }
 
-  /**
-   * Open pantry modal
-   */
   async openPantryModal() {
-    try {
-      // TODO: Implement pantry modal
-      console.log('Opening pantry modal');
-      await this.showToast('Funzionalità in sviluppo');
-    } catch (error) {
-      console.error('Error opening pantry modal:', error);
-    }
+    console.log('Opening pantry modal');
+    await this.showToast('Funzionalit� in sviluppo');
   }
 
-  /**
-   * Open barcode scanner
-   */
   async openBarcodeScanner() {
-    try {
-      // TODO: Implement barcode scanner
-      console.log('Opening barcode scanner');
-      await this.showToast('Funzionalità in sviluppo');
-    } catch (error) {
-      console.error('Error opening scanner:', error);
-    }
+    console.log('Opening barcode scanner');
+    await this.showToast('Funzionalit� in sviluppo');
   }
 
-  /**
-   * Open recent products modal
-   */
   async openRecentModal() {
-    try {
-      // TODO: Implement recent products modal
-      console.log('Opening recent modal');
-      await this.showToast('Funzionalità in sviluppo');
-    } catch (error) {
-      console.error('Error opening recent modal:', error);
-    }
+    console.log('Opening recent modal');
+    await this.showToast('Funzionalit� in sviluppo');
   }
 
-  /**
-   * Open quick add menu
-   */
-  openQuickAddMenu() {
-    // This will trigger the FAB list
-  }
+  openQuickAddMenu() {}
 
-  /**
-   * Save meal
-   */
   async saveMeal() {
     if (!this.selectedMealType) {
       await this.showErrorToast('Seleziona il tipo di pasto');
@@ -562,8 +472,8 @@ export class AddMealPage implements OnInit, OnDestroy {
       this.isSaving = true;
       
       const mealData: Meal = {
-        userId: 'current-user-id', // TODO: Get from auth service
-        date: this.selectedDate.split('T')[0], // Extract date part
+        userId: 'current-user-id',
+        date: this.selectedDate.split('T')[0],
         type: this.selectedMealType,
         items: this.mealItems,
         totalNutrition: {
@@ -574,12 +484,7 @@ export class AddMealPage implements OnInit, OnDestroy {
         }
       };
 
-      // TODO: Implement API call to save meal
-      // if (this.isEditing && this.originalMeal?.id) {
-      //   await this.mealService.updateMeal(this.originalMeal.id, mealData);
-      // } else {
-      //   await this.mealService.createMeal(mealData);
-      // }
+      // TODO: chiamata API per salvare il pasto
 
       await this.showSuccessToast(
         this.isEditing ? 'Pasto aggiornato con successo' : 'Pasto salvato con successo'
@@ -595,9 +500,6 @@ export class AddMealPage implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Show success toast
-   */
   private async showSuccessToast(message: string) {
     const toast = await this.toastController.create({
       message,
@@ -608,9 +510,6 @@ export class AddMealPage implements OnInit, OnDestroy {
     await toast.present();
   }
 
-  /**
-   * Show error toast
-   */
   private async showErrorToast(message: string) {
     const toast = await this.toastController.create({
       message,
@@ -621,9 +520,6 @@ export class AddMealPage implements OnInit, OnDestroy {
     await toast.present();
   }
 
-  /**
-   * Show general toast
-   */
   private async showToast(message: string) {
     const toast = await this.toastController.create({
       message,
@@ -633,4 +529,3 @@ export class AddMealPage implements OnInit, OnDestroy {
     await toast.present();
   }
 }
-

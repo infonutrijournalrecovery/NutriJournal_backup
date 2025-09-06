@@ -179,7 +179,7 @@
             Scansiona prodotto
           </ion-button>
           
-          <!-- Recent Products -->
+          <!-- Recent Products
           <ion-button 
             expand="block" 
             fill="outline" 
@@ -187,10 +187,47 @@
             (click)="openRecentModal()">
             <ion-icon name="time-outline" slot="start"></ion-icon>
             Prodotti Recenti
-          </ion-button>
+          </ion-button>  -->
         </div>
       </ion-card-content>
     </ion-card>
+
+
+
+    <ion-card class="rec-products-card">
+      <ion-card-header>
+        <ion-card-title>
+          <ion-icon name="time-outline"></ion-icon>
+          Prodotti recenti
+        </ion-card-title>
+      </ion-card-header>
+    
+      <ion-card-content>
+        <ion-list class="recent-products-list">
+          <ion-item 
+            *ngFor="let product of recentProducts" 
+            button 
+            detail="true"
+            (click)="selectProduct(product)">
+            <!--
+            <ion-avatar slot="start">
+              <img [src]="product.image || 'assets/img/placeholder.png'" alt="{{ product.name }}">
+            </ion-avatar> -->
+    
+            <ion-label>
+              <h3>{{ product.name }}</h3>
+              <p>{{ product.brand }} • {{ product.quantity }}</p>
+            </ion-label>
+    
+            <ion-note slot="end" color="medium">Mangiato il:
+              {{ product.lastUsed | date:'dd/MM' }}
+            </ion-note>
+    
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+    
 
     <!-- Empty State -->
     <div *ngIf="mealItems.length === 0" class="empty-state">
@@ -253,21 +290,3 @@
   </ion-modal>
 
 </ion-content>
-
-<!-- Floating Action Button for Quick Add -->
-<ion-fab vertical="bottom" horizontal="end" slot="fixed">
-  <ion-fab-button color="primary" (click)="openQuickAddMenu()">
-    <ion-icon name="add"></ion-icon>
-  </ion-fab-button>
-  <ion-fab-list side="top">
-    <ion-fab-button color="secondary" (click)="openSearchModal()">
-      <ion-icon name="search-outline"></ion-icon>
-    </ion-fab-button>
-    <ion-fab-button color="tertiary" (click)="openBarcodeScanner()">
-      <ion-icon name="camera-outline"></ion-icon>
-    </ion-fab-button>
-    <ion-fab-button color="success" (click)="openPantryModal()">
-      <ion-icon name="home-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab-list>
-</ion-fab>
