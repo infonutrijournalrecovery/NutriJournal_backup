@@ -72,8 +72,9 @@
 .desktop-macros-card,
 .desktop-details-card {
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
   transition: all 0.3s ease;
+  background: #ffffff !important;
   
   &:hover {
     transform: translateY(-2px);
@@ -81,17 +82,33 @@
   }
 
   ion-card-header {
+    background: #ffffff !important;
+
     ion-card-title {
       display: flex;
       align-items: center;
       gap: 0.75rem;
       font-size: 1.3rem;
       font-weight: 600;
+      --color: #202020 !important;
+      background: #ffffff !important;
       
       ion-icon {
         font-size: 1.5rem;
       }
     }
+  }
+    ion-card-content {
+      padding: 2rem;
+
+      ion-accordion{
+        background: #ffffff !important;
+        color: #202020 !important;
+        ion-label{
+          background: #202020 !important;
+          color: #ffffff !important;
+        }
+      }
   }
 }
 
@@ -103,12 +120,14 @@
   .goal-badge {
     margin-bottom: 1.5rem;
 
+
     ion-chip {
       --background: var(--ion-color-primary-tint);
       --color: var(--ion-color-primary);
       font-size: 1.1rem;
       font-weight: 600;
       padding: 0.75rem 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       
       ion-icon {
         margin-right: 0.5rem;
@@ -120,6 +139,7 @@
   .goal-description {
     font-size: 1rem;
     line-height: 1.5;
+    font-weight: 900;
     color: var(--ion-color-medium);
     margin: 0;
   }
@@ -158,6 +178,9 @@
       background: var(--ion-color-light);
       border-radius: 12px;
       transition: all 0.3s ease;
+      background: #ffffff !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+
 
       &:hover {
         background: var(--ion-color-light-shade);
@@ -178,8 +201,10 @@
       
       .label {
         font-weight: 600;
-        color: var(--ion-color-dark);
+        color: #202020 !important;
         font-size: 1rem;
+        background: #ffffff !important;
+
       }
       
       .value {
@@ -200,6 +225,7 @@
 
 // Hydration Overview
 .hydration-overview {
+  
   .water-amount {
     text-align: center;
     margin-bottom: 1.5rem;
@@ -228,11 +254,11 @@
     border-radius: 8px;
     margin: 0;
     font-size: 0.95rem;
-    color: var(--ion-color-primary);
+    color: #ffffff !important;
     
     ion-icon {
       font-size: 1.2rem;
-      color: var(--ion-color-warning);
+      color: #ffffff !important;
     }
   }
 }
@@ -255,16 +281,22 @@
   }
 
   .macros-details-section {
+    
     .macro-item {
+      width: 160% !important;   
+      position: relative;  
+      transform: translate(-190px, 10px);
       margin-bottom: 1.5rem;
       padding: 1.5rem;
-      background: var(--ion-color-light);
+      background: #ffffff !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      color: #202020 !important;
       border-radius: 12px;
       transition: all 0.3s ease;
 
       &:hover {
         background: var(--ion-color-light-shade);
-        transform: translateY(-2px);
+        transform: translate(-187px, 8px);
       }
       
       .macro-header {
@@ -272,6 +304,8 @@
         align-items: center;
         gap: 1rem;
         margin-bottom: 1rem;
+        color: #202020 !important;
+
         
         .macro-icon {
           font-size: 2rem;
@@ -284,11 +318,13 @@
           display: flex;
           justify-content: space-between;
           align-items: center;
+          color: #202020 !important;
+
           
           .macro-name {
             font-weight: 600;
             font-size: 1.1rem;
-            color: var(--ion-color-dark);
+            color: #202020 !important;
           }
           
           .macro-percentage {
@@ -304,21 +340,22 @@
         justify-content: space-between;
         margin-bottom: 1rem;
         
+        
         .grams {
           font-weight: 700;
           font-size: 1.2rem;
-          color: var(--ion-color-dark);
+          color: #202020 !important;
         }
         
         .calories {
-          font-size: 1rem;
+          font-size: 1.1rem;
           color: var(--ion-color-medium);
         }
       }
       
       .macro-bar {
         height: 8px;
-        background: var(--ion-color-step-200);
+        background: #e0e0e0;
         border-radius: 4px;
         overflow: hidden;
         
