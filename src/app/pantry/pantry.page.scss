@@ -1,120 +1,531 @@
-/* Pantry Page Styles - NutriJournal */
 
-/* CSS Variables for Day Mode */
-:root {
-  --ion-background-color: #ffffff !important;
-  --ion-text-color: #000000 !important;
-  --ion-toolbar-background: #ffffff !important;
-  --ion-toolbar-color: #000000 !important;
-  --ion-card-background: #ffffff !important;
-  --ion-item-background: #ffffff !important;
-  --ion-button-background: #0060cc !important;
-  --ion-button-color: #ffffff !important;
+
+.add-meal-content {
+  --background: #75b972;
 }
 
-/* HEADER */
-.desktop-header {
-  background: #ffffff !important;
-  color: #000000 !important;
-  padding: 2rem 1.5rem !important;
-  text-align: center !important;
-  border-radius: 0 0 24px 24px !important;
-  margin-bottom: 1rem !important;
-
-  .header-content {
-    max-width: 7000px !important;
-    margin: 1% !important;
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 10rem !important;
-    background: #ffffff;
-
-    h1 {
-      font-size: 2rem !important;
-      font-weight: 600 !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      gap: 0.5rem !important;
-      margin: 0 !important;
-      color: #000000 !important;
-    }
-
-    p {
-      font-size: 1.1rem !important;
-      opacity: 0.85 !important;
-      margin: 0 !important;
-      color: #000000 !important;
-    }
-  }
-}
-
-/* SEARCH BAR */
-.search-bar {
-  --background: #d0d0d0 !important;
-  --border-radius: 12px !important;
-  --padding-start: 10px !important;
-  margin-top: 0.5rem !important;
-
-  ion-input {
-    font-size: 1rem !important;
-    color: #000000 !important;
-  }
-
-  ion-icon {
-    color: #606060 !important;
-  }
-}
-
-/* LIST ELEMENTS */
 ion-toolbar {
-  --background: #ffffff !important;
-  --color: #000000 !important;
-  box-shadow: none !important;
+  --background: #415540;
+  --color: white;
 }
 
-ion-card {
-  width: 100% !important;
-  border-radius: 12px !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
-  margin: 0.5rem 0 !important;
-  background-color: #ffffff !important;
-  color: #000000 !important;
+
+.meal-container {
+  padding: 1rem;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 6rem; // Space for FAB
 }
 
-ion-card-title {
-  font-weight: 600 !important;
-  color: #0060cc !important;
-  font-size: 1.4rem !important;
+// Configuration Card
+.meal-config-card {
+  margin-bottom: 1.5rem;
+  background: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  
+  .config-row {
+    display: flex;
+    gap: 1rem;
+    
+    .date-section,
+    .meal-type-section {
+      flex: 1;
+      
+      ion-label {
+        display: block;
+        margin-bottom: 0.75rem;
+        
+        h3 {
+          margin: 0;
+          font-size: 1rem;
+          font-weight: 600;
+          color: #202020;
+        }
+      }
+      
+      .date-button,
+      .meal-type-button {
+        width: 100%;
+        height: 3rem;
+        margin: 0;
+        --border-radius: 8px;
+        --border-width: 2px;
+        text-transform: none;
+        font-weight: 500;
+        --border-color: #75b972;
+        --color: #75b972;
+
+        &:hover {
+          --background: #415540;
+          --color: white;
+        }
+      }
+    }
+  }
 }
 
-ion-card-content p {
-  margin: 0.3rem 0 !important;
-  font-size: 1.1rem !important;
-  color: #000000 !important;
+// Current Meal Card
+.current-meal-card {
+  margin-bottom: 1.5rem;  
+  ion-card-header {
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      
+      ion-icon {
+        font-size: 1.4rem;
+        color: var(--ion-color-primary);
+      }
+    }
+  }
+  
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    background: var(--ion-color-light);
+    
+    ion-thumbnail {
+      --size: 60px;
+      --border-radius: 8px;
+      margin-right: 1rem;
+    }
+    
+    ion-icon[size="large"] {
+      font-size: 2.5rem;
+      margin-right: 1rem;
+    }
+    
+    ion-label {
+      h3 {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: var(--ion-color-dark);
+      }
+      
+      p {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        color: var(--ion-color-medium);
+        
+        &.quantity-info {
+          font-weight: 500;
+          
+          .calories {
+            color: var(--ion-color-danger);
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+  
+  .nutrition-summary {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: var(--ion-color-primary-tint);
+    border-radius: 12px;
+    border-left: 4px solid var(--ion-color-primary);
+    
+    h4 {
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ion-color-primary);
+    }
+    
+    .nutrition-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      
+      .nutrition-item {
+        text-align: center;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        
+        .value {
+          display: block;
+          font-size: 1.4rem;
+          font-weight: 700;
+          margin-bottom: 0.25rem;
+        }
+        
+        .unit {
+          font-size: 0.8rem;
+          color: var(--ion-color-medium);
+          font-weight: 500;
+        }
+        
+        &.calories .value {
+          color: var(--ion-color-danger);
+        }
+        
+        &.proteins .value {
+          color: #e74c3c;
+        }
+        
+        &.carbs .value {
+          color: #2ecc71;
+        }
+        
+        &.fats .value {
+          color: #f39c12;
+        }
+      }
+    }
+  }
 }
 
-ion-button.visualizza-btn {
-  --border-radius: 8px !important;
-  --background: #0060cc !important;
-  --color: #ffffff !important;
+// Add Products Card
+.add-products-card {
+  margin-bottom: 1.5rem;
+  background: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  
+  
+  ion-card-header {
+    background: #e0e0e0 !important;
+
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #202020 !important;
+
+      
+      ion-icon {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #75b972;
+      }
+    }
+  }
+  
+  .add-methods {
+    display: grid;
+    gap: 0.75rem;
+    background: #e0e0e0;
+
+    
+    .add-method-button {
+      height: 3.5rem;
+      margin: 0;
+      --border-radius: 12px;
+      --border-width: 2px;
+      text-transform: none;
+      font-weight: 500;
+      --background: #75b972;
+      
+      ion-icon {
+        font-size: 1.2rem;
+        margin-right: 0.75rem;
+      }
+      
+      &:hover {
+        --background: #415540;
+        --color: white;
+      }
+    }
+  }
 }
 
-ion-button.elimina-btn {
-  --border-radius: 8px !important;
-  --background: #ff4000 !important;
-  --color: #ffffff !important;
+.rec-products-card {
+  margin-bottom: 1.5rem;
+  background: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+
+  overflow: hidden;
+
+  ion-card-header {
+    background: #e0e0e0;
+    color: #202020;
+        padding: 1rem 1.2rem;
+
+    ion-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      color: #202020;
+
+      
+      ion-icon {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #75b972;
+      }
+    }
+  }
+
+  .recent-products-list {
+    background: #e0e0e0;
+
+    ion-item {
+      --inner-padding-end: 8px;
+      --padding-start: 12px;
+      --min-height: 64px;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+      transition: background 0.2s ease;
+      --background: #c0e0b0;
+
+      .elimina-btn{
+        --color: #e22010;
+        --border-color: #e22010;
+        &:hover {
+          --background: #ff4242;
+        }
+      }
+
+
+      &:hover {
+        --background: #75b972;
+      }
+
+      ion-avatar img {
+        border-radius: 8px;
+        object-fit: cover;
+      }
+
+      ion-label h3 {
+        font-weight: 600;
+        font-size: 1.05rem;
+        margin: 0;
+        color: #606060;
+      }
+
+      ion-label p {
+        font-size: 0.9rem;
+        color: #808080;
+        margin: 0.1rem 0 0;
+      }
+
+      ion-note {
+        font-size: 0.85rem;
+        opacity: 1;
+        color: #808080;
+      }
+    }
+  }
 }
 
-/* ION CONTENT */
-ion-content {
-  background-color: #ffffff !important;
-  color: #000000 !important;
+
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--ion-color-medium);
+  
+  ion-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: #ffffff;
+  }
+  
+  h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+  }
+  
+  p {
+    font-size: 1rem;
+    line-height: 1.5;
+    max-width: 300px;
+    margin: 0 auto;
+    color: #ffffff;
+  }
 }
 
-/* RESPONSIVE */
-@media (max-width: 8000px) {
-  .desktop-header {
-    padding: 1.5rem 1rem !important;
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  gap: 1rem;
+  
+  ion-spinner {
+    --color: var(--ion-color-primary);
+  }
+  
+  p {
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// Modal Styling
+ion-modal {
+  --width: 380px;
+  --height: 500px;
+  --border-radius: 16px;
+  --backdrop-opacity: 0.4;
+  
+  ion-content {
+    --padding-top: 1rem;
+    --padding-bottom: 1rem;
+    --padding-start: 1rem;
+    --padding-end: 1rem;
+    --color: #ffffff !important;
+    --background: #404040 !important;
+  }
+  
+  ion-datetime {
+    background: #404040 !important;
+    color: #ffffff !important;
+  }
+  
+  ion-list {
+    background: transparent;
+    
+    ion-item {
+      --background: white;
+      --border-radius: 8px;
+      margin-bottom: 0.5rem;
+      
+      ion-icon {
+        margin-right: 1rem;
+      }
+    }
+  }
+}
+
+// Floating Action Button
+ion-fab {
+  ion-fab-button {
+    --box-shadow: 0 4px 16px rgba(var(--ion-color-primary-rgb), 0.4);
+    
+    &[color="secondary"] {
+      --background: var(--ion-color-secondary);
+      --box-shadow: 0 4px 16px rgba(var(--ion-color-secondary-rgb), 0.4);
+    }
+    
+    &[color="tertiary"] {
+      --background: var(--ion-color-tertiary);
+      --box-shadow: 0 4px 16px rgba(var(--ion-color-tertiary-rgb), 0.4);
+    }
+    
+    &[color="success"] {
+      --background: var(--ion-color-success);
+      --box-shadow: 0 4px 16px rgba(var(--ion-color-success-rgb), 0.4);
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .meal-container {
+    padding: 0.75rem;
+    padding-bottom: 5rem;
+  }
+  
+  .meal-config-card {
+    .config-row {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  }
+  
+  .nutrition-summary {
+    .nutrition-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+  
+  .add-methods {
+    .add-method-button {
+      height: 3rem;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .meal-container {
+    padding: 0.5rem;
+  }
+  
+  ion-item {
+    ion-thumbnail {
+      --size: 50px;
+    }
+    
+    ion-icon[size="large"] {
+      font-size: 2rem;
+    }
+  }
+  
+  .nutrition-summary {
+    padding: 0.75rem;
+    
+    .nutrition-grid {
+      .nutrition-item {
+        padding: 0.5rem;
+        
+        .value {
+          font-size: 1.2rem;
+        }
+        
+        .unit {
+          font-size: 0.75rem;
+        }
+      }
+    }
+  }
+}
+
+// Dark Theme Support
+@media (prefers-color-scheme: dark) {
+  .meal-config-card,
+  .current-meal-card,
+  .add-products-card {
+    ion-item {
+      background: var(--ion-color-dark);
+    }
+  }
+  
+  .nutrition-summary {
+    background: var(--ion-color-dark);
+    border-left-color: var(--ion-color-primary);
+    
+    .nutrition-grid {
+      .nutrition-item {
+        background: var(--ion-color-step-50);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      }
+    }
+  }
+  
+  ion-modal {
+    ion-content {
+      --background: var(--ion-color-dark);
+    }
+    
+    ion-datetime {
+      --background: var(--ion-color-step-50);
+    }
+    
+    ion-list {
+      ion-item {
+        --background: var(--ion-color-step-50);
+      }
+    }
   }
 }

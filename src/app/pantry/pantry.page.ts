@@ -1,37 +1,76 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-
 import {
   IonContent,
   IonHeader,
-  IonTitle,
   IonToolbar,
+  IonTitle,
   IonButtons,
   IonBackButton,
-  IonIcon,
+  IonButton,
   IonCard,
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonButton,
   IonList,
-  IonAvatar,
-  IonChip,
+  IonItem,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption,
+  IonLabel,
+  IonIcon,
+  IonThumbnail,
   IonSpinner,
-  AlertController,
+  IonModal,
+  IonDatetime,
+  IonRadio,
+  IonFab,
+  IonFabButton,
+  IonFabList,
+  IonAvatar,
+  IonNote,
   ToastController,
-  LoadingController,
+  AlertController,
+  ModalController,
+  LoadingController
 } from '@ionic/angular/standalone';
-
-import { DeviceService } from '../shared/services/device.service';
+import { addIcons } from 'ionicons';
+import {
+  checkmarkOutline,
+  calendarOutline,
+  restaurantOutline,
+  addCircleOutline,
+  searchOutline,
+  homeOutline,
+  cameraOutline,
+  timeOutline,
+  createOutline,
+  trashOutline,
+  add,
+  restaurant,
+  leafOutline,
+  nutritionOutline,
+  pizzaOutline,
+  cafeOutline,
+  fastFoodOutline,
+  wineOutline
+} from 'ionicons/icons';
+/*
+import { 
+  Meal, 
+  MealItem, 
+  MealType, 
+  ProductCategory,
+  QuantityUnit,
+  NutritionInfo,
+  MealSearchResult
+} from '../../shared/interfaces/meal.interface'; */
 
 @Component({
-  selector: 'app-pantry',
+  selector: 'pantry-page',
   templateUrl: './pantry.page.html',
   styleUrls: ['./pantry.page.scss'],
   standalone: true,
@@ -40,69 +79,260 @@ import { DeviceService } from '../shared/services/device.service';
     FormsModule,
     IonContent,
     IonHeader,
-    IonTitle,
     IonToolbar,
+    IonTitle,
     IonButtons,
     IonBackButton,
-    IonIcon,
+    IonButton,
     IonCard,
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
-    IonItem,
-    IonLabel,
-    IonInput,
-    IonButton,
     IonList,
-    IonAvatar,
-    IonChip,
+    IonItem,
+    IonItemSliding,
+    IonItemOptions,
+    IonItemOption,
+    IonLabel,
+    IonIcon,
+    IonThumbnail,
     IonSpinner,
+    IonModal,
+    IonDatetime,
+    IonRadio,
+    IonFab,
+    IonFabButton,
+    IonFabList,
+    IonAvatar,
+    IonNote
   ]
 })
-export class PantryPage {
-  private deviceService = inject(DeviceService);
+export class PantryPage implements OnInit, OnDestroy {
   private router = inject(Router);
-  private alertController = inject(AlertController);
+  private route = inject(ActivatedRoute);
   private toastController = inject(ToastController);
+  private alertController = inject(AlertController);
+  private modalController = inject(ModalController);
   private loadingController = inject(LoadingController);
 
-  isDesktop = false;
-  isMobile = false;
+  @ViewChild('dateModal') dateModal!: IonModal;
+  @ViewChild('mealTypeModal') mealTypeModal!: IonModal;
 
-  // Lista di elementi (mock, poi li carichi dal DB)
-  items = [
-    { title: 'Pasta', description: 'Pacco da 500g', brand: 5 },
-    { title: 'Riso', description: 'Riso basmati 1kg', brand: 3 },
-    { title: 'Olio', description: 'Bottiglia 1L', brand: 1 },
-    { title: 'Pane', description: 'Pan bauletto 500g', brand: 2 },
-  ];
+  recentProducts: any[] = []; // \u2705 lista dinamica di prodotti recenti
 
-  filteredItems = [...this.items];
-  searchQuery = '';
+  // State
+  isLoading = false;
+  isSaving = false;
+  isEditing = false;
+  
+  // Exposed Math for template
+  Math = Math;
 
   constructor() {
-    this.isDesktop = this.deviceService.isDesktop();
-    this.isMobile = this.deviceService.isMobile();
-  }
-
-  async onButtonClick(item: any) {
-    const alert = await this.alertController.create({
-      header: 'Azione',
-      message: `Hai cliccato su: <b>${item.title}</b>`,
-      buttons: ['OK']
+    addIcons({
+      checkmarkOutline,
+      calendarOutline,
+      restaurantOutline,
+      addCircleOutline,
+      searchOutline,
+      homeOutline,
+      cameraOutline,
+      timeOutline,
+      createOutline,
+      trashOutline,
+      add,
+      restaurant,
+      leafOutline,
+      nutritionOutline,
+      pizzaOutline,
+      cafeOutline,
+      fastFoodOutline,
+      wineOutline
     });
-    await alert.present();
   }
 
-  filterPantry() {
-    const q = this.searchQuery.toLowerCase();
-    this.filteredItems = this.items.filter(item =>
-      item.title.toLowerCase().includes(q) ||
-      item.description.toLowerCase().includes(q)
-    );
+  async ngOnInit() {
+    await this.initializePage();
+
+    // \u2705 Simulazione prodotti recenti - qui puoi sostituire con chiamata HTTP
+    this.recentProducts = [
+      {
+        name: 'Pasta Barilla',
+        brand: 'Barilla',
+        quantity: '150 g',
+        image: 'assets/img/pasta.png',
+        lastUsed: '2025-09-06T12:30:00'
+      },
+      {
+        name: 'Latte Intero',
+        brand: 'Parmalat',
+        quantity: '1 L',
+        image: 'assets/img/latte.png',
+        lastUsed: '2025-09-05T19:20:00'
+      },
+      {
+        name: 'Latte Intero',
+        brand: 'Parmalat',
+        quantity: '1 L',
+        image: 'assets/img/latte.png',
+        lastUsed: '2025-09-05T19:20:00'
+      },
+      {
+        name: 'Latte Intero',
+        brand: 'Parmalat',
+        quantity: '1 L',
+        image: 'assets/img/latte.png',
+        lastUsed: '2025-09-05T19:20:00'
+      },
+      {
+        name: 'Latte Intero',
+        brand: 'Parmalat',
+        quantity: '1 L',
+        image: 'assets/img/latte.png',
+        lastUsed: '2025-09-05T19:20:00'
+      },
+      {
+        name: 'Latte Intero',
+        brand: 'Parmalat',
+        quantity: '1 L',
+        image: 'assets/img/latte.png',
+        lastUsed: '2025-09-05T19:20:00'
+      },
+      {
+        name: 'Latte Intero',
+        brand: 'Parmalat',
+        quantity: '1 L',
+        image: 'assets/img/latte.png',
+        lastUsed: '2025-09-05T19:20:00'
+      }
+    ];
+  }
+
+  ngOnDestroy() {
+    // Cleanup if needed
+  }
+
+  /**
+   * Gestisce il click su un prodotto recente
+   */
+  selectProduct(product: any) {
+    console.log('Prodotto selezionato:', product);
+    // TODO: Aggiungi logica per aggiungerlo al pasto o aprire modal dettagli
+    this.showToast(`${product.name} selezionato`);
+  }
+
+  /**
+   * Initialize page with route parameters
+   */
+  private async initializePage() {
+    try {
+      this.isLoading = true;
+      
+      const params = this.route.snapshot.queryParams;
+    } catch (error) {
+      console.error('Error initializing page:', error);
+      await this.showErrorToast('Errore durante il caricamento');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  private async loadExistingMeal(mealId: string) {
+    try {
+      // TODO: Implement API call to load meal
+    } catch (error) {
+      console.error('Error loading meal:', error);
+      throw error;
+    }
+  }
+
+  getBackRoute(): string {
+    return '/tabs/dashboard';
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+      return 'Oggi';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Ieri';
+    } else {
+      return date.toLocaleDateString('it-IT', { 
+        weekday: 'short', 
+        day: 'numeric', 
+        month: 'short' 
+      });
+    }
   }
 
   goToProduct() {
     this.router.navigate(['/product']);
+  }
+  goToScanner() {
+    this.router.navigate(['/scanner']);
+  }
+
+  goToSearch() {
+    this.router.navigate(['/search']);
+  }
+  
+  goToPantry() {
+    this.router.navigate(['/pantry']);
+  }
+
+  async openSearchModal() {
+    console.log('Opening search modal');
+    await this.showToast('Funzionalit� in sviluppo');
+  }
+
+  async openPantryModal() {
+    console.log('Opening pantry modal');
+    await this.showToast('Funzionalit� in sviluppo');
+  }
+
+  async openBarcodeScanner() {
+    console.log('Opening barcode scanner');
+    await this.showToast('Funzionalit� in sviluppo');
+  }
+
+  async openRecentModal() {
+    console.log('Opening recent modal');
+    await this.showToast('Funzionalit� in sviluppo');
+  }
+
+  openQuickAddMenu() {}
+
+
+  private async showSuccessToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color: 'success',
+      position: 'top'
+    });
+    await toast.present();
+  }
+
+  private async showErrorToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 4000,
+      color: 'danger',
+      position: 'top'
+    });
+    await toast.present();
+  }
+
+  private async showToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      position: 'bottom'
+    });
+    await toast.present();
   }
 }
