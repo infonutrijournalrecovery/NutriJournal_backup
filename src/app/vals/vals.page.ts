@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,24 +11,22 @@ import {
   IonButtons,
   IonBackButton,
   IonIcon,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
   IonItem,
   IonLabel,
-  IonInput,
   IonButton,
   IonList,
-  IonAvatar,
-  IonChip,
-  IonSpinner,
-  AlertController,
-  ToastController,
-  LoadingController,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonSegment,
+  IonSegmentButton,
+  IonModal,        // \U0001f448 IMPORTA IonModal
+  IonDatetime      // \U0001f448 IMPORTA IonDatetime
 } from '@ionic/angular/standalone';
 
 import { DeviceService } from '../shared/services/device.service';
+import { AlertController, ToastController, LoadingController } from '@ionic/angular';
+import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-vals',
@@ -45,50 +43,107 @@ import { DeviceService } from '../shared/services/device.service';
     IonButtons,
     IonBackButton,
     IonIcon,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
     IonItem,
-    IonLabel,
-    IonInput,
     IonButton,
     IonList,
-    IonAvatar,
-    IonChip,
-    IonSpinner,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonSegment,
+    IonSegmentButton,
+    IonLabel,
+    IonModal,        // \U0001f448 AGGIUNGI QUI
+    IonDatetime      // \U0001f448 AGGIUNGI QUI
   ]
 })
-export class ValsPage {
+export class ValsPage implements AfterViewInit {
   private deviceService = inject(DeviceService);
   private router = inject(Router);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
   private loadingController = inject(LoadingController);
 
+  @ViewChild('lineCanvas') lineCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('dateModal') dateModal!: any; // \U0001f448 riferimento al modal
+
+  lineChart: any;
+  selectedRange: string = 'settimanale';
+
+  selectedDate: string = new Date().toISOString(); // \U0001f448 data selezionata
+
   isDesktop = false;
   isMobile = false;
 
-  // Lista di elementi (mock, poi li carichi dal DB)
-  items = [
-    { title: 'Pasta', description: 'Pacco da 500g', brand: 5 },
-    { title: 'Riso', description: 'Riso basmati 1kg', brand: 3 },
-    { title: 'Olio', description: 'Bottiglia 1L', brand: 1 },
-    { title: 'Pane', description: 'Pan bauletto 500g', brand: 2 },
+  menuItems = [
+    { title: 'Peso' },
+    { title: 'Calorie' },
+    { title: 'Proteine' },
+    { title: 'Carboidrati' },
+    { title: 'Grassi' },
+    { title: 'Acqua' },
   ];
-
 
   constructor() {
     this.isDesktop = this.deviceService.isDesktop();
     this.isMobile = this.deviceService.isMobile();
   }
 
-  async onButtonClick(item: any) {
-    const alert = await this.alertController.create({
-      header: 'Azione',
-      message: `Hai cliccato su: <b>${item.title}</b>`,
-      buttons: ['OK']
+  ngAfterViewInit() {
+    this.createChart();
+  }
+
+  createChart() {
+    const data = {
+      labels: ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'],
+      datasets: [
+        {
+          label: 'Peso',
+          data: [70, 71, 70.5, 70.8, 70.3, 70, 69.8],
+          borderColor: 'rgba(33, 150, 243, 1)',
+          backgroundColor: 'rgba(33, 150, 243, 0.2)',
+          fill: false,
+        },
+        {
+          label: 'Calorie',
+          data: [2000, 2100, 1900, 2200, 2050, 2000, 1950],
+          borderColor: 'rgba(244, 67, 54, 1)',
+          backgroundColor: 'rgba(244, 67, 54, 0.2)',
+          fill: false,
+        },
+      ],
+    };
+
+    const options = {
+      responsive: true,
+      plugins: {
+        legend: { display: true, position: 'bottom' as const },
+      },
+    };
+
+    if (this.lineChart) {
+      this.lineChart.destroy();
+    }
+
+    this.lineChart = new Chart(this.lineCanvas.nativeElement, {
+      type: 'line',
+      data,
+      options,
     });
-    await alert.present();
+  }
+
+  async openDateModal() {
+    await this.dateModal.present();
+  }
+
+  async closeDateModal(confirm = false) {
+    if (confirm) {
+      // Qui potresti fare eventuale logica extra con la data selezionata
+    }
+    await this.dateModal.dismiss();
+  }
+
+  formatDate(dateString: string): string {
+    const d = new Date(dateString);
+    return d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 }
