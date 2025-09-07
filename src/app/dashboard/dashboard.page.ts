@@ -24,7 +24,7 @@ import {
   moonOutline,
   chevronBackOutline,
   chevronForwardOutline,
-  calendarOutline, wineOutline, fastFoodOutline, barcodeOutline } from 'ionicons/icons';
+  calendarOutline, wineOutline, fastFoodOutline, barcodeOutline, scaleOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { DeviceService } from '../shared/services/device.service';
 import { User, DailyNutrition, Meal, Activity } from '../shared/interfaces/types';
@@ -243,33 +243,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       waterAmount: [0]
     });
 
-    addIcons({
-      personOutline,
-      nutritionOutline,
-      chevronBackOutline,
-      chevronForwardOutline,
-      fitnessOutline,
-      restaurantOutline,
-      waterOutline,
-      trendingUpOutline,
-      cafeOutline,
-      addOutline,
-      pizzaOutline,
-      moonOutline,
-      barcodeOutline,
-      fastFoodOutline,
-      flameOutline,
-      wineOutline,
-      timeOutline,
-      checkmarkCircleOutline,
-      alertCircleOutline,
-      statsChartOutline,
-      refreshOutline,
-      scanOutline,
-      calendarOutline,
-      checkmarkCircle: checkmarkCircleOutline,
-      alertCircle: alertCircleOutline
-    });
+    addIcons({personOutline,chevronBackOutline,calendarOutline,chevronForwardOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,barcodeOutline,fastFoodOutline,scaleOutline,flameOutline,wineOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,checkmarkCircle:checkmarkCircleOutline,alertCircle:alertCircleOutline});
   }
 
   ngOnInit() {

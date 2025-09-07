@@ -640,7 +640,7 @@
           fill="solid" 
           class="action-btn vals-btn"
           [routerLink]="['/vals']">
-          <ion-icon slot="start" name="stats-outline"></ion-icon>
+          <ion-icon slot="start" name="stats-chart-outline"></ion-icon>
           I miei valori
       </ion-button>
           
@@ -701,7 +701,29 @@
                   Bottiglietta (500ml)
             </ion-button>
         </ion-item>
-
+        <ion-item>
+          <!-- Casella di testo -->
+          <ion-item>
+            <ion-input 
+              type="number" 
+              [formControl]="waterAmount"
+              label="kg">
+            </ion-input>
+          </ion-item>
+        
+          <!-- Pulsante accanto
+          <ion-button (click)="confirmWater()">
+            Conferma
+          </ion-button> -->
+          <ion-button 
+                fill="solid" 
+                class="action-btn weight-btn"
+                expand="block"
+                (click)="addWater()">
+                  <ion-icon slot="start" name="scale-outline"></ion-icon>
+                  Aggiungi peso giornaliero
+            </ion-button>
+        </ion-item>
       </ion-card>
 
         <!-- Attività Recenti Desktop

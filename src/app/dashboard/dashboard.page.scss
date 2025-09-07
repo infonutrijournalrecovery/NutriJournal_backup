@@ -1907,6 +1907,13 @@ ion-content.dashboard-content {
       --background: #002085;
     }
 
+    .action-btn.weight-btn{
+      //  width: 90%;           /* pi� largo */
+        height: 50px;         /* pi� alto */
+        font-size: 16px;      /* testo pi� leggibile */
+        --background: #570085;
+      }
+
     ion-input {
       flex: 1;               /* occupa tutto lo spazio disponibile */
       --padding-start: 10px;
