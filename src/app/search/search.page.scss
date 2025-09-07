@@ -17,11 +17,15 @@
 // DESKTOP LAYOUT
 // ===========================================
 
+
 .desktop-search-layout {
   min-height: 100vh;
-  background: #{$search-desktop-bg};
+    background: #75b972;
 }
-
+ion-toolbar {
+  --background: #415540;
+  --color: white;
+}
 .desktop-header {
   background: var(--search-gradient);
   color: white;
@@ -42,7 +46,7 @@
       align-items: center;
       justify-content: center;
       gap: 1rem;
-      color: #606060;
+      color: #ffffff;
       
       ion-icon {
         font-size: 3rem;
@@ -101,14 +105,14 @@
     }
     
     .search-button {
-      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --background: #75b972;
       height: 50px;
       font-size: 1.1rem;
       --border-radius: 12px;
       
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+        --background: #415540;
+        --color: white;
       }
     }
   }

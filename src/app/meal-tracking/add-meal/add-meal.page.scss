@@ -1,8 +1,14 @@
 @use '../../styles/profile-variables' as profile;
 
 .add-meal-content {
-  --background: var(--ion-color-light-tint);
+  --background: #75b972;
 }
+
+ion-toolbar {
+  --background: #415540;
+  --color: white;
+}
+
 
 .meal-container {
   padding: 1rem;
@@ -15,6 +21,8 @@
 .meal-config-card {
   margin-bottom: 1.5rem;
   border-radius: profile.$card-border-radius;
+  background: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
   
   .config-row {
     display: flex;
@@ -32,7 +40,7 @@
           margin: 0;
           font-size: 1rem;
           font-weight: 600;
-          color: var(--ion-color-dark);
+          color: #202020;
         }
       }
       
@@ -45,6 +53,13 @@
         --border-width: 2px;
         text-transform: none;
         font-weight: 500;
+        --border-color: #75b972;
+        --color: #75b972;
+
+        &:hover {
+          --background: #415540;
+          --color: white;
+        }
       }
     }
   }
@@ -175,18 +190,26 @@
 .add-products-card {
   margin-bottom: 1.5rem;
   border-radius: profile.$card-border-radius;
+  background: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  
   
   ion-card-header {
+    background: #e0e0e0 !important;
+
     ion-card-title {
       display: flex;
       align-items: center;
       gap: 0.75rem;
       font-size: 1.2rem;
       font-weight: 600;
+      color: #202020 !important;
+
       
       ion-icon {
-        font-size: 1.4rem;
-        color: var(--ion-color-primary);
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #75b972;
       }
     }
   }
@@ -194,6 +217,8 @@
   .add-methods {
     display: grid;
     gap: 0.75rem;
+    background: #e0e0e0;
+
     
     .add-method-button {
       height: 3.5rem;
@@ -202,6 +227,7 @@
       --border-width: 2px;
       text-transform: none;
       font-weight: 500;
+      --background: #75b972;
       
       ion-icon {
         font-size: 1.2rem;
@@ -209,8 +235,8 @@
       }
       
       &:hover {
-        --background: var(--ion-color-primary-tint);
-        --color: var(--ion-color-primary);
+        --background: #415540;
+        --color: white;
       }
     }
   }
@@ -219,12 +245,15 @@
 .rec-products-card {
   margin-bottom: 1.5rem;
   border-radius: profile.$card-border-radius;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  background: #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+
   overflow: hidden;
 
   ion-card-header {
-    background: var(--ion-color-light);
-    padding: 1rem 1.2rem;
+    background: #e0e0e0;
+    color: #202020;
+        padding: 1rem 1.2rem;
 
     ion-card-title {
       display: flex;
@@ -233,15 +262,20 @@
       font-size: 1.25rem;
       font-weight: 600;
       letter-spacing: 0.3px;
+      color: #202020;
+
       
       ion-icon {
-        font-size: 1.4rem;
-        color: var(--ion-color-primary);
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #75b972;
       }
     }
   }
 
   .recent-products-list {
+    background: #e0e0e0;
+
     ion-item {
       --inner-padding-end: 8px;
       --padding-start: 12px;
@@ -249,9 +283,12 @@
       border-radius: 10px;
       margin-bottom: 0.5rem;
       transition: background 0.2s ease;
+      --background: #c0e0b0;
+
+
 
       &:hover {
-        background: var(--ion-color-light-shade);
+        --background: #75b972;
       }
 
       ion-avatar img {
@@ -261,19 +298,21 @@
 
       ion-label h3 {
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 1.05rem;
         margin: 0;
+        color: #606060;
       }
 
       ion-label p {
-        font-size: 0.85rem;
-        color: var(--ion-color-medium);
+        font-size: 0.9rem;
+        color: #808080;
         margin: 0.1rem 0 0;
       }
 
       ion-note {
-        font-size: 0.75rem;
-        opacity: 0.7;
+        font-size: 0.85rem;
+        opacity: 1;
+        color: #808080;
       }
     }
   }
@@ -290,13 +329,14 @@
   ion-icon {
     font-size: 4rem;
     margin-bottom: 1rem;
+    color: #ffffff;
   }
   
   h3 {
     font-size: 1.3rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: var(--ion-color-dark);
+    color: #ffffff;
   }
   
   p {
@@ -304,6 +344,7 @@
     line-height: 1.5;
     max-width: 300px;
     margin: 0 auto;
+    color: #ffffff;
   }
 }
 

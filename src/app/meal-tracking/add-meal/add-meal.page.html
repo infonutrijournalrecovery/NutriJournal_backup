@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button [defaultHref]="getBackRoute()" text=""></ion-back-button>
     </ion-buttons>
@@ -10,7 +10,7 @@
       <ion-button 
         [disabled]="mealItems.length === 0 || isSaving" 
         (click)="saveMeal()"
-        color="light">
+        >
         <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -21,7 +21,7 @@
   
   <!-- Loading state -->
   <div *ngIf="isLoading" class="loading-container">
-    <ion-spinner color="primary"></ion-spinner>
+    <ion-spinner ></ion-spinner>
     <p>Caricamento...</p>
   </div>
 
@@ -55,7 +55,7 @@
               fill="outline" 
               (click)="openMealTypeSelector()"
               class="meal-type-button"
-              [color]="selectedMealType ? 'primary' : 'medium'">
+              >
               <ion-icon [name]="getMealTypeIcon()" slot="start"></ion-icon>
               {{ selectedMealType || 'Seleziona tipo' }}
             </ion-button>
@@ -83,7 +83,7 @@
                 *ngIf="!item.imageUrl" 
                 slot="start" 
                 [name]="getCategoryIcon(item.category)"
-                color="medium"
+                
                 size="large">
               </ion-icon>
               
@@ -106,7 +106,7 @@
             </ion-item>
             
             <ion-item-options slot="end">
-              <ion-item-option color="danger" (click)="removeItem(item)">
+              <ion-item-option (click)="removeItem(item)">
                 <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
               </ion-item-option>
             </ion-item-options>
@@ -152,7 +152,7 @@
           <!-- Search Products -->
           <ion-button 
             expand="block" 
-            fill="outline" 
+            fill="solid" 
             class="add-method-button"
             (click)="goToSearch()">
             <ion-icon name="search-outline" slot="start"></ion-icon>
@@ -162,7 +162,7 @@
           <!-- Pantry -->
           <ion-button 
             expand="block" 
-            fill="outline" 
+            fill="solid" 
             class="add-method-button"
             (click)="goToPantry()">
             <ion-icon name="home-outline" slot="start"></ion-icon>
@@ -172,7 +172,7 @@
           <!-- Scan Barcode -->
           <ion-button 
             expand="block" 
-            fill="outline" 
+            fill="solid" 
             class="add-method-button"
             (click)="goToScanner()">
             <ion-icon name="camera-outline" slot="start"></ion-icon>
@@ -219,7 +219,7 @@
               <p>{{ product.brand }} • {{ product.quantity }}</p>
             </ion-label>
     
-            <ion-note slot="end" color="medium">Mangiato il:
+            <ion-note slot="end">Mangiato il:
               {{ product.lastUsed | date:'dd/MM' }}
             </ion-note>
     
@@ -231,7 +231,7 @@
 
     <!-- Empty State -->
     <div *ngIf="mealItems.length === 0" class="empty-state">
-      <ion-icon name="restaurant" color="medium"></ion-icon>
+      <ion-icon name="restaurant"></ion-icon>
       <h3>Nessun prodotto aggiunto</h3>
       <p>Inizia aggiungendo i prodotti che hai consumato usando uno dei metodi sopra.</p>
     </div>

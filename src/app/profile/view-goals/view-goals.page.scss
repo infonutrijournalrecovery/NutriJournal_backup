@@ -2,8 +2,11 @@
 
 // Desktop Layout Styles
 .desktop-layout {
-  --background: #f8f9fb;
-  background: var(--background);
+  --background: #75b972;
+}
+ion-toolbar {
+  --background: #415540;
+  --color: white;
 }
 
 .desktop-goals-container {
@@ -19,9 +22,11 @@
   align-items: flex-start;
   margin-bottom: 2rem;
   padding: 2rem;
-  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-primary-tint));
+  background: #415540;
   border-radius: 16px;
   color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+
 
   .header-content {
     h1 {
@@ -100,12 +105,12 @@
   }
     ion-card-content {
       padding: 2rem;
-
+      
       ion-accordion{
         background: #ffffff !important;
         color: #202020 !important;
         ion-label{
-          background: #202020 !important;
+          //background: #303030 !important;
           color: #ffffff !important;
         }
       }
@@ -902,49 +907,6 @@
             font-size: 2rem;
           }
         }
-      }
-    }
-  }
-}
-
-// Dark Theme Support
-@media (prefers-color-scheme: dark) {
-  .goals-container {
-    .calories-card,
-    .macros-card,
-    .hydration-card,
-    .details-card {
-      .calories-breakdown .breakdown-item,
-      .macro-item,
-      .water-tip,
-      .macro-explanation {
-        background: var(--ion-color-dark);
-        
-        .label,
-        strong {
-          color: var(--ion-text-color);
-        }
-      }
-    }
-    
-    .details-card {
-      .accordion-content {
-        .activity-levels .activity-level,
-        .goal-explanations .goal-explanation {
-          background: var(--ion-color-dark);
-          
-          &:not(.current) {
-            color: var(--ion-text-color);
-          }
-        }
-      }
-    }
-    
-    .update-notice {
-      background: var(--ion-color-dark);
-      
-      p {
-        color: var(--ion-text-color);
       }
     }
   }

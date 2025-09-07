@@ -1,6 +1,6 @@
 <ion-header>
-    <ion-toolbar color="primary">
-      <ion-title>Aggiungi Attività</ion-title>
+    <ion-toolbar>
+      <ion-title>Aggiungi attività fisica</ion-title>
       <ion-buttons slot="start">
         <ion-back-button [defaultHref]="getBackRoute()" text=""></ion-back-button>
       </ion-buttons>
@@ -11,7 +11,7 @@
     
     <!-- Loading state -->
     <div *ngIf="isLoading" class="loading-container">
-      <ion-spinner color="primary"></ion-spinner>
+      <ion-spinner></ion-spinner>
       <p>Caricamento...</p>
     </div>
   
@@ -44,7 +44,7 @@
                 fill="outline" 
                 (click)="openActivityTypeSelector()"
                 class="Activity-type-button"
-                [color]="selectedActivityType ? 'primary' : 'medium'">
+>
                 <ion-icon [name]="getActivityTypeIcon()" slot="start"></ion-icon>
                 {{ selectedActivityType || 'Seleziona tipo' }}
               </ion-button>
@@ -71,7 +71,6 @@
                   *ngIf="!item.imageUrl" 
                   slot="start" 
                   [name]="getCategoryIcon(item.category)"
-                  color="medium"
                   size="large">
                 </ion-icon>
                 
@@ -94,7 +93,7 @@
               </ion-item>
               
               <ion-item-options slot="end">
-                <ion-item-option color="danger" (click)="removeItem(item)">
+                <ion-item-option (click)="removeItem(item)">
                   <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
                 </ion-item-option>
               </ion-item-options>
@@ -121,7 +120,7 @@
             
             <ion-button 
               expand="block" 
-              fill="outline" 
+              fill="solid" 
               class="add-method-button"
               (click)="goToScanner()">
               Conferma

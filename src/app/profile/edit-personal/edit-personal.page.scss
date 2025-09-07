@@ -1,17 +1,22 @@
 @use '../../styles/profile-variables' as profile;
 ion-content {
-  --background: #c0c0c0;
+  --background: #75b972;
+}
+ion-toolbar {
+  --background: #415540;
+  --color: white;
 }
 .edit-personal-container {
   padding: 1rem;
   max-width: 800px;
   margin: 0 auto;
   padding-bottom: 2rem;
-  background: #c0c0c0;
+  background: #75b972;
 
   .section-card {
     margin-bottom: 1.5rem;
     border-radius: profile.$card-border-radius;
+    box-shadow: 0 0 15px 15px rgba(0, 0, 0, 0.2);
     
     ion-card-header {
       background: #ffffff;
