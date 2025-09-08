@@ -391,12 +391,13 @@ ion-toolbar {
   max-width: 800px;
   margin: 0 auto;
   padding-bottom: 2rem;
+  background-color: #75b972;
 
   // Goal Card
   .goal-card {
     margin-bottom: 1.5rem;
     border-radius: profile.$card-border-radius;
-    background: linear-gradient(135deg, var(--ion-color-primary-tint), var(--ion-color-primary));
+    background: #415540;
     color: white;
     
     ion-card-content {
@@ -449,6 +450,7 @@ ion-toolbar {
   .calories-card {
     margin-bottom: 1.5rem;
     border-radius: profile.$card-border-radius;
+    background-color: #ffffff;
     
     ion-card-header {
       ion-card-title {
@@ -457,6 +459,7 @@ ion-toolbar {
         gap: 0.75rem;
         font-size: 1.3rem;
         font-weight: 600;
+        color: #202020;
         
         ion-icon {
           font-size: 1.5rem;
@@ -522,12 +525,27 @@ ion-toolbar {
   .macros-card {
     margin-bottom: 1.5rem;
     border-radius: profile.$card-border-radius;
+    background-color: #ffffff;
+    ion-card-header {
+      ion-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #202020;
+        
+        ion-icon {
+          font-size: 1.5rem;
+        }
+      }
+    }
     
     .macros-chart {
       display: flex;
       align-items: center;
-      gap: 2rem;
-      margin-bottom: 2rem;
+      gap: 0rem;
+      margin-bottom: 0rem;
       
       .chart-container {
         flex-shrink: 0;
@@ -573,7 +591,8 @@ ion-toolbar {
       .macro-item {
         margin-bottom: 1.5rem;
         padding: 1rem;
-        background: var(--ion-color-light);
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         border-radius: 8px;
         
         .macro-header {
@@ -607,7 +626,7 @@ ion-toolbar {
           .grams {
             font-weight: 600;
             font-size: 1.1rem;
-            color: var(--ion-color-dark);
+            color: #202020;
           }
           
           .calories {
@@ -647,6 +666,21 @@ ion-toolbar {
   .hydration-card {
     margin-bottom: 1.5rem;
     border-radius: profile.$card-border-radius;
+    background-color: #ffffff;
+    ion-card-header {
+      ion-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #202020;
+        
+        ion-icon {
+          font-size: 1.5rem;
+        }
+      }
+    }
     
     .hydration-info {
       .water-amount {
@@ -699,6 +733,21 @@ ion-toolbar {
   .details-card {
     margin-bottom: 1.5rem;
     border-radius: profile.$card-border-radius;
+    background-color: #ffffff;
+    ion-card-header {
+      ion-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #202020;
+        
+        ion-icon {
+          font-size: 1.5rem;
+        }
+      }
+    }
     
     .accordion-content {
       padding: 1rem;
@@ -715,9 +764,11 @@ ion-toolbar {
         border-radius: 8px;
         margin-bottom: 1rem;
         border-left: 4px solid var(--ion-color-primary);
+        color: #ffffff;
+
         
         strong {
-          color: var(--ion-color-primary);
+          color: #ffffff;
         }
       }
       
@@ -740,13 +791,15 @@ ion-toolbar {
           border-radius: 6px;
           border: 2px solid transparent;
           transition: all 0.3s ease;
+          color: #ffffff;
+
           
           &.current {
             background: var(--ion-color-primary-tint);
             border-color: var(--ion-color-primary);
             
             strong {
-              color: var(--ion-color-primary);
+              color: #ffffff;
             }
           }
           
@@ -764,13 +817,15 @@ ion-toolbar {
           border-radius: 6px;
           border: 2px solid transparent;
           transition: all 0.3s ease;
+          color: #ffffff;
+
           
           &.current {
             background: var(--ion-color-success-tint);
             border-color: var(--ion-color-success);
             
             strong {
-              color: var(--ion-color-success);
+              color: #ffffff;
             }
           }
           
