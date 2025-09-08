@@ -101,7 +101,7 @@
               </ion-label>
             </ion-item>
             
-            <ion-item button (click)="editAllergensAndAdditives()">
+            <ion-item button>
               <ion-icon slot="start" name="warning-outline" color="warning"></ion-icon>
               <ion-label>
                 <h3>Allergeni e Additivi</h3>
@@ -208,68 +208,11 @@
               </ion-label>
             </ion-item>
 
-            <ion-item button (click)="viewDetailedStats()">
-              <ion-icon slot="start" name="stats-chart-outline" color="primary"></ion-icon>
-              <ion-label>
-                <h3>Statistiche Dettagliate</h3>
-                <p>Icon</p>
-              </ion-label>
-              <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-            </ion-item>
-            
-            <ion-item button (click)="exportData()">
-              <ion-icon slot="start" name="download-outline" color="success"></ion-icon>
-              <ion-label>
-                <h3>Esporta Dati</h3>
-                <p>Icon</p>
-              </ion-label>
-              <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-            </ion-item>
+
           </ion-list>
         </ion-card-content>
       </ion-card>
 
-      <!-- Preferenze App -->
-      <ion-card class="profile-card">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="settings-outline"></ion-icon>
-            Preferenze - ICON
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-list lines="none">
-            <ion-item>
-              <ion-icon slot="start" name="notifications-outline" color="primary"></ion-icon>
-              <ion-label>
-                <h3>Notifiche</h3>
-                <p>Promemoria pasti e attività</p>
-              </ion-label>
-              <ion-toggle 
-                slot="end" 
-                [checked]="user?.preferences?.notifications || false"
-                (ionChange)="toggleNotifications($event)">
-              </ion-toggle>
-            </ion-item>
-            
-            <ion-item>
-              <ion-icon slot="start" name="moon-outline" color="medium"></ion-icon>
-              <ion-label>
-                <h3>Tema Scuro</h3>
-                <p>Modalità scura dell'app</p>
-              </ion-label>
-              <ion-toggle 
-                slot="end" 
-                [checked]="user?.preferences?.darkMode || false"
-                (ionChange)="toggleDarkMode($event)">
-              </ion-toggle>
-            </ion-item>
-
-            
-            
-          </ion-list>
-        </ion-card-content>
-      </ion-card>
 
       <!-- Zona Pericolo -->
       <ion-card class="profile-card danger-card">

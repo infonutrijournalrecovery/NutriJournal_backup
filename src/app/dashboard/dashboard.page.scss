@@ -73,9 +73,9 @@ ion-button {
 
 // Variabili per il tema Material Design con colori diretti
 :root {
-  --dashboard-primary: #667eea;
-  --dashboard-secondary: #764ba2;
-  --dashboard-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --dashboard-primary: #75b972;
+  --dashboard-secondary: #204a1d;
+  --dashboard-gradient: linear-gradient(135deg, #75b972 0%, #204a1d 100%);
   --card-radius: 16px;
   --header-height: 180px;
   --desktop-sidebar-width: 280px;
@@ -146,7 +146,7 @@ ion-content.dashboard-content {
 
 // Header Desktop con colori diretti
 .desktop-welcome-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #75b972 0%, #204a1d 100%) !important;
   color: white !important;
   padding: 2rem !important;
   display: flex !important;
@@ -158,6 +158,15 @@ ion-content.dashboard-content {
   overflow: hidden !important;
   box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3) !important;
 
+  ion-button{
+    --background: #ffffff !important;
+    color: #204a1d !important;
+    font-weight: 500 !important;
+    height: 45px !important;
+    font-size: 1rem !important;
+    --border-radius: 12px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  }
   
   &::after {
     content: '';
@@ -335,6 +344,17 @@ ion-content.dashboard-content {
   }
 }
 
+ion-button{
+  .nav-btn{
+    --background: #75b972 !important;
+    --color: white !important;
+    font-weight: 500 !important;
+    height: 45px !important;
+    font-size: 1rem !important;
+    --border-radius: 12px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+  }
+}
 // Nutrition Card Desktop
 .desktop-nutrition-card {
   background: var(--md-surface) !important;
@@ -1808,6 +1828,7 @@ ion-content.dashboard-content {
     height: 32px !important;
     --width: 32px !important;
     width: 32px !important;
+    --background: #75b972; // COLORE CALENDARIO NAVIGAZIONE TEMPORALE nav-btn ION
     
     &[disabled] {
       --color: #bdbdbd !important;

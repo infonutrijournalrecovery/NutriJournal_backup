@@ -304,58 +304,6 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Preferenze -->
-    <ion-card class="section-card">
-      <ion-card-header>
-        <ion-card-title>
-          <ion-icon name="settings-outline"></ion-icon>
-          Preferenze
-        </ion-card-title>
-      </ion-card-header>
-      
-      <ion-card-content>
-        
-        <!-- Notifiche -->
-        <ion-item class="toggle-item">
-          <ion-icon name="notifications-outline" slot="start" color="primary"></ion-icon>
-          <ion-label>
-            <h3>Notifiche</h3>
-            <p>Ricevi promemoria e aggiornamenti</p>
-          </ion-label>
-          <ion-toggle
-            [(ngModel)]="formData.preferences.notifications"
-            (ionChange)="markAsChanged()">
-          </ion-toggle>
-        </ion-item>
-
-        <!-- Modalità Scura -->
-        <ion-item class="toggle-item">
-          <ion-icon name="moon-outline" slot="start" color="medium"></ion-icon>
-          <ion-label>
-            <h3>Modalità Scura</h3>
-            <p>Tema scuro per l'interfaccia</p>
-          </ion-label>
-          <ion-toggle
-            [(ngModel)]="formData.preferences.darkMode"
-            (ionChange)="markAsChanged(); toggleDarkMode($event)">
-          </ion-toggle>
-        </ion-item>
-
-        <!-- Unità di Misura -->
-        <ion-item class="form-item">
-          <ion-label position="stacked">Unità di Misura</ion-label>
-          <ion-select
-            name="units"
-            [(ngModel)]="formData.preferences.units"
-            (ionChange)="markAsChanged()">
-            <ion-select-option value="metric">Metrico (kg, cm)</ion-select-option>
-            <ion-select-option value="imperial">Imperiale (lb, ft)</ion-select-option>
-          </ion-select>
-        </ion-item>
-
-      </ion-card-content>
-    </ion-card>
-
     <!-- Save Button -->
     <div class="save-section">
       <ion-button

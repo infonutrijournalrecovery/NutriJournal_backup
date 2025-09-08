@@ -1,7 +1,12 @@
 // Register Page Styles - Material Design per NutriJournal
+ion-toolbar{
+  --background: #415540 !important;
+  --color: white;
+}
+
 
 .register-content {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: linear-gradient(135deg, #75b972 0%, #204a1d 100%);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -80,11 +85,12 @@
 // Form Sections
 .form-section {
   margin-bottom: 2rem;
+  color: #415540 !important;
   
   .section-title {
     font-size: 1.1rem;
     font-weight: 500;
-    color: var(--ion-color-dark);
+    color: #415540 !important;
     margin: 0 0 1rem 0;
     padding: 0 0.5rem;
     border-left: 3px solid var(--ion-color-primary);
@@ -175,7 +181,7 @@
 
 // Buttons
 .register-button {
-  --background: linear-gradient(45deg, #667eea, #764ba2);
+  --background: linear-gradient(45deg, #75b972, #204a1d);
   --color: white;
   --border-radius: 12px;
   height: 50px;
