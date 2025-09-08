@@ -1,0 +1,100 @@
+const nodemailer = require('nodemailer');
+const config = require('./environment');
+
+class EmailConfig {
+  constructor() {
+    this.transporter = null;
+    this.isConfigured = false;
+  }
+
+  // Inizializza configurazione email
+  async initialize() {
+    try {
+      if (!config.email.smtp.auth.user || !config.email.smtp.auth.pass) {
+        console.warn('⚠️ Configurazione email non completa');
+        return false;
+      }
+
+      this.transporter = nodemailer.createTransport({
+        host: config.email.smtp.host,
+        port: config.email.smtp.port,
+        secure: config.email.smtp.secure,
+        auth: {
+          user: config.email.smtp.auth.user,
+          pass: config.email.smtp.auth.pass,
+        }
+      });
+
+      this.isConfigured = true;
+      console.log('✅ Configurazione email inizializzata');
+      return true;
+    } catch (error) {
+      console.error('❌ Errore email:', error.message);
+      this.isConfigured = false;
+      return false;
+    }
+  }
+
+  // Invia email con password temporanea
+  async sendTemporaryPasswordEmail(email, tempPassword, userName) {
+    if (!this.isConfigured) {
+      throw new Error('Email non configurata');
+    }
+    
+    const mailOptions = {
+      from: `"NutriJournal" <${config.email.from.address}>`,
+      to: email,
+      subject: 'Password Temporanea - NutriJournal',
+      text: `Ciao ${userName || 'Utente'},\n\n` +
+            `Ecco la tua password temporanea: ${tempPassword}\n\n` +
+            `Accedi con questa password e cambiala immediatamente.\n\n` +
+            `Cordiali saluti,\nIl team di NutriJournal`
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      console.log(`📧 Email password temporanea inviata a: ${email}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Errore invio email:', error);
+      throw error;
+    }
+  }
+
+  // Invia email di benvenuto
+  async sendWelcomeEmail(email, userName) {
+    if (!this.isConfigured) {
+      return false;
+    }
+
+    const mailOptions = {
+      from: `"NutriJournal" <${config.email.from.address}>`,
+      to: email,
+      subject: 'Benvenuto in NutriJournal',
+      text: `Ciao ${userName}!\n\n` +
+            `Benvenuto in NutriJournal, l'app italiana per il tracciamento nutrizionale.\n\n` +
+            `Con NutriJournal puoi:\n` +
+            `- Tracciare i tuoi pasti e nutrienti\n` +
+            `- Cercare prodotti nel database italiano\n` +
+            `- Monitorare le attività fisiche\n` +
+            `- Visualizzare report e analisi\n\n` +
+            `Buon tracciamento!\n` +
+            `Il team di NutriJournal`
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      console.log(`📧 Email benvenuto inviata a: ${email}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Errore invio email:', error);
+      return false;
+    }
+  }
+
+  get isEmailConfigured() {
+    return this.isConfigured;
+  }
+}
+
+module.exports = new EmailConfig();

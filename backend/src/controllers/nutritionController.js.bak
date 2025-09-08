@@ -1,0 +1,666 @@
+// @ts-nocheck
+const NutritionGoal = require('../models/NutritionGoal');
+const Meal = require('../models/Meal');
+const WeightLog = require('../models/WeightLog');
+const { ValidationError, NotFoundError, UnauthorizedError } = require('../middleware/errorHandler');
+const { logger } = require('../middleware/logging');
+const nutritionUtils = require('../utils/nutritionUtils');
+
+class NutritionController {
+  /**
+   * Validates a date string
+   * @param {string} date - The date string to validate
+   * @param {string} fieldName - The name of the field being validated
+   * @returns {Date} The parsed date object
+   * @throws {ValidationError} If the date is invalid
+   */
+  static validateDate(date, fieldName = 'Data') {
+    if (!date) {
+      throw new ValidationError(`${fieldName} è obbligatoria`);
+    }
+    
+    const parsed = new Date(date);
+    if (isNaN(parsed.getTime())) {
+      throw new ValidationError(`${fieldName} non valida (formato richiesto: YYYY-MM-DD)`);
+    }
+    
+    return parsed;
+  }
+
+  /**
+   * Calculates the average of an array of numeric values
+   * @param {number[]} values - Array of numeric values
+   * @returns {number} The average value
+   */
+  static average(values) {
+    if (!values || values.length === 0) return 0;
+    return values.reduce((sum, val) => sum + (val || 0), 0) / values.length;
+  }
+
+  /**
+   * Calculates the trend percentage of a series of values
+   * @param {number[]} values - Array of numeric values
+   * @returns {number} The trend percentage
+   */
+  static calculateTrend(values) {
+    if (!values || values.length < 2) return 0;
+    const validValues = values.filter(v => v !== null && v !== undefined);
+    if (validValues.length < 2) return 0;
+    
+    const lastValue = validValues[validValues.length - 1];
+    const firstValue = validValues[0];
+    return firstValue !== 0 ? ((lastValue - firstValue) / firstValue) * 100 : 0;
+  }
+  static validateDate(date, fieldName = 'Data') {
+    if (!date) {
+      throw new ValidationError(`${fieldName} è obbligatoria`);
+    }
+    
+    const parsed = new Date(date);
+    if (isNaN(parsed.getTime())) {
+      throw new ValidationError(`${fieldName} non valida (formato richiesto: YYYY-MM-DD)`);
+    }
+    
+    return parsed;
+  }
+
+  /**
+   * Calcola la media di un array di valori numerici
+   * @param {number[]} values - Array di valori numerici
+   * @returns {number} La media dei valori
+   */
+  static average(values) {
+    if (!values || values.length === 0) return 0;
+    return values.reduce((sum, val) => sum + (val || 0), 0) / values.length;
+  }
+
+  /**
+   * Calcola il trend di una serie di valori
+   * @param {number[]} values - Array di valori numerici
+   * @returns {number} Il trend percentuale
+   */
+  static calculateTrend(values) {
+    if (!values || values.length < 2) return 0;
+    const validValues = values.filter(v => v !== null && v !== undefined);
+    if (validValues.length < 2) return 0;
+    
+    const lastValue = validValues[validValues.length - 1];
+    const firstValue = validValues[0];
+    return firstValue !== 0 ? ((lastValue - firstValue) / firstValue) * 100 : 0;
+  }
+
+  /**
+   * Calcola il fabbisogno calorico utilizzando la formula di Harris-Benedict
+   * e applica i modificatori per attività e obiettivo
+   */
+  static calculateCalorieNeeds(user, goal) {
+    const nutritionNeeds = nutritionUtils.calculateNutritionNeeds(user, goal);
+    return nutritionNeeds.calories;
+  }
+
+  /**
+   * Calcola la distribuzione dei macronutrienti in base all'obiettivo
+   */
+  static calculateMacroDistribution(calories, goal) {
+    const nutritionNeeds = nutritionUtils.calculateNutritionNeeds({ 
+      weight: calories / 30, // stima approssimativa per il calcolo dell'acqua
+      activity_level: 'moderate', // valore di default
+      goal_type: goal 
+    }, goal);
+    
+    return {
+      proteins: nutritionNeeds.macros.proteins,
+      carbs: nutritionNeeds.macros.carbs,
+      fats: nutritionNeeds.macros.fats.total
+    };
+  }
+
+  /**
+   * Ricalcola gli obiettivi nutrizionali di un utente
+   */
+  static async recalculateGoals(user) {
+    try {
+      // Calcola tutti i fabbisogni nutrizionali
+      const nutritionNeeds = nutritionUtils.calculateNutritionNeeds(user, user.goal);
+
+      // Crea o aggiorna l'obiettivo nutrizionale
+      const goalData = {
+        user_id: user.id,
+        calories_target: nutritionNeeds.calories,
+        proteins_target: nutritionNeeds.macros.proteins,
+        carbs_target: nutritionNeeds.macros.carbs,
+        fats_target: nutritionNeeds.macros.fats.total,
+        fats_saturated_target: nutritionNeeds.macros.fats.saturated,
+        fats_unsaturated_target: nutritionNeeds.macros.fats.unsaturated,
+        fiber_target: nutritionNeeds.fiber,
+        water_target: nutritionNeeds.water,
+        is_active: true,
+        start_date: new Date(),
+        // Micronutrienti basati su valori RDA standard
+        vitamins_minerals: {
+          vitamin_c: user.gender === 'M' ? 90 : 75,     // mg
+          vitamin_d: 15,                                // mcg
+          calcium: 1000,                               // mg
+          iron: user.gender === 'M' ? 8 : 18,          // mg
+          potassium: 3500,                             // mg
+          // Altri micronutrienti... da aggiungere in base alle esigenze
+        }
+      };
+
+      // Disattiva obiettivi precedenti
+      await NutritionGoal.deactivateAll(user.id);
+      
+      // Crea nuovo obiettivo
+      const goal = await NutritionGoal.create(goalData);
+
+      logger.info('Obiettivi nutrizionali ricalcolati', {
+        userId: user.id,
+        calories: nutritionNeeds.calories,
+        macros: {
+          proteins: nutritionNeeds.macros.proteins,
+          carbs: nutritionNeeds.macros.carbs,
+          fats: nutritionNeeds.macros.fats
+        }
+      });
+
+      return goal;
+    } catch (error) {
+      logger.error('Errore nel ricalcolo degli obiettivi nutrizionali', {
+        userId: user.id,
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Ottiene l'obiettivo nutrizionale attivo dell'utente
+   */
+  static async getActiveGoal(req, res, next) {
+    try {
+      logger.info('Richiesta obiettivo nutrizionale attivo', {
+        userId: req.user.id
+      });
+
+      const activeGoal = await NutritionGoal.findActiveByUser(req.user.id);
+
+      if (!activeGoal) {
+        // Se non esiste un obiettivo attivo, lo calcola
+        const newGoal = await this.recalculateGoals(req.user);
+        return res.json({
+          success: true,
+          data: newGoal,
+          message: 'Nuovo obiettivo nutrizionale calcolato'
+        });
+      }
+
+      // Calcola progresso attuale
+      const progress = await activeGoal.calculateProgress();
+
+      res.json({
+        success: true,
+        data: {
+          goal: activeGoal.toJSON(),
+          progress,
+          updated_at: new Date().toISOString()
+        }
+      });
+
+      logger.info('Obiettivo nutrizionale attivo recuperato', {
+        userId: req.user.id,
+        goalId: activeGoal.id,
+        hasProgress: !!progress
+      });
+    } catch (error) {
+      logger.error('Errore recupero obiettivo nutrizionale attivo', {
+        userId: req.user.id,
+        error: error.message
+      });
+      next(error);
+    }
+  }
+
+  /**
+   * Analizza l'apporto nutrizionale giornaliero
+   */
+  static async getDayAnalysis(req, res, next) {
+    try {
+      const { date } = req.params;
+      const userId = req.user.id;
+
+      // Recupera obiettivo attivo
+      const activeGoal = await NutritionGoal.findActiveByUser(userId);
+      if (!activeGoal) {
+        throw new NotFoundError('Nessun obiettivo nutrizionale attivo trovato');
+      }
+
+      // Recupera i pasti del giorno e calcola i totali
+      const meals = await Meal.findByDate(userId, date);
+      // Lista dei nutrienti validi
+      const validNutrients = new Set([
+        'calories', 'proteins', 'carbs', 'fats', 'fats_saturated', 
+        'fats_unsaturated', 'fiber', 'water', ...Object.keys(activeGoal.vitamins_minerals)
+      ]);
+
+      const dayTotals = meals.reduce((totals, meal) => {
+        Object.entries(meal.nutrients).forEach(([nutrient, value]) => {
+          if (validNutrients.has(nutrient)) {
+            totals[nutrient] = (totals[nutrient] || 0) + (value || 0);
+          } else {
+            logger.warn(`Nutriente non riconosciuto ignorato: ${nutrient}`, {
+              userId: req.user.id,
+              mealId: meal.id
+            });
+          }
+        });
+        return totals;
+      }, {});
+
+      // Calcola le percentuali di completamento
+      const progress = {
+        calories: (dayTotals.calories / activeGoal.calories_target) * 100,
+        proteins: (dayTotals.proteins / activeGoal.proteins_target) * 100,
+        carbs: (dayTotals.carbs / activeGoal.carbs_target) * 100,
+        fats: (dayTotals.fats / activeGoal.fats_target) * 100,
+        micronutrients: {}
+      };
+
+      // Calcola progresso micronutrienti
+      Object.entries(activeGoal.vitamins_minerals).forEach(([nutrient, target]) => {
+        if (dayTotals[nutrient]) {
+          progress.micronutrients[nutrient] = (dayTotals[nutrient] / target) * 100;
+        }
+      });
+
+      res.json({
+        success: true,
+        data: {
+          date,
+          totals: dayTotals,
+          goals: activeGoal,
+          progress
+        }
+      });
+
+      logger.info('Analisi nutrizionale giornaliera completata', {
+        userId,
+        date,
+        mealsCount: meals.length
+      });
+
+    } catch (error) {
+      logger.error('Errore analisi nutrizionale giornaliera', {
+        userId: req.user.id,
+        date: req.params.date,
+        error: error.message
+      });
+      next(error);
+    }
+  }
+
+  /**
+   * Genera un report periodico (settimanale/mensile/trimestrale)
+   * @private
+   */
+  static async generatePeriodReport(userId, startDate, endDate, periodType) {
+    // Recupera obiettivo attivo
+    const activeGoal = await NutritionGoal.findActiveByUser(userId);
+    if (!activeGoal) {
+      throw new NotFoundError('Nessun obiettivo nutrizionale attivo trovato');
+    }
+
+    // Recupera i pasti del periodo
+    const meals = await Meal.findByDateRange(userId, startDate, endDate);
+
+      // Recupera i dati del peso dell'utente per il periodo
+    const weightData = await WeightLog.findByDateRange(userId, startDate, endDate);
+    
+    // Raggruppa per giorno e calcola i totali
+    const dailyData = meals.reduce((acc, meal) => {
+      const day = meal.date.toISOString().split('T')[0];
+      if (!acc[day]) {
+        acc[day] = {
+          date: day,
+          nutrients: {
+            calories: 0,
+            proteins: 0,
+            carbs: 0,
+            fats: {
+              total: 0,
+              saturated: 0,
+              unsaturated: 0
+            },
+            fiber: 0,
+            water: 0  // in millilitri
+          },
+          micronutrients: {},
+          mealCount: 0,
+          weight: null  // sarà popolato dopo
+        };
+      }
+
+      acc[day].mealCount++;
+
+      // Aggrega nutrienti
+      Object.entries(meal.nutrients).forEach(([nutrient, value]) => {
+        switch(nutrient) {
+          case 'calories':
+          case 'proteins':
+          case 'carbs':
+          case 'fiber':
+          case 'water':
+            acc[day].nutrients[nutrient] += value;
+            break;
+          case 'fats_saturated':
+            acc[day].nutrients.fats.saturated += value;
+            acc[day].nutrients.fats.total += value;
+            break;
+          case 'fats_unsaturated':
+            acc[day].nutrients.fats.unsaturated += value;
+            acc[day].nutrients.fats.total += value;
+            break;
+          default:
+            if (nutrient in activeGoal.vitamins_minerals) {
+              acc[day].micronutrients[nutrient] = (acc[day].micronutrients[nutrient] || 0) + value;
+            }
+        }
+      });
+      return acc;
+    }, {});
+
+    // Aggiungi i dati del peso
+    weightData.forEach(log => {
+      const day = log.date.toISOString().split('T')[0];
+      if (dailyData[day]) {
+        dailyData[day].weight = log.weight;
+      } else {
+        dailyData[day] = {
+          date: day,
+          nutrients: {
+            calories: 0,
+            proteins: 0,
+            carbs: 0,
+            fats: {
+              total: 0,
+              saturated: 0,
+              unsaturated: 0
+            },
+            fiber: 0,
+            water: 0
+          },
+          micronutrients: {},
+          mealCount: 0,
+          weight: log.weight
+        };
+      }
+    });    // Converti i dati in array ordinati per la visualizzazione
+    const timeSeriesData = {
+      labels: [], // Date per l'asse X
+      datasets: {
+        // Dati nutrizionali principali
+        calories: [],
+        proteins: [],
+        carbs: [],
+        fats: {
+          total: [],
+          saturated: [],
+          unsaturated: [],
+          ratio: []  // Rapporto insaturi/saturi
+        },
+        fiber: [],
+        water: [],
+        
+        // Metriche corpo
+        weight: [],
+        weightTrend: [], // Variazione peso rispetto alla media mobile
+        
+        // Metriche di aderenza e comportamento
+        adherencePercentage: [], // Percentuale di aderenza agli obiettivi giornalieri
+        mealDistribution: [],    // Numero di pasti per giorno
+        
+        // Bilanciamento macronutrienti
+        macroRatios: {
+          proteins: [], // Percentuale di calorie da proteine
+          carbs: [],    // Percentuale di calorie da carboidrati
+          fats: []      // Percentuale di calorie da grassi
+        }
+      },
+      micronutrients: {} // Serie temporali per ogni micronutriente
+    };
+
+    // Inizializza array per micronutrienti
+    Object.keys(activeGoal.vitamins_minerals).forEach(nutrient => {
+      timeSeriesData.micronutrients[nutrient] = [];
+    });
+
+    // Calcola la media mobile del peso per il trend
+    const windowSize = 7; // media mobile su 7 giorni
+    const calculateMovingAverage = (data, index, window) => {
+      const start = Math.max(0, index - window + 1);
+      const values = data.slice(start, index + 1).filter(v => v !== null);
+      return values.length ? values.reduce((a, b) => a + b) / values.length : null;
+    };
+
+    // Funzione di campionamento per dataset grandi
+    const sampleData = (dates, maxPoints = 1000) => {
+      if (dates.length <= maxPoints) return dates;
+      
+      const step = Math.ceil(dates.length / maxPoints);
+      return dates.filter((_, index) => index % step === 0);
+    };
+
+    // Popola le serie temporali con gestione del campionamento
+    const sortedDates = sampleData(Object.keys(dailyData).sort());
+    const weightValues = []; // Array temporaneo per il calcolo della media mobile
+
+    sortedDates.forEach((date, index) => {
+      const dayData = dailyData[date];
+      timeSeriesData.labels.push(date);
+      
+      // Dati nutrizionali principali
+      timeSeriesData.datasets.calories.push(dayData.nutrients.calories);
+      timeSeriesData.datasets.proteins.push(dayData.nutrients.proteins);
+      timeSeriesData.datasets.carbs.push(dayData.nutrients.carbs);
+      timeSeriesData.datasets.fats.total.push(dayData.nutrients.fats.total);
+      timeSeriesData.datasets.fats.saturated.push(dayData.nutrients.fats.saturated);
+      timeSeriesData.datasets.fats.unsaturated.push(dayData.nutrients.fats.unsaturated);
+      timeSeriesData.datasets.fiber.push(dayData.nutrients.fiber);
+      timeSeriesData.datasets.water.push(dayData.nutrients.water);
+      
+      // Rapporto grassi insaturi/saturi
+      const fatRatio = dayData.nutrients.fats.saturated > 0 
+        ? dayData.nutrients.fats.unsaturated / dayData.nutrients.fats.saturated 
+        : null;
+      timeSeriesData.datasets.fats.ratio.push(fatRatio);
+      
+      // Dati peso
+      weightValues.push(dayData.weight);
+      timeSeriesData.datasets.weight.push(dayData.weight);
+      
+      // Calcola trend peso (variazione rispetto alla media mobile)
+      const movingAvg = calculateMovingAverage(weightValues, index, windowSize);
+      const weightTrend = dayData.weight && movingAvg 
+        ? ((dayData.weight - movingAvg) / movingAvg) * 100 
+        : null;
+      timeSeriesData.datasets.weightTrend.push(weightTrend);
+      
+      // Calcola aderenza giornaliera (media dei macronutrienti e altri target)
+      const adherence = (
+        (dayData.nutrients.calories / activeGoal.calories_target * 100) +
+        (dayData.nutrients.proteins / activeGoal.proteins_target * 100) +
+        (dayData.nutrients.carbs / activeGoal.carbs_target * 100) +
+        (dayData.nutrients.fats.total / activeGoal.fats_target * 100) +
+        (dayData.nutrients.fiber / activeGoal.fiber_target * 100) +
+        (dayData.nutrients.water / activeGoal.water_target * 100)
+      ) / 6;
+      timeSeriesData.datasets.adherencePercentage.push(adherence);
+      
+      // Numero di pasti
+      timeSeriesData.datasets.mealDistribution.push(dayData.mealCount);
+      
+      // Calcola distribuzioni macronutrienti (percentuale delle calorie totali)
+      const totalCalories = dayData.nutrients.calories || 1; // evita divisione per zero
+      timeSeriesData.datasets.macroRatios.proteins.push(
+        (dayData.nutrients.proteins * 4 / totalCalories) * 100
+      );
+      timeSeriesData.datasets.macroRatios.carbs.push(
+        (dayData.nutrients.carbs * 4 / totalCalories) * 100
+      );
+      timeSeriesData.datasets.macroRatios.fats.push(
+        (dayData.nutrients.fats.total * 9 / totalCalories) * 100
+      );
+      
+      // Micronutrienti
+      Object.entries(dayData.micronutrients).forEach(([nutrient, value]) => {
+        if (!timeSeriesData.micronutrients[nutrient]) {
+          timeSeriesData.micronutrients[nutrient] = [];
+        }
+        timeSeriesData.micronutrients[nutrient].push(value);
+      });
+    });
+
+    // Calcola statistiche di riepilogo
+    const stats = {
+      averages: {
+        calories: average(timeSeriesData.datasets.calories),
+        proteins: average(timeSeriesData.datasets.proteins),
+        carbs: average(timeSeriesData.datasets.carbs),
+        fats: average(timeSeriesData.datasets.fats),
+        adherence: average(timeSeriesData.datasets.adherencePercentage),
+        mealsPerDay: average(timeSeriesData.datasets.mealDistribution)
+      },
+      trends: {
+        calories: calculateTrend(timeSeriesData.datasets.calories),
+        proteins: calculateTrend(timeSeriesData.datasets.proteins),
+        carbs: calculateTrend(timeSeriesData.datasets.carbs),
+        fats: calculateTrend(timeSeriesData.datasets.fats),
+        adherence: calculateTrend(timeSeriesData.datasets.adherencePercentage)
+      },
+      micronutrients: {}
+    };
+
+    // Calcola statistiche per micronutrienti
+    Object.entries(timeSeriesData.micronutrients).forEach(([nutrient, values]) => {
+      stats.micronutrients[nutrient] = {
+        average: average(values),
+        trend: calculateTrend(values)
+      };
+    });
+
+    return {
+      startDate,
+      endDate,
+      periodType,
+      timeSeriesData,
+      stats,
+      goals: activeGoal
+    };
+  }
+
+  /**
+   * Genera un report settimanale
+   */
+  static async getWeeklyReport(req, res, next) {
+    try {
+      const { startDate } = req.params;
+      const userId = req.user.id;
+
+      // Calcola la data di fine (7 giorni dopo)
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 7);
+
+      const report = await this.generatePeriodReport(userId, startDate, endDate, 'weekly');
+
+      res.json({
+        success: true,
+        data: report
+      });
+
+      logger.info('Report settimanale generato', {
+        userId,
+        startDate,
+        endDate,
+        daysAnalyzed: report.timeSeriesData.labels.length
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Funzioni di utilità per il calcolo delle statistiche
+   */
+  static average(values) {
+    return values.reduce((sum, val) => sum + val, 0) / values.length;
+  }
+
+  static calculateTrend(values) {
+    if (values.length < 2) return 0;
+    
+    const lastValue = values[values.length - 1];
+    const firstValue = values[0];
+    return ((lastValue - firstValue) / firstValue) * 100;
+  }
+
+  /**
+   * Genera un report mensile
+   */
+  static async getMonthlyReport(req, res, next) {
+    try {
+      const { startDate } = req.params;
+      const userId = req.user.id;
+
+      // Calcola la data di fine (1 mese dopo)
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 1);
+
+      const report = await this.generatePeriodReport(userId, startDate, endDate, 'monthly');
+
+      res.json({
+        success: true,
+        data: report
+      });
+
+      logger.info('Report mensile generato', {
+        userId,
+        startDate,
+        endDate,
+        daysAnalyzed: report.timeSeriesData.labels.length
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Genera un report trimestrale
+   */
+  static async getQuarterlyReport(req, res, next) {
+    try {
+      const { startDate } = req.params;
+      const userId = req.user.id;
+
+      // Calcola la data di fine (3 mesi dopo)
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + 3);
+
+      const report = await this.generatePeriodReport(userId, startDate, endDate, 'quarterly');
+
+      res.json({
+        success: true,
+        data: report
+      });
+
+      logger.info('Report trimestrale generato', {
+        userId,
+        startDate,
+        endDate,
+        daysAnalyzed: report.timeSeriesData.labels.length
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+
+}

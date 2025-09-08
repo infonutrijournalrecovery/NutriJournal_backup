@@ -1,7 +1,8 @@
 const express = require('express');
-const router = express.Router();
 const italianFoodService = require('../services/italianFoodService');
 const openFoodFactsService = require('../services/openFoodFactsService');
+
+const router = express.Router();
 
 // GET /api/italian-food/search - Cerca piatti italiani
 router.get('/search', async (req, res) => {

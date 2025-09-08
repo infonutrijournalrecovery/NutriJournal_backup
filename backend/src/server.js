@@ -3,34 +3,20 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const compression = require('compression');
 const path = require('path');
 const fs = require('fs');
+const { logger } = require('./middleware/logging');
 
 // Configurazioni
 const config = require('./config/environment');
 const database = require('./config/database');
 const emailConfig = require('./config/email');
 
-// Import security middleware
-const {
-    rateLimits,
-    corsOptions,
-    helmetOptions,
-    sanitizeInput,
-    securityLogger,
-    checkBlockedIPs,
-    errorHandler: securityErrorHandler
-} = require('./middleware/security');
+// Middleware
+const { requestLogger } = require('./middleware/logging');
+const { rateLimiter, corsOptions, helmetConfig } = require('./middleware/securityMiddleware');
 
-// Import monitoring service
-const monitoringService = require('./services/monitoringService');
-
-// Middleware legacy
 const authMiddleware = require('./middleware/auth');
-const rateLimitMiddleware = require('./middleware/rateLimit');
-const { corsMiddleware } = require('./middleware/cors');
-const { httpLoggingMiddleware } = require('./middleware/logging');
 const { errorHandler } = require('./middleware/errorHandler');
 
 // Routes (tutte implementate)
@@ -48,6 +34,7 @@ class NutriJournalServer {
   constructor() {
     this.app = express();
     this.port = config.server.port;
+    this.database = database;
     this.host = config.server.host;
     this.server = null;
   }
@@ -80,6 +67,14 @@ class NutriJournalServer {
       // Configura static files
       this.setupStaticFiles();
 
+      // Imposta logging base
+      if (process.env.NODE_ENV !== 'test') {
+        this.app.use((req, res, next) => {
+          console.log(`${new Date().toISOString()} ${req.method} ${req.path}`);
+          next();
+        });
+      }
+
       console.log('✅ Server configurato correttamente');
 
       return this.app;
@@ -89,41 +84,36 @@ class NutriJournalServer {
     }
   }
 
-  // Configura middleware di sicurezza
+  // Configura middleware di sicurezza base
   setupSecurityMiddleware() {
-    // Controllo IP bloccati
-    this.app.use(checkBlockedIPs);
+    // Helmet per headers di sicurezza base
+    this.app.use(helmetConfig);
 
-    // Helmet per headers di sicurezza (configurazione avanzata)
-    this.app.use(helmet(helmetOptions));
-
-    // CORS configurato per Ionic (usa nuova configurazione)
+    // CORS configurato per Ionic
     this.app.use(cors(corsOptions));
 
-    // Rate limiting avanzato
-    this.app.use(rateLimits.general);
+    // Rate limiting base
+    this.app.use(rateLimiter);
 
     // Security logging
-    this.app.use(securityLogger);
-
-    // Input sanitization
-    this.app.use(sanitizeInput);
+    this.app.use((req, res, next) => {
+      logger.info('Security check passed', {
+        method: req.method,
+        path: req.path,
+        ip: req.ip
+      });
+      next();
+    });
   }
 
   // Configura middleware di base
   setupBaseMiddleware() {
-    // Compression
-    this.app.use(compression());
-    
     // Body parsing
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-    // Monitoring middleware
-    this.app.use(monitoringService.trackRequest());
-
-    // Logging
-    this.app.use(httpLoggingMiddleware);
+    // Request logging
+    this.app.use(requestLogger);
 
     // Trust proxy (per Heroku, nginx, etc.)
     this.app.set('trust proxy', 1);
@@ -143,9 +133,8 @@ class NutriJournalServer {
       });
     });
 
-    // Health check avanzato con metriche
+    // Health check avanzato
     this.app.get('/health/detailed', (req, res) => {
-      const healthMetrics = monitoringService.getHealthMetrics();
       res.json({
         service: 'NutriJournal Backend',
         version: '1.0.0',
@@ -153,17 +142,10 @@ class NutriJournalServer {
         environment: config.server.nodeEnv,
         database: 'Connected',
         email: emailConfig.isEmailConfigured ? 'Configured' : 'Not configured',
-        ...healthMetrics
+        uptime: process.uptime(),
+        memory: process.memoryUsage()
       });
     });
-
-    // Endpoint metriche (solo in development)
-    if (config.server.nodeEnv === 'development') {
-      this.app.get('/metrics', (req, res) => {
-        const metrics = monitoringService.getMetrics();
-        res.json(metrics);
-      });
-    }
 
     // API Info
     this.app.get('/api', (req, res) => {
@@ -221,9 +203,9 @@ class NutriJournalServer {
         error: 'NOT_FOUND',
       });
     });
-
-    // Error handler globale avanzato
-    this.app.use(securityErrorHandler);
+    
+    // Error handler globale che gestisce anche gli errori di sicurezza
+    this.app.use(errorHandler);
   }
 
   // Configura static files
@@ -352,6 +334,17 @@ Pronto per connessioni Ionic! 🚀
         });
       });
     }
+  }
+
+  // Avvia il server
+  async start() {
+    await this.initialize();
+    return new Promise((resolve) => {
+      this.server = this.app.listen(this.port, () => {
+        console.log(`🚀 Server avviato su http://${this.host}:${this.port}`);
+        resolve(this.server);
+      });
+    });
   }
 }
 

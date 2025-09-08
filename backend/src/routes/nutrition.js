@@ -1,8 +1,9 @@
 const express = require('express');
-const router = express.Router();
 const NutritionController = require('../controllers/nutritionController');
 const AuthMiddleware = require('../middleware/auth');
 const { validate } = require('../utils/validation');
+
+const router = express.Router();
 
 // Middleware di autenticazione
 const auth = AuthMiddleware.verifyToken;
@@ -31,10 +32,16 @@ router.get('/trends', auth, NutritionController.getNutritionTrends);
 // POST /api/nutrition/calculate-needs - Calcola fabbisogni calorici
 router.post('/calculate-needs', auth, validate('calculateCalorieNeeds'), NutritionController.calculateCalorieNeeds);
 
-// GET /api/nutrition/report/weekly - Report settimanale
-router.get('/report/weekly', auth, NutritionController.getWeeklyReport);
+// Report periodici
+router.get('/report/weekly/:startDate', auth, validate('dateParam'), NutritionController.getWeeklyReport);
+router.get('/report/monthly/:startDate', auth, validate('dateParam'), NutritionController.getMonthlyReport);
+router.get('/report/quarterly/:startDate', auth, validate('dateParam'), NutritionController.getQuarterlyReport);
 
-// GET /api/nutrition/export - Esporta dati nutrizionali
+// Gestione peso
+router.post('/weight', auth, validate('weightLog'), NutritionController.logWeight);
+router.get('/weight/history', auth, NutritionController.getWeightHistory);
+
+// Export dati
 router.get('/export', auth, NutritionController.exportNutritionData);
 
 module.exports = router;

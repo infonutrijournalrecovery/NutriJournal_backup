@@ -6,13 +6,29 @@ class NutritionGoal {
     this.id = data.id;
     this.user_id = data.user_id;
     this.goal_type = data.goal_type;
+    
+    // Obiettivi peso
     this.target_weight = data.target_weight;
-    this.target_calories = data.target_calories;
-    this.target_carbs_percent = data.target_carbs_percent;
-    this.target_protein_percent = data.target_protein_percent;
-    this.target_fat_percent = data.target_fat_percent;
-    this.target_water_liters = data.target_water_liters;
     this.weekly_weight_change = data.weekly_weight_change;
+    
+    // Obiettivi macronutrienti
+    this.calories_target = data.calories_target;
+    this.proteins_target = data.proteins_target;
+    this.carbs_target = data.carbs_target;
+    this.fats = {
+      total_target: data.fats_target,
+      saturated_target: data.fats_saturated_target,
+      unsaturated_target: data.fats_unsaturated_target
+    };
+    
+    // Altri nutrienti
+    this.fiber_target = data.fiber_target;
+    this.water_target = data.water_target;
+    
+    // Micronutrienti (vitamine e minerali)
+    this.vitamins_minerals = data.vitamins_minerals || {};
+    
+    // Date e stato
     this.start_date = data.start_date;
     this.target_date = data.target_date;
     this.is_active = data.is_active !== false; // default true
@@ -23,38 +39,42 @@ class NutritionGoal {
     return 'nutrition_goals';
   }
 
-  static get db() {
-    return database.getConnection();
-  }
-
   // Trova obiettivo per ID
-  static async findById(id) {
-    try {
-      const goal = await this.db(this.tableName)
-        .where('id', id)
-        .first();
-      
-      return goal ? new NutritionGoal(goal) : null;
-    } catch (error) {
-      console.error('❌ Errore ricerca obiettivo per ID:', error);
-      throw new Error('Errore ricerca obiettivo');
-    }
+  static findById(id) {
+    return new Promise((resolve, reject) => {
+      database.sqliteDb.get(
+        `SELECT * FROM ${this.tableName} WHERE id = ?`,
+        [id],
+        (err, row) => {
+          if (err) {
+            console.error('❌ Errore ricerca obiettivo per ID:', err);
+            reject(new Error('Errore ricerca obiettivo'));
+          } else {
+            resolve(row ? new NutritionGoal(row) : null);
+          }
+        }
+      );
+    });
   }
 
   // Trova obiettivo attivo dell'utente
-  static async findActiveByUser(userId) {
-    try {
-      const goal = await this.db(this.tableName)
-        .where('user_id', userId)
-        .where('is_active', true)
-        .orderBy('created_at', 'desc')
-        .first();
-      
-      return goal ? new NutritionGoal(goal) : null;
-    } catch (error) {
-      console.error('❌ Errore ricerca obiettivo attivo:', error);
-      throw new Error('Errore ricerca obiettivo attivo');
-    }
+  static findActiveByUser(userId) {
+    return new Promise((resolve, reject) => {
+      database.sqliteDb.get(
+        `SELECT * FROM ${this.tableName} 
+         WHERE user_id = ? AND is_active = 1 
+         ORDER BY created_at DESC LIMIT 1`,
+        [userId],
+        (err, row) => {
+          if (err) {
+            console.error('❌ Errore ricerca obiettivo attivo:', err);
+            reject(new Error('Errore ricerca obiettivo attivo'));
+          } else {
+            resolve(row ? new NutritionGoal(row) : null);
+          }
+        }
+      );
+    });
   }
 
   // Ottieni tutti gli obiettivi dell'utente
@@ -74,6 +94,40 @@ class NutritionGoal {
       console.error('❌ Errore ricerca obiettivi utente:', error);
       throw new Error('Errore ricerca obiettivi');
     }
+  }
+
+  /**
+   * Calcola il progresso verso gli obiettivi nutrizionali
+   * @param {Object} dailyNutrition - Dati nutrizionali giornalieri
+   * @returns {Object} Percentuali di completamento degli obiettivi
+   */
+  calculateProgress(dailyNutrition) {
+    return {
+      calories: this.calculatePercentage(dailyNutrition.calories, this.calories_target),
+      proteins: this.calculatePercentage(dailyNutrition.proteins, this.proteins_target),
+      carbs: this.calculatePercentage(dailyNutrition.carbs, this.carbs_target),
+      fats: {
+        total: this.calculatePercentage(dailyNutrition.fats.total, this.fats.total_target),
+        saturated: this.calculatePercentage(dailyNutrition.fats.saturated, this.fats.saturated_target),
+        unsaturated: this.calculatePercentage(dailyNutrition.fats.unsaturated, this.fats.unsaturated_target)
+      },
+      fiber: this.calculatePercentage(dailyNutrition.fiber, this.fiber_target),
+      water: this.calculatePercentage(dailyNutrition.water, this.water_target),
+      vitamins_minerals: Object.entries(this.vitamins_minerals).reduce((acc, [nutrient, target]) => {
+        acc[nutrient] = this.calculatePercentage(dailyNutrition.vitamins_minerals?.[nutrient] || 0, target);
+        return acc;
+      }, {})
+    };
+  }
+
+  /**
+   * Calcola una percentuale con gestione degli edge case
+   * @private
+   */
+  calculatePercentage(actual, target) {
+    if (!target) return null;
+    if (!actual) return 0;
+    return Math.round((actual / target) * 100);
   }
 
   // Crea nuovo obiettivo

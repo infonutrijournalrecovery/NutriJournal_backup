@@ -2,7 +2,7 @@ const express = require('express');
 const UserController = require('../controllers/userController');
 const AuthMiddleware = require('../middleware/auth');
 const { validate } = require('../utils/validation');
-const { applyRateLimit } = require('../middleware/rateLimit');
+const { rateLimiter } = require('../middleware/securityMiddleware');
 const multer = require('multer');
 const path = require('path');
 
@@ -92,6 +92,6 @@ router.delete('/avatar', auth, UserController.deleteAvatar);
 // === ESPORTAZIONE DATI ===
 
 // GET /api/users/export - Esporta dati utente (GDPR)
-router.get('/export', auth, applyRateLimit({ windowMs: 24 * 60 * 60 * 1000, max: 2 }), UserController.exportData);
+router.get('/export', auth, rateLimiter, UserController.exportData);
 
 module.exports = router;

@@ -1,5 +1,20 @@
 require('dotenv').config();
 
+// Validazione variabili d'ambiente critiche
+const validateEnv = () => {
+  if (process.env.NODE_ENV === 'production') {
+    const requiredEnvVars = ['JWT_SECRET'];
+    const missing = requiredEnvVars.filter(varName => !process.env[varName]);
+    
+    if (missing.length > 0) {
+      console.warn(`⚠️ Attenzione: Mancano le seguenti variabili d'ambiente: ${missing.join(', ')}`);
+      console.warn('Il sistema userà valori di fallback per test/sviluppo');
+    }
+  }
+};
+
+validateEnv();
+
 module.exports = {
   // Database configuration
   database: {

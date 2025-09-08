@@ -1,491 +1,294 @@
 const Meal = require('../models/Meal');
 const Product = require('../models/Product');
-const NutritionGoal = require('../models/NutritionGoal');
-const { ValidationError, NotFoundError } = require('../middleware/errorHandler');
+const { ValidationError, NotFoundError, UnauthorizedError } = require('../middleware/errorHandler');
+const { logger } = require('../middleware/logging');
+const MealUtils = require('../utils/mealUtils');
+const mealSchemas = require('../validation/schemas/meal');
 
+/**
+ * Controller per la gestione dei pasti
+ */
 class MealController {
-  // Ottieni tutti i pasti di un giorno
-  static async getDayMeals(req, res) {
+  /**
+   * Schemi di validazione
+   */
+  static validations = {
+    dayMeals: mealSchemas.dateParam,
+    createMeal: mealSchemas.mealInput,
+    updateMeal: mealSchemas.mealUpdate,
+    getMeal: mealSchemas.mealId,
+    deleteMeal: mealSchemas.mealId
+  };
+
+  /**
+   * Ottiene tutti i pasti di un giorno specifico
+   */
+  static async getDayMeals(req, res, next) {
     try {
       const { date } = req.params;
-      
-      if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        throw new ValidationError('Formato data non valido (richiesto: YYYY-MM-DD)');
-      }
+      const userId = req.user.id;
 
-      const meals = await Meal.findByUserAndDate(req.user.id, date);
+      logger.info('Richiesta pasti del giorno', {
+        userId,
+        date
+      });
 
-      // Calcola totali nutrizionali del giorno
-      const dayTotals = meals.reduce((totals, meal) => {
-        const mealNutrition = meal.calculateNutrition();
-        Object.keys(mealNutrition).forEach(key => {
-          totals[key] = (totals[key] || 0) + (mealNutrition[key] || 0);
-        });
-        return totals;
-      }, {});
+      const meals = await Meal.findByDate(userId, date);
 
-      // Ottieni obiettivo attivo per confronto
-      const activeGoal = await NutritionGoal.findActiveByUser(req.user.id);
-      
       res.json({
         success: true,
-        data: {
-          date,
-          meals: meals.map(meal => meal.toJSON()),
-          day_totals: dayTotals,
-          active_goal: activeGoal ? activeGoal.toJSON() : null,
-          progress: activeGoal ? activeGoal.calculateProgressForNutrition(dayTotals) : null,
-        },
+        data: meals
+      });
+
+      logger.info('Pasti del giorno recuperati', {
+        userId,
+        date,
+        mealsCount: meals.length
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore recupero pasti del giorno', {
+        userId: req.user.id,
+        date: req.params.date,
+        error: error.message
+      });
+      next(error);
     }
   }
 
-  // Crea un nuovo pasto
-  static async createMeal(req, res) {
+  /**
+   * Crea un nuovo pasto
+   */
+  static async createMeal(req, res, next) {
     try {
-      const mealData = {
-        ...req.body,
-        user_id: req.user.id,
+      const { type, date, products } = req.body;
+      const userId = req.user.id;
+
+      logger.info('Creazione nuovo pasto', {
+        userId,
+        type,
+        date,
+        productsCount: products.length
+      });
+
+      // Verifica che i prodotti esistano
+      for (const product of products) {
+        const exists = await Product.exists(product.productId);
+        if (!exists) {
+          throw new NotFoundError(`Prodotto ${product.productId} non trovato`);
+        }
+      }
+
+      const meal = await Meal.create({
+        userId,
+        type,
+        date,
+        products
+      });
+
+      res.status(201).json({
+        success: true,
+        data: meal
+      });
+
+      logger.info('Pasto creato', {
+        userId,
+        mealId: meal.id
+      });
+    } catch (error) {
+      logger.error('Errore creazione pasto', {
+        userId: req.user.id,
+        error: error.message
+      });
+      next(error);
+    }
+  }
+
+  /**
+   * Ottiene i dettagli di un pasto specifico
+   */
+  static async getMeal(req, res, next) {
+    try {
+      const { mealId } = req.params;
+      const userId = req.user.id;
+
+      const meal = await Meal.findById(mealId);
+
+      if (!meal) {
+        throw new NotFoundError('Pasto non trovato');
+      }
+
+      if (meal.userId !== userId) {
+        throw new UnauthorizedError('Non hai accesso a questo pasto');
+      }
+
+      // Carica i dettagli dei prodotti per calcolare i nutrienti
+      const mealWithProducts = await meal.loadProducts();
+      
+      // Calcola i nutrienti totali
+      const nutrients = {
+        calories: 0,
+        proteins: 0,
+        carbs: 0,
+        fats: 0,
+        fiber: 0,
+        sugars: 0,
+        salt: 0,
+        saturated_fats: 0,
+        monounsaturated_fats: 0,
+        polyunsaturated_fats: 0,
+        trans_fats: 0,
+        cholesterol: 0,
+        // Vitamine
+        vitamin_a: 0,
+        vitamin_c: 0,
+        vitamin_d: 0,
+        vitamin_e: 0,
+        vitamin_k: 0,
+        thiamin: 0,
+        riboflavin: 0,
+        niacin: 0,
+        vitamin_b6: 0,
+        folate: 0,
+        vitamin_b12: 0,
+        biotin: 0,
+        pantothenic_acid: 0,
+        // Minerali
+        calcium: 0,
+        iron: 0,
+        magnesium: 0,
+        phosphorus: 0,
+        potassium: 0,
+        sodium: 0,
+        zinc: 0,
+        copper: 0,
+        manganese: 0,
+        selenium: 0,
+        iodine: 0,
+        chromium: 0,
+        molybdenum: 0
       };
 
-      // Validazione dati obbligatori
-      if (!mealData.name || !mealData.date) {
-        throw new ValidationError('Nome e data del pasto sono obbligatori');
+      // Calcola i nutrienti in base alle quantità
+      for (const item of mealWithProducts.products) {
+        const product = item.product;
+        const quantity = item.quantity;
+        const multiplier = quantity / 100; // converte in base alla quantità (i valori nutrizionali sono per 100g)
+
+        Object.keys(nutrients).forEach(nutrient => {
+          if (product[nutrient]) {
+            nutrients[nutrient] += product[nutrient] * multiplier;
+          }
+        });
       }
 
-      const meal = await Meal.create(mealData);
-
-      res.status(201).json({
+      res.json({
         success: true,
-        message: 'Pasto creato con successo',
         data: {
-          meal: meal.toJSON(),
-        },
+          ...mealWithProducts,
+          nutrients
+        }
+      });
+
+      logger.info('Dettagli pasto recuperati', {
+        userId,
+        mealId
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore recupero dettagli pasto', {
+        userId: req.user.id,
+        mealId: req.params.mealId,
+        error: error.message
+      });
+      next(error);
     }
   }
 
-  // Ottieni dettagli di un pasto specifico
-  static async getMeal(req, res) {
+  /**
+   * Aggiorna un pasto esistente
+   */
+  static async updateMeal(req, res, next) {
     try {
       const { mealId } = req.params;
+      const { type, date, products } = req.body;
+      const userId = req.user.id;
 
-      const meal = await Meal.findById(mealId);
-      if (!meal) {
+      // Verifica esistenza e proprietà del pasto
+      const existingMeal = await Meal.findById(mealId);
+      if (!existingMeal) {
         throw new NotFoundError('Pasto non trovato');
       }
-
-      // Verifica ownership
-      if (meal.user_id !== req.user.id) {
-        throw new ValidationError('Non autorizzato ad accedere a questo pasto');
+      if (existingMeal.userId !== userId) {
+        throw new UnauthorizedError('Non hai accesso a questo pasto');
       }
 
-      // Carica gli elementi del pasto con dettagli prodotti
-      await meal.loadItems();
+      // Verifica che i prodotti esistano
+      for (const product of products) {
+        const exists = await Product.exists(product.productId);
+        if (!exists) {
+          throw new NotFoundError(`Prodotto ${product.productId} non trovato`);
+        }
+      }
+
+      const updatedMeal = await Meal.update(mealId, {
+        type,
+        date,
+        products
+      });
 
       res.json({
         success: true,
-        data: {
-          meal: meal.toJSON(),
-          nutrition: meal.calculateNutrition(),
-        },
+        data: updatedMeal
+      });
+
+      logger.info('Pasto aggiornato', {
+        userId,
+        mealId
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore aggiornamento pasto', {
+        userId: req.user.id,
+        mealId: req.params.mealId,
+        error: error.message
+      });
+      next(error);
     }
   }
 
-  // Aggiorna un pasto
-  static async updateMeal(req, res) {
+  /**
+   * Elimina un pasto
+   */
+  static async deleteMeal(req, res, next) {
     try {
       const { mealId } = req.params;
+      const userId = req.user.id;
 
-      const meal = await Meal.findById(mealId);
-      if (!meal) {
+      // Verifica esistenza e proprietà del pasto
+      const existingMeal = await Meal.findById(mealId);
+      if (!existingMeal) {
         throw new NotFoundError('Pasto non trovato');
       }
-
-      // Verifica ownership
-      if (meal.user_id !== req.user.id) {
-        throw new ValidationError('Non autorizzato a modificare questo pasto');
+      if (existingMeal.userId !== userId) {
+        throw new UnauthorizedError('Non hai accesso a questo pasto');
       }
 
-      await meal.update(req.body);
+      await Meal.delete(mealId);
 
       res.json({
         success: true,
-        message: 'Pasto aggiornato con successo',
-        data: {
-          meal: meal.toJSON(),
-        },
+        message: 'Pasto eliminato con successo'
+      });
+
+      logger.info('Pasto eliminato', {
+        userId,
+        mealId
       });
     } catch (error) {
-      throw error;
-    }
-  }
-
-  // Elimina un pasto
-  static async deleteMeal(req, res) {
-    try {
-      const { mealId } = req.params;
-
-      const meal = await Meal.findById(mealId);
-      if (!meal) {
-        throw new NotFoundError('Pasto non trovato');
-      }
-
-      // Verifica ownership
-      if (meal.user_id !== req.user.id) {
-        throw new ValidationError('Non autorizzato a eliminare questo pasto');
-      }
-
-      await meal.delete();
-
-      res.json({
-        success: true,
-        message: 'Pasto eliminato con successo',
+      logger.error('Errore eliminazione pasto', {
+        userId: req.user.id,
+        mealId: req.params.mealId,
+        error: error.message
       });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Aggiungi elemento al pasto
-  static async addMealItem(req, res) {
-    try {
-      const { mealId } = req.params;
-      const { product_id, quantity, unit = 'g', notes } = req.body;
-
-      if (!product_id || !quantity) {
-        throw new ValidationError('ID prodotto e quantità sono obbligatori');
-      }
-
-      const meal = await Meal.findById(mealId);
-      if (!meal) {
-        throw new NotFoundError('Pasto non trovato');
-      }
-
-      // Verifica ownership
-      if (meal.user_id !== req.user.id) {
-        throw new ValidationError('Non autorizzato a modificare questo pasto');
-      }
-
-      // Verifica che il prodotto esista
-      const product = await Product.findById(product_id);
-      if (!product) {
-        throw new NotFoundError('Prodotto non trovato');
-      }
-
-      const item = await meal.addItem({
-        product_id,
-        quantity: parseFloat(quantity),
-        unit,
-        notes,
-      });
-
-      // Ricarica il pasto con tutti gli elementi
-      await meal.loadItems();
-
-      res.status(201).json({
-        success: true,
-        message: 'Elemento aggiunto al pasto',
-        data: {
-          item,
-          meal: meal.toJSON(),
-          nutrition: meal.calculateNutrition(),
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Aggiorna elemento del pasto
-  static async updateMealItem(req, res) {
-    try {
-      const { mealId, itemId } = req.params;
-
-      const meal = await Meal.findById(mealId);
-      if (!meal) {
-        throw new NotFoundError('Pasto non trovato');
-      }
-
-      // Verifica ownership
-      if (meal.user_id !== req.user.id) {
-        throw new ValidationError('Non autorizzato a modificare questo pasto');
-      }
-
-      const updatedItem = await meal.updateItem(itemId, req.body);
-
-      // Ricarica il pasto con tutti gli elementi
-      await meal.loadItems();
-
-      res.json({
-        success: true,
-        message: 'Elemento del pasto aggiornato',
-        data: {
-          item: updatedItem,
-          meal: meal.toJSON(),
-          nutrition: meal.calculateNutrition(),
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Rimuovi elemento dal pasto
-  static async removeMealItem(req, res) {
-    try {
-      const { mealId, itemId } = req.params;
-
-      const meal = await Meal.findById(mealId);
-      if (!meal) {
-        throw new NotFoundError('Pasto non trovato');
-      }
-
-      // Verifica ownership
-      if (meal.user_id !== req.user.id) {
-        throw new ValidationError('Non autorizzato a modificare questo pasto');
-      }
-
-      await meal.removeItem(itemId);
-
-      // Ricarica il pasto con tutti gli elementi
-      await meal.loadItems();
-
-      res.json({
-        success: true,
-        message: 'Elemento rimosso dal pasto',
-        data: {
-          meal: meal.toJSON(),
-          nutrition: meal.calculateNutrition(),
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Duplica un pasto
-  static async duplicateMeal(req, res) {
-    try {
-      const { mealId } = req.params;
-      const { date, time, name } = req.body;
-
-      const originalMeal = await Meal.findById(mealId);
-      if (!originalMeal) {
-        throw new NotFoundError('Pasto non trovato');
-      }
-
-      // Verifica ownership
-      if (originalMeal.user_id !== req.user.id) {
-        throw new ValidationError('Non autorizzato ad accedere a questo pasto');
-      }
-
-      // Carica gli elementi del pasto originale
-      await originalMeal.loadItems();
-
-      const duplicatedMeal = await originalMeal.duplicate({
-        date: date || new Date().toISOString().split('T')[0],
-        time: time || new Date().toISOString().split('T')[1].substring(0, 8),
-        name: name || `Copia di ${originalMeal.name}`,
-      });
-
-      res.status(201).json({
-        success: true,
-        message: 'Pasto duplicato con successo',
-        data: {
-          meal: duplicatedMeal.toJSON(),
-          nutrition: duplicatedMeal.calculateNutrition(),
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Ottieni pasti recenti dell'utente
-  static async getRecentMeals(req, res) {
-    try {
-      const limit = parseInt(req.query.limit) || 10;
-      const days = parseInt(req.query.days) || 7;
-
-      const meals = await Meal.findRecentByUser(req.user.id, { limit, days });
-
-      res.json({
-        success: true,
-        data: {
-          meals: meals.map(meal => meal.toJSON()),
-          period_days: days,
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Ottieni pasti preferiti dell'utente
-  static async getFavoriteMeals(req, res) {
-    try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 20;
-
-      const meals = await Meal.findFavoritesByUser(req.user.id, { page, limit });
-
-      res.json({
-        success: true,
-        data: {
-          meals: meals.data.map(meal => meal.toJSON()),
-          pagination: {
-            page,
-            limit,
-            total: meals.total,
-            hasMore: meals.total > page * limit,
-          },
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Aggiungi/rimuovi pasto dai preferiti
-  static async toggleFavoriteMeal(req, res) {
-    try {
-      const { mealId } = req.params;
-
-      const meal = await Meal.findById(mealId);
-      if (!meal) {
-        throw new NotFoundError('Pasto non trovato');
-      }
-
-      // Verifica ownership
-      if (meal.user_id !== req.user.id) {
-        throw new ValidationError('Non autorizzato a modificare questo pasto');
-      }
-
-      const isFavorite = await meal.toggleFavorite();
-
-      res.json({
-        success: true,
-        message: isFavorite ? 'Pasto aggiunto ai preferiti' : 'Pasto rimosso dai preferiti',
-        data: {
-          meal_id: mealId,
-          is_favorite: isFavorite,
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Ottieni statistiche sui pasti dell'utente
-  static async getMealStats(req, res) {
-    try {
-      const days = parseInt(req.query.days) || 30;
-      const stats = await Meal.getUserMealStats(req.user.id, days);
-
-      res.json({
-        success: true,
-        data: {
-          stats,
-          period_days: days,
-          generated_at: new Date().toISOString(),
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Cerca pasti per nome o ingredienti
-  static async searchMeals(req, res) {
-    try {
-      const { query, page = 1, limit = 20 } = req.query;
-
-      if (!query || query.trim().length < 2) {
-        throw new ValidationError('Query di ricerca deve essere di almeno 2 caratteri');
-      }
-
-      const searchResults = await Meal.searchByUser(req.user.id, query.trim(), {
-        page: parseInt(page),
-        limit: parseInt(limit),
-      });
-
-      res.json({
-        success: true,
-        data: {
-          meals: searchResults.data.map(meal => meal.toJSON()),
-          pagination: {
-            page: parseInt(page),
-            limit: parseInt(limit),
-            total: searchResults.total,
-            hasMore: searchResults.total > parseInt(page) * parseInt(limit),
-          },
-          search_query: query,
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Ottieni analisi nutrizionale di un periodo
-  static async getNutritionAnalysis(req, res) {
-    try {
-      const { startDate, endDate } = req.query;
-
-      if (!startDate || !endDate) {
-        throw new ValidationError('Date di inizio e fine sono obbligatorie');
-      }
-
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
-        throw new ValidationError('Formato date non valido (richiesto: YYYY-MM-DD)');
-      }
-
-      const analysis = await Meal.getNutritionAnalysis(req.user.id, startDate, endDate);
-
-      res.json({
-        success: true,
-        data: {
-          analysis,
-          period: {
-            start_date: startDate,
-            end_date: endDate,
-            days: Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1,
-          },
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  // Ottieni suggerimenti per completare la giornata
-  static async getDaySuggestions(req, res) {
-    try {
-      const { date } = req.params;
-
-      if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-        throw new ValidationError('Formato data non valido (richiesto: YYYY-MM-DD)');
-      }
-
-      const suggestions = await Meal.getDaySuggestions(req.user.id, date);
-
-      res.json({
-        success: true,
-        data: {
-          date,
-          suggestions,
-        },
-      });
-    } catch (error) {
-      throw error;
+      next(error);
     }
   }
 }

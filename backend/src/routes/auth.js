@@ -2,15 +2,12 @@ const express = require('express');
 const AuthController = require('../controllers/authController');
 const { validate } = require('../utils/validation');
 const { userRegistrationSchema, userLoginSchema } = require('../utils/validation');
-const { rateLimits } = require('../middleware/security');
+const { rateLimiter } = require('../middleware/securityMiddleware');
 
 const router = express.Router();
 
-// Rate limiting specifico per auth endpoints critici
-router.use('/login', rateLimits.auth);
-router.use('/register', rateLimits.register);
-router.use('/forgot-password', rateLimits.passwordReset);
-router.use('/reset-password', rateLimits.passwordReset);
+// Rate limiting per tutti gli endpoint di autenticazione
+router.use(rateLimiter);
 
 // Routes per autenticazione
 

@@ -1,50 +1,13 @@
-const knex = require('knex');
+// @ts-nocheck
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 const config = require('./environment');
 
-// Import modelli
-const User = require('../models/User');
-const Product = require('../models/Product');
-const Meal = require('../models/Meal');
-const NutritionGoal = require('../models/NutritionGoal');
-const Activity = require('../models/Activity');
-const Analytics = require('../models/Analytics');
-const Pantry = require('../models/Pantry');
-
-// Configurazione database SQLite
-const dbConfig = {
-  client: 'sqlite3',
-  connection: {
-    filename: config.database.path,
-  },
-  useNullAsDefault: true,
-  migrations: {
-    directory: path.join(__dirname, '../database/migrations'),
-  },
-  seeds: {
-    directory: path.join(__dirname, '../database/seeds'),
-  },
-  pool: {
-    min: 1,
-    max: 10,
-    acquireTimeoutMillis: 60000,
-    createTimeoutMillis: 30000,
-    destroyTimeoutMillis: 5000,
-    idleTimeoutMillis: 30000,
-    reapIntervalMillis: 1000,
-    createRetryIntervalMillis: 100,
-  },
-};
-
-// Ottimizzazioni SQLite per performance
+// PRAGMA essenziali per SQLite
 const pragmaQueries = [
-  'PRAGMA journal_mode = WAL',
-  'PRAGMA synchronous = NORMAL', 
-  'PRAGMA cache_size = 10000',
-  'PRAGMA temp_store = MEMORY',
   'PRAGMA foreign_keys = ON',
+  'PRAGMA journal_mode = WAL'
 ];
 
 class Database {
@@ -62,7 +25,7 @@ class Database {
         fs.mkdirSync(dbDir, { recursive: true });
       }
 
-      // Inizializza connessione SQLite3 nativa
+      // Inizializza connessione SQLite3
       this.sqliteDb = new sqlite3.Database(config.database.path);
 
       // Applica ottimizzazioni SQLite
@@ -78,9 +41,6 @@ class Database {
       // Inizializza modelli
       await this.initializeModels();
 
-      // Inizializza anche Knex per compatibilità
-      this.db = knex(dbConfig);
-
       console.log('✅ Database SQLite inizializzato correttamente');
       return this.db;
     } catch (error) {
@@ -91,18 +51,50 @@ class Database {
 
   async initializeModels() {
     try {
+      // Import modelli
+      const User = require('../models/User');
+      const Product = require('../models/Product');
+      const Meal = require('../models/Meal');
+      const NutritionGoal = require('../models/NutritionGoal');
+      const Activity = require('../models/Activity');
+      const Analytics = require('../models/Analytics');
+      const Pantry = require('../models/Pantry');
+
       // Inizializza tutti i modelli
-      this.models.user = new User(this.sqliteDb);
-      this.models.product = new Product(this.sqliteDb);
-      this.models.meal = new Meal(this.sqliteDb);
-      this.models.nutritionGoal = new NutritionGoal(this.sqliteDb);
-      this.models.activity = new Activity(this.sqliteDb);
-      this.models.analytics = new Analytics(this.sqliteDb);
-      this.models.pantry = new Pantry(this.sqliteDb);
+      this.models.user = new User({}, this.sqliteDb);
+      this.models.product = new Product({}, this.sqliteDb);
+      this.models.meal = new Meal({}, this.sqliteDb);
+      this.models.nutritionGoal = new NutritionGoal({}, this.sqliteDb);
+      this.models.activity = new Activity({}, this.sqliteDb);
+      this.models.analytics = new Analytics({}, this.sqliteDb);
+      this.models.pantry = new Pantry({}, this.sqliteDb);
 
       console.log('✅ Tutti i modelli configurati');
     } catch (error) {
       console.error('❌ Errore inizializzazione modelli:', error);
+      throw error;
+    }
+  }
+
+  // Chiusura pulita del database
+  async close() {
+    try {
+      if (this.db) {
+        await this.db.destroy();
+        console.log('✅ Connessione Knex chiusa');
+      }
+      
+      if (this.sqliteDb) {
+        await new Promise((resolve, reject) => {
+          this.sqliteDb.close((err) => {
+            if (err) reject(err);
+            else resolve();
+          });
+        });
+        console.log('✅ Connessione SQLite chiusa');
+      }
+    } catch (error) {
+      console.error('❌ Errore chiusura database:', error);
       throw error;
     }
   }

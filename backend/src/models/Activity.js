@@ -1,9 +1,41 @@
 const sqlite3 = require('sqlite3');
 const path = require('path');
 
+// Tipi di attività validi e loro valori MET
+const ACTIVITY_TYPES = {
+    CARDIO: {
+        walking: { name: 'Camminata', met: 3.8 },
+        running: { name: 'Corsa', met: 8.0 },
+        cycling: { name: 'Ciclismo', met: 7.5 },
+        swimming: { name: 'Nuoto', met: 6.0 },
+    },
+    STRENGTH: {
+        gym: { name: 'Palestra', met: 5.0 },
+        bodyweight: { name: 'Corpo libero', met: 4.0 },
+        weightlifting: { name: 'Sollevamento pesi', met: 6.0 },
+    },
+    FLEXIBILITY: {
+        yoga: { name: 'Yoga', met: 2.5 },
+        stretching: { name: 'Stretching', met: 2.3 },
+        pilates: { name: 'Pilates', met: 3.0 },
+    },
+    SPORTS: {
+        soccer: { name: 'Calcio', met: 7.0 },
+        basketball: { name: 'Basket', met: 6.5 },
+        tennis: { name: 'Tennis', met: 5.0 },
+        volleyball: { name: 'Pallavolo', met: 3.0 },
+    },
+    OTHER: {
+        dancing: { name: 'Ballo', met: 4.8 },
+        hiking: { name: 'Escursione', met: 6.0 },
+        gardening: { name: 'Giardinaggio', met: 3.5 },
+    }
+};
+
 class Activity {
     constructor(database) {
         this.db = database;
+        this.ACTIVITY_TYPES = ACTIVITY_TYPES;
     }
 
     // Inizializza tabella activities
@@ -293,36 +325,177 @@ class Activity {
 
     // Calcola calorie bruciate per attività (stima basica)
     calculateCalories(type, duration_minutes, weight_kg = 70) {
-        // MET (Metabolic Equivalent of Task) values per tipo di attività
-        const metValues = {
-            walking: 3.8,
-            running: 8.0,
-            cycling: 7.5,
-            swimming: 6.0,
-            gym: 5.0,
-            yoga: 2.5,
-            dancing: 4.8,
-            soccer: 7.0,
-            basketball: 6.5,
-            tennis: 5.0,
-            hiking: 6.0,
-            climbing: 8.0,
-            skiing: 7.0,
-            rowing: 4.8,
-            boxing: 9.0,
-            martial_arts: 7.5,
-            football: 8.0,
-            volleyball: 3.0,
-            golf: 4.8,
-            baseball: 5.0
-        };
+        // Cerca il tipo di attività nelle categorie
+        let activityMet = 4.0; // Default MET se tipo non trovato
+        
+        for (const category of Object.values(ACTIVITY_TYPES)) {
+            if (type in category) {
+                activityMet = category[type].met;
+                break;
+            }
+        }
 
-        const met = metValues[type] || 4.0; // Default MET se tipo non trovato
+        const met = activityMet;
         
         // Calorie = MET × weight(kg) × time(hours)
         const calories = met * weight_kg * (duration_minutes / 60);
         
         return Math.round(calories);
+    }
+
+    // Report settimanale
+    async getWeeklyReport(userId, date = new Date().toISOString().split('T')[0]) {
+        const weekStart = new Date(date);
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay()); // Domenica della settimana
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6); // Sabato della settimana
+
+        const sql = `
+            SELECT 
+                date,
+                type,
+                COUNT(*) as activities_count,
+                SUM(duration_minutes) as total_minutes,
+                SUM(calories_burned) as total_calories,
+                SUM(distance_km) as total_distance
+            FROM activities 
+            WHERE user_id = ? 
+                AND date >= ? 
+                AND date <= ?
+            GROUP BY date, type
+            ORDER BY date ASC, type
+        `;
+
+        return new Promise((resolve, reject) => {
+            this.db.all(sql, [
+                userId, 
+                weekStart.toISOString().split('T')[0],
+                weekEnd.toISOString().split('T')[0]
+            ], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({
+                        period: {
+                            start: weekStart.toISOString().split('T')[0],
+                            end: weekEnd.toISOString().split('T')[0]
+                        },
+                        daily_activities: rows,
+                        summary: {
+                            total_activities: rows.reduce((sum, row) => sum + row.activities_count, 0),
+                            total_minutes: rows.reduce((sum, row) => sum + row.total_minutes, 0),
+                            total_calories: rows.reduce((sum, row) => sum + row.total_calories, 0),
+                            total_distance: rows.reduce((sum, row) => sum + (row.total_distance || 0), 0),
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    // Report mensile
+    async getMonthlyReport(userId, date = new Date().toISOString().split('T')[0]) {
+        const monthStart = new Date(date);
+        monthStart.setDate(1); // Primo del mese
+        const monthEnd = new Date(monthStart);
+        monthEnd.setMonth(monthEnd.getMonth() + 1);
+        monthEnd.setDate(0); // Ultimo del mese
+
+        const sql = `
+            SELECT 
+                strftime('%Y-%m-%d', date) as week_start,
+                type,
+                COUNT(*) as activities_count,
+                SUM(duration_minutes) as total_minutes,
+                SUM(calories_burned) as total_calories,
+                SUM(distance_km) as total_distance
+            FROM activities 
+            WHERE user_id = ? 
+                AND date >= ? 
+                AND date <= ?
+            GROUP BY strftime('%Y-%W', date), type
+            ORDER BY week_start ASC, type
+        `;
+
+        return new Promise((resolve, reject) => {
+            this.db.all(sql, [
+                userId, 
+                monthStart.toISOString().split('T')[0],
+                monthEnd.toISOString().split('T')[0]
+            ], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({
+                        period: {
+                            start: monthStart.toISOString().split('T')[0],
+                            end: monthEnd.toISOString().split('T')[0]
+                        },
+                        weekly_activities: rows,
+                        summary: {
+                            total_activities: rows.reduce((sum, row) => sum + row.activities_count, 0),
+                            total_minutes: rows.reduce((sum, row) => sum + row.total_minutes, 0),
+                            total_calories: rows.reduce((sum, row) => sum + row.total_calories, 0),
+                            total_distance: rows.reduce((sum, row) => sum + (row.total_distance || 0), 0),
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    // Report trimestrale
+    async getQuarterlyReport(userId, date = new Date().toISOString().split('T')[0]) {
+        const quarterStart = new Date(date);
+        quarterStart.setMonth(Math.floor(quarterStart.getMonth() / 3) * 3);
+        quarterStart.setDate(1);
+        const quarterEnd = new Date(quarterStart);
+        quarterEnd.setMonth(quarterStart.getMonth() + 3);
+        quarterEnd.setDate(0);
+
+        const sql = `
+            SELECT 
+                strftime('%Y-%m', date) as month,
+                type,
+                COUNT(*) as activities_count,
+                SUM(duration_minutes) as total_minutes,
+                SUM(calories_burned) as total_calories,
+                SUM(distance_km) as total_distance,
+                AVG(calories_burned) as avg_calories_per_activity
+            FROM activities 
+            WHERE user_id = ? 
+                AND date >= ? 
+                AND date <= ?
+            GROUP BY strftime('%Y-%m', date), type
+            ORDER BY month ASC, type
+        `;
+
+        return new Promise((resolve, reject) => {
+            this.db.all(sql, [
+                userId, 
+                quarterStart.toISOString().split('T')[0],
+                quarterEnd.toISOString().split('T')[0]
+            ], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve({
+                        period: {
+                            start: quarterStart.toISOString().split('T')[0],
+                            end: quarterEnd.toISOString().split('T')[0]
+                        },
+                        monthly_activities: rows,
+                        summary: {
+                            total_activities: rows.reduce((sum, row) => sum + row.activities_count, 0),
+                            total_minutes: rows.reduce((sum, row) => sum + row.total_minutes, 0),
+                            total_calories: rows.reduce((sum, row) => sum + row.total_calories, 0),
+                            total_distance: rows.reduce((sum, row) => sum + (row.total_distance || 0), 0),
+                            avg_calories_per_activity: rows.reduce((sum, row) => sum + row.avg_calories_per_activity, 0) / rows.length,
+                        }
+                    });
+                }
+            });
+        });
     }
 }
 

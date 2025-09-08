@@ -82,41 +82,104 @@ class Product {
     return 'products';
   }
 
+  // Metodi per la gestione della dispensa
+  static async addToPantry(userId, productId) {
+    const product = await this.findById(productId);
+    if (!product) {
+      throw new Error('Prodotto non trovato');
+    }
+
+    return new Promise((resolve, reject) => {
+      database.sqliteDb.run(
+        `INSERT OR REPLACE INTO pantry_items (user_id, product_id) VALUES (?, ?)`,
+        [userId, productId],
+        function(err) {
+          if (err) reject(err);
+          else resolve({ success: true });
+        }
+      );
+    });
+  }
+
+  static async removeFromPantry(userId, productId) {
+    return new Promise((resolve, reject) => {
+      database.sqliteDb.run(
+        'DELETE FROM pantry_items WHERE user_id = ? AND product_id = ?',
+        [userId, productId],
+        function(err) {
+          if (err) reject(err);
+          else resolve({ success: true });
+        }
+      );
+    });
+  }
+
+  static async searchInPantry(userId, query = '') {
+    return new Promise((resolve, reject) => {
+      const sqlQuery = `
+        SELECT p.*, 
+               1 as in_pantry
+        FROM products p
+        INNER JOIN pantry_items pi ON p.id = pi.product_id 
+        WHERE pi.user_id = ? 
+        AND (? = '' OR p.name LIKE ? OR p.brand LIKE ?)
+        ORDER BY p.name`;
+      
+      const searchQuery = `%${query}%`;
+      database.sqliteDb.all(
+        sqlQuery,
+        [userId, query, searchQuery, searchQuery],
+        (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        }
+      );
+    });
+  }
+
   static get db() {
-    return database.getConnection();
+    return database.sqliteDb;
   }
 
   // Trova prodotto per ID
   static async findById(id) {
-    try {
-      const product = await this.db(this.tableName)
-        .where('id', id)
-        .first();
-      
-      return product ? new Product(product) : null;
-    } catch (error) {
-      console.error('❌ Errore ricerca prodotto per ID:', error);
-      throw new Error('Errore ricerca prodotto');
-    }
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        'SELECT * FROM products WHERE id = ?',
+        [id],
+        (err, row) => {
+          if (err) {
+            console.error('❌ Errore ricerca prodotto per ID:', err);
+            reject(new Error('Errore ricerca prodotto'));
+          } else {
+            resolve(row ? new Product(row) : null);
+          }
+        }
+      );
+    });
   }
 
   // Trova prodotto per barcode
   static async findByBarcode(barcode) {
-    try {
-      const product = await this.db(this.tableName)
-        .where('barcode', barcode)
-        .first();
-      
-      return product ? new Product(product) : null;
-    } catch (error) {
-      console.error('❌ Errore ricerca prodotto per barcode:', error);
-      throw new Error('Errore ricerca prodotto');
-    }
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        'SELECT * FROM products WHERE barcode = ?',
+        [barcode],
+        (err, row) => {
+          if (err) {
+            console.error('❌ Errore ricerca prodotto per barcode:', err);
+            reject(new Error('Errore ricerca prodotto'));
+          } else {
+            resolve(row ? new Product(row) : null);
+          }
+        }
+      );
+    });
   }
 
   // Cerca prodotti per nome (ricerca locale)
   static async searchByName(query, options = {}) {
-    try {
+    return new Promise((resolve, reject) => {
       const {
         page = 1,
         limit = 20,
@@ -126,55 +189,69 @@ class Product {
       } = options;
 
       const offset = (page - 1) * limit;
+      let params = [];
+      let whereConditions = [];
+      let whereSql = '';
 
-      let queryBuilder = this.db(this.tableName)
-        .where(function() {
-          this.whereILike('name', `%${query}%`)
-            .orWhereILike('name_it', `%${query}%`)
-            .orWhereILike('brand', `%${query}%`)
-            .orWhereILike('brand_it', `%${query}%`);
-        });
+      // Condizioni di ricerca base
+      whereConditions.push('(name LIKE ? OR name_it LIKE ? OR brand LIKE ? OR brand_it LIKE ?)');
+      params.push(`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`);
 
       if (category_id) {
-        queryBuilder = queryBuilder.where('category_id', category_id);
+        whereConditions.push('category_id = ?');
+        params.push(category_id);
       }
 
       if (source) {
-        queryBuilder = queryBuilder.where('source', source);
+        whereConditions.push('source = ?');
+        params.push(source);
       }
 
       if (onlyFavorites) {
-        queryBuilder = queryBuilder.where('is_favorite', true);
+        whereConditions.push('is_favorite = 1');
       }
 
-      // Ordina per rilevanza e utilizzo
-      queryBuilder = queryBuilder
-        .orderBy('usage_count', 'desc')
-        .orderBy('is_favorite', 'desc')
-        .orderBy('name');
+      if (whereConditions.length > 0) {
+        whereSql = 'WHERE ' + whereConditions.join(' AND ');
+      }
 
-      // Conta risultati totali
-      const countQuery = queryBuilder.clone().clearSelect().count('* as count').first();
-      const total = await countQuery;
+      // Query per il conteggio totale
+      const countSql = `SELECT COUNT(*) as count FROM ${this.tableName} ${whereSql}`;
+      
+      this.db.get(countSql, params, (countErr, countRow) => {
+        if (countErr) {
+          console.error('❌ Errore conteggio prodotti:', countErr);
+          return reject(new Error('Errore ricerca prodotti'));
+        }
 
-      // Applica paginazione
-      const products = await queryBuilder
-        .limit(limit)
-        .offset(offset);
+        const total = countRow.count;
 
-      return {
-        products: products.map(p => new Product(p)),
-        pagination: {
-          page,
-          limit,
-          total: total.count,
-          totalPages: Math.ceil(total.count / limit),
-        },
-      };
-    } catch (error) {
-      console.error('❌ Errore ricerca prodotti per nome:', error);
-      throw new Error('Errore ricerca prodotti');
-    }
+        // Query principale con ordinamento e paginazione
+        const sql = `
+          SELECT * FROM ${this.tableName} 
+          ${whereSql}
+          ORDER BY usage_count DESC, is_favorite DESC, name ASC
+          LIMIT ? OFFSET ?
+        `;
+
+        this.db.all(sql, [...params, limit, offset], (err, rows) => {
+          if (err) {
+            console.error('❌ Errore ricerca prodotti per nome:', err);
+            return reject(new Error('Errore ricerca prodotti'));
+          }
+
+          resolve({
+            products: rows.map(row => new Product(row)),
+            pagination: {
+              page,
+              limit,
+              total,
+              totalPages: Math.ceil(total / limit),
+            },
+          });
+        });
+      });
+    });
   }
 
   // Ottieni prodotti più utilizzati

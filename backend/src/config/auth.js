@@ -1,6 +1,36 @@
 const jwt = require('jsonwebtoken');
 const config = require('./environment');
 
+// Simple token blacklist con pulizia automatica
+class TokenBlacklist {
+  constructor() {
+    this.blacklist = new Map(); // Map per memorizzare token e loro scadenza
+    
+    // Pulizia automatica ogni ora
+    setInterval(() => this.cleanup(), 60 * 60 * 1000);
+  }
+
+  add(token, exp) {
+    this.blacklist.set(token, exp);
+  }
+
+  has(token) {
+    return this.blacklist.has(token);
+  }
+
+  // Rimuove token scaduti
+  cleanup() {
+    const now = Date.now();
+    for (const [token, exp] of this.blacklist.entries()) {
+      if (exp < now) {
+        this.blacklist.delete(token);
+      }
+    }
+  }
+}
+
+const tokenBlacklist = new TokenBlacklist();
+
 class AuthConfig {
   // Genera JWT token
   generateToken(payload) {
@@ -14,12 +44,33 @@ class AuthConfig {
   // Verifica JWT token
   verifyToken(token) {
     try {
-      return jwt.verify(token, config.auth.jwtSecret, {
+      // Verifica se il token è nella blacklist
+      if (tokenBlacklist.has(token)) {
+        throw new Error('Token revocato');
+      }
+
+      const decoded = jwt.verify(token, config.auth.jwtSecret, {
         issuer: 'nutrijournal-backend',
         audience: 'nutrijournal-app',
       });
+
+      return decoded;
     } catch (error) {
       throw new Error('Token non valido');
+    }
+  }
+
+  // Revoca token (es. al logout)
+  revokeToken(token) {
+    try {
+      const decoded = jwt.decode(token);
+      if (decoded && decoded.exp) {
+        tokenBlacklist.add(token, decoded.exp * 1000);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      return false;
     }
   }
 
@@ -48,6 +99,36 @@ class AuthConfig {
   }
 
   // Verifica token reset password
+  
+  // Genera risposta di autenticazione
+  generateAuthResponse(user, message) {
+    // Crea payload per il token
+    const tokenPayload = {
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role || 'user'
+    };
+
+    // Genera access token e refresh token
+    const accessToken = this.generateToken(tokenPayload);
+    const refreshToken = this.generateRefreshToken(tokenPayload);
+
+    // Restituisci risposta completa
+    return {
+      message,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role || 'user'
+      },
+      tokens: {
+        accessToken,
+        refreshToken
+      }
+    };
+  }
   verifyResetToken(token) {
     try {
       const payload = jwt.verify(token, config.auth.jwtSecret, {

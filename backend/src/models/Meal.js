@@ -1,11 +1,22 @@
 const database = require('../config/database');
 const Product = require('./Product');
+const { logger } = require('../middleware/logging');
 
 class Meal {
+  // Tipi di pasto validi
+  static get MEAL_TYPES() {
+    return {
+      BREAKFAST: 'breakfast',
+      LUNCH: 'lunch',
+      DINNER: 'dinner',
+      SNACK: 'snack'
+    };
+  }
+
   constructor(data = {}) {
     this.id = data.id;
-    this.user_id = data.user_id;
-    this.meal_type = data.meal_type;
+    this.userId = data.userId;
+    this.type = this.validateMealType(data.type);
     this.meal_name = data.meal_name;
     this.date = data.date;
     this.time = data.time;
@@ -24,6 +35,8 @@ class Meal {
     
     // Array di meal_items (se caricati)
     this.items = data.items || [];
+    // Array di prodotti con quantità (se caricati)
+    this.products = data.products || [];
   }
 
   static get tableName() {
@@ -36,6 +49,76 @@ class Meal {
 
   static get db() {
     return database.getConnection();
+  }
+
+  /**
+   * Carica i dettagli completi dei prodotti per questo pasto
+   */
+  async loadProducts() {
+    try {
+      // Query per ottenere tutti gli items del pasto con i dettagli dei prodotti
+      const items = await this.db(Meal.itemsTableName + ' as mi')
+        .select(
+          'mi.*',
+          'p.*'
+        )
+        .join('products as p', 'mi.product_id', 'p.id')
+        .where('mi.meal_id', this.id);
+
+      // Mappa gli items in un formato più utile
+      this.products = items.map(item => ({
+        quantity: item.quantity,
+        unit: item.unit,
+        product: new Product(item)
+      }));
+
+      return this;
+    } catch (error) {
+      logger.error('Errore nel caricamento dei prodotti del pasto:', {
+        mealId: this.id,
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  // Trova pasti recenti per utente
+  static async findRecentByUser(userId, limit = 10) {
+    try {
+      const meals = await this.db(this.tableName)
+        .where('user_id', userId)
+        .orderBy('date', 'desc')
+        .orderBy('time', 'desc')
+        .limit(limit);
+
+      // Carica gli items per ogni pasto
+      const mealsWithItems = await Promise.all(
+        meals.map(async meal => {
+          const instance = new Meal(meal);
+          await instance.loadItems();
+          return instance;
+        })
+      );
+
+      return mealsWithItems;
+    } catch (error) {
+      logger.error('Errore nel recupero pasti recenti:', {
+        userId,
+        error: error.message
+      });
+      throw error;
+    }
+  }
+
+  // Valida il tipo pasto
+  validateMealType(type) {
+    if (!type) return null;
+    
+    const validTypes = Object.values(Meal.MEAL_TYPES);
+    if (!validTypes.includes(type)) {
+      throw new Error(`Tipo pasto non valido. Valori ammessi: ${validTypes.join(', ')}`);
+    }
+    return type;
   }
 
   // Trova pasto per ID con items

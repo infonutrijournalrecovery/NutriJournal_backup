@@ -1,54 +1,59 @@
 const express = require('express');
 const router = express.Router();
-const AuthMiddleware = require('../middleware/auth');
-const { validate } = require('../utils/validation');
-const database = require('../config/database');
+const { authMiddleware } = require('../middleware/auth');
+const { handleErrors } = require('../middleware/errorHandler');
 const ActivityController = require('../controllers/activityController');
 
-// Inizializza controller
-const activityController = new ActivityController(database.db);
+/**
+ * Configurazione router attività
+ * @param {Object} database - Istanza del database
+ * @returns {express.Router} Router configurato
+ */
+function setupActivitiesRoutes(database) {
+    const activityController = new ActivityController(database);
 
-// Middleware di autenticazione
-const auth = AuthMiddleware.verifyToken;
+    // Middleware di autenticazione per tutte le routes
+    router.use(authMiddleware);
 
-// GET /api/activities - Ottieni attività utente
-router.get('/', auth, async (req, res) => {
-    await activityController.getActivities(req, res);
-});
+    // Routes per CRUD base
+    router.post('/', handleErrors(activityController.createActivity.bind(activityController)));
+    router.get('/', handleErrors(activityController.getActivities.bind(activityController)));
+    router.get('/:activityId', handleErrors(activityController.getActivityById.bind(activityController)));
+    router.put('/:activityId', handleErrors(activityController.updateActivity.bind(activityController)));
+    router.delete('/:activityId', handleErrors(activityController.deleteActivity.bind(activityController)));
 
-// GET /api/activities/stats - Statistiche attività
-router.get('/stats', auth, async (req, res) => {
-    await activityController.getActivityStats(req, res);
-});
+    // Routes per i report
+    router.get('/reports/weekly', handleErrors(activityController.getWeeklyReport.bind(activityController)));
+    router.get('/reports/monthly', handleErrors(activityController.getMonthlyReport.bind(activityController)));
+    router.get('/reports/quarterly', handleErrors(activityController.getQuarterlyReport.bind(activityController)));
 
-// GET /api/activities/:date - Ottieni attività per data
-router.get('/:date', auth, async (req, res) => {
-    await activityController.getActivitiesByDate(req, res);
-});
+    // Route per ottenere i tipi di attività disponibili
+    router.get('/types/available', handleErrors((req, res) => {
+        const activityTypes = activityController.activityModel.ACTIVITY_TYPES;
+        res.json({
+            success: true,
+            data: {
+                types: Object.entries(activityTypes).reduce((acc, [category, activities]) => {
+                    acc[category] = Object.entries(activities).map(([key, value]) => ({
+                        id: key,
+                        name: value.name,
+                        met: value.met
+                    }));
+                    return acc;
+                }, {}),
+                timestamp: new Date().toISOString()
+            }
+        });
+    }));
 
-// POST /api/activities - Crea nuova attività
-router.post('/', auth, validate('createActivity'), async (req, res) => {
-    await activityController.createActivity(req, res);
-});
+    // Route per duplicare un'attività
+    router.post('/:activityId/duplicate', handleErrors(async (req, res) => {
+        await activityController.duplicateActivity(req, res);
+    }));
 
-// GET /api/activities/:activityId - Ottieni attività specifica
-router.get('/:activityId', auth, async (req, res) => {
-    await activityController.getActivityById(req, res);
-});
+    return router;
+}
 
-// PUT /api/activities/:activityId - Aggiorna attività
-router.put('/:activityId', auth, validate('updateActivity'), async (req, res) => {
-    await activityController.updateActivity(req, res);
-});
-
-// DELETE /api/activities/:activityId - Elimina attività
-router.delete('/:activityId', auth, async (req, res) => {
-    await activityController.deleteActivity(req, res);
-});
-
-// POST /api/activities/:activityId/duplicate - Duplica attività
-router.post('/:activityId/duplicate', auth, validate('duplicateActivity'), async (req, res) => {
-    await activityController.duplicateActivity(req, res);
-});
+module.exports = setupActivitiesRoutes;
 
 module.exports = router;

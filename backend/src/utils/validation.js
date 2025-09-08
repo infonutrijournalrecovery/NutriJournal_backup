@@ -26,13 +26,11 @@ const userRegistrationSchema = Joi.object({
     
     password: Joi.string()
         .min(6)
-        .max(128)
-        .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])'))
+        .max(50)
         .required()
         .messages({
             'string.min': 'La password deve avere almeno 6 caratteri',
-            'string.max': 'La password non può superare 128 caratteri',
-            'string.pattern.base': 'La password deve contenere almeno una lettera minuscola, una maiuscola e un numero',
+            'string.max': 'La password non può superare 50 caratteri',
             'any.required': 'La password è obbligatoria'
         }),
     

@@ -1,53 +1,35 @@
 const { logger, logSecurity } = require('./logging');
 const config = require('../config/environment');
 
-// Error handler principale
+// Error handler semplificato
 const errorHandler = (error, req, res, next) => {
-  // Log dell'errore
-  logger.error('Errore gestito', {
-    message: error.message,
-    stack: error.stack,
-    url: req.url,
-    method: req.method,
-    ip: req.ip,
-    userId: req.userId || null,
-    userAgent: req.get('User-Agent'),
-  });
+  // Log base dell'errore
+  console.error('Errore:', error.message);
 
   // Determina status code
   let statusCode = error.statusCode || error.status || 500;
-  
-  // Determina tipo di errore e messaggio
-  let message = 'Si è verificato un errore interno';
+  let message = error.message || 'Si è verificato un errore';
+
+  // Mapping errori comuni
   let errorType = 'INTERNAL_ERROR';
   let details = null;
 
-  // Errori di validazione
-  if (error.name === 'ValidationError') {
+  // Gestione tipi di errore
+  if (error.name === 'ValidationError' || statusCode === 400) {
     statusCode = 400;
-    message = 'Dati non validi';
+    message = error.message || 'Dati non validi';
     errorType = 'VALIDATION_ERROR';
-    details = error.details || error.message;
-  }
-  
-  // Errori di autenticazione
-  else if (error.name === 'UnauthorizedError' || statusCode === 401) {
+    details = error.details;
+  } else if (error.name === 'UnauthorizedError' || statusCode === 401) {
     statusCode = 401;
     message = 'Accesso non autorizzato';
     errorType = 'UNAUTHORIZED';
-  }
-  
-  // Errori di autorizzazione
-  else if (error.name === 'ForbiddenError' || statusCode === 403) {
-    statusCode = 403;
+  } else if (statusCode === 403) {
     message = 'Accesso negato';
     errorType = 'FORBIDDEN';
-  }
-  
-  // Errori di risorsa non trovata
-  else if (error.name === 'NotFoundError' || statusCode === 404) {
+  } else if (error.name === 'NotFoundError' || statusCode === 404) {
     statusCode = 404;
-    message = 'Risorsa non trovata';
+    message = error.message || 'Risorsa non trovata';
     errorType = 'NOT_FOUND';
   }
   

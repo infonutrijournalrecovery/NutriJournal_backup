@@ -2,14 +2,28 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const authConfig = require('../config/auth');
 const emailConfig = require('../config/email');
+const database = require('../config/database');
 const { ValidationError, UnauthorizedError, ConflictError, NotFoundError } = require('../middleware/errorHandler');
-const { logSecurity, logEmail } = require('../middleware/logging');
+const { logger } = require('../middleware/logging');
 
 class AuthController {
   // Registrazione nuovo utente
-  static async register(req, res) {
+  static async register(req, res, next) {
     try {
       const { email, password, name, ...profileData } = req.body;
+
+      // Validazione input
+      if (!email || !password || !name) {
+        throw new ValidationError('Email, password e nome sono obbligatori');
+      }
+
+      if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        throw new ValidationError('Formato email non valido');
+      }
+
+      if (!authConfig.isValidPassword(password)) {
+        throw new ValidationError('Password deve contenere almeno 8 caratteri, una maiuscola e un numero');
+      }
 
       // Verifica se email già esistente
       const existingUser = await User.findByEmail(email);
@@ -25,56 +39,72 @@ class AuthController {
         ...profileData,
       });
 
-      // Log evento sicurezza
-      logSecurity('user_registered', {
+      // Log evento registrazione
+      logger.info('Nuovo utente registrato', {
         userId: user.id,
         email: user.email,
         ip: req.ip,
-        userAgent: req.get('User-Agent'),
+        userAgent: req.get('User-Agent')
       });
 
-      // Invia email di benvenuto (non bloccante)
-      if (emailConfig.isEmailConfigured) {
-        emailConfig.sendWelcomeEmail(user.email, user.name)
-          .then(() => logEmail('welcome', user.email, 'sent'))
-          .catch(error => logEmail('welcome', user.email, 'failed', error));
+      // Invia email di benvenuto (solo in produzione)
+      if (process.env.NODE_ENV === 'production' && emailConfig.isEmailConfigured) {
+        try {
+          await emailConfig.sendWelcomeEmail(user.email, user.name);
+          logger.info('Email di benvenuto inviata', { email: user.email });
+        } catch (error) {
+          logger.error('Errore invio email di benvenuto', { email: user.email, error: error.message });
+        }
       }
 
       // Genera token di accesso
       const authResponse = authConfig.generateAuthResponse(user, 'Registrazione completata con successo');
 
-      res.status(201).json(authResponse);
+      res.status(201).json({
+        success: true,
+        data: authResponse
+      });
     } catch (error) {
       throw error;
     }
   }
 
   // Login utente
-  static async login(req, res) {
+  static async login(req, res, next) {
     try {
+      console.log('👉 Tentativo di login per:', req.body);
       const { email, password } = req.body;
 
+      // Validazione input
+      if (!email || !password) {
+        throw new ValidationError('Email e password sono obbligatori');
+      }
+
       // Trova utente per email
-      const user = await User.findByEmail(email);
+      console.log('🔍 Cerco utente con email:', email);
+      const user = await User.findByEmail(email, database.sqliteDb);
+      console.log('👤 Utente trovato:', user ? 'sì' : 'no');
       if (!user) {
-        logSecurity('login_failed', {
+        console.log('❌ Utente non trovato');
+        logger.warn('Tentativo login fallito: utente non trovato', {
           email,
-          reason: 'user_not_found',
           ip: req.ip,
-          userAgent: req.get('User-Agent'),
+          userAgent: req.get('User-Agent')
         });
         throw new UnauthorizedError('Credenziali non valide');
       }
 
       // Verifica password
+      console.log('🔒 Verifica password per utente:', user.email);
       const isPasswordValid = await user.verifyPassword(password);
+      console.log('🔑 Password valida:', isPasswordValid ? 'sì' : 'no');
       if (!isPasswordValid) {
-        logSecurity('login_failed', {
+        console.log('❌ Password non valida');
+        logger.warn('Tentativo login fallito: password non valida', {
           userId: user.id,
           email: user.email,
-          reason: 'invalid_password',
           ip: req.ip,
-          userAgent: req.get('User-Agent'),
+          userAgent: req.get('User-Agent')
         });
         throw new UnauthorizedError('Credenziali non valide');
       }
@@ -83,18 +113,22 @@ class AuthController {
       await user.updateLastLogin();
 
       // Log successo
-      logSecurity('login_success', {
+      logger.info('Login effettuato con successo', {
         userId: user.id,
         email: user.email,
         ip: req.ip,
-        userAgent: req.get('User-Agent'),
+        userAgent: req.get('User-Agent')
       });
 
       // Genera risposta con token
       const authResponse = authConfig.generateAuthResponse(user, 'Login effettuato con successo');
 
-      res.json(authResponse);
+      res.json({
+        success: true,
+        data: authResponse
+      });
     } catch (error) {
+      logger.error('Errore durante il login', { error: error.message });
       throw error;
     }
   }
@@ -113,44 +147,57 @@ class AuthController {
       const user = await User.findById(payload.userId);
 
       if (!user) {
-        throw new UnauthorizedError('Utente non trovato');
+        logger.warn('Refresh token non valido: utente non trovato', { 
+          tokenPayload: payload 
+        });
+        throw new UnauthorizedError('Token non valido');
       }
 
       // Genera nuovo token
       const authResponse = authConfig.generateAuthResponse(user, 'Token aggiornato con successo');
 
+      logger.info('Token aggiornato con successo', {
+        userId: user.id,
+        email: user.email
+      });
+
       res.json(authResponse);
     } catch (error) {
-      throw new UnauthorizedError('Refresh token non valido');
+      logger.error('Errore refresh token', { error: error.message });
+      next(new UnauthorizedError('Token non valido'));
     }
   }
 
-  // Logout (invalidazione lato client)
+  // Logout
   static async logout(req, res) {
     try {
-      // Log logout
       if (req.user) {
-        logSecurity('logout', {
+        logger.info('Logout effettuato', {
           userId: req.user.id,
           email: req.user.email,
           ip: req.ip,
-          userAgent: req.get('User-Agent'),
+          userAgent: req.get('User-Agent')
         });
       }
 
       res.json({
         success: true,
-        message: 'Logout effettuato con successo',
+        message: 'Logout effettuato con successo'
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore durante il logout', { error: error.message });
+      next(error);
     }
   }
 
   // Richiesta reset password
-  static async forgotPassword(req, res) {
+  static async forgotPassword(req, res, next) {
     try {
       const { email } = req.body;
+
+      if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        throw new ValidationError('Indirizzo email non valido');
+      }
 
       // Trova utente
       const user = await User.findByEmail(email);
@@ -158,7 +205,7 @@ class AuthController {
         // Non rivelare se l'email esiste o meno per sicurezza
         return res.json({
           success: true,
-          message: 'Se l\'email esiste, riceverai le istruzioni per il reset della password',
+          message: 'Se l\'email esiste, riceverai le istruzioni per il reset della password'
         });
       }
 
@@ -171,40 +218,42 @@ class AuthController {
       const resetToken = authConfig.generateResetToken(user.id);
       await user.setResetToken(resetToken);
 
-      // Invia email
-      await emailConfig.sendPasswordResetEmail(user.email, resetToken, user.name);
-
-      // Log evento
-      logSecurity('password_reset_requested', {
-        userId: user.id,
-        email: user.email,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-      });
-
-      logEmail('password_reset', user.email, 'sent');
+      try {
+        // Invia email
+        await emailConfig.sendPasswordResetEmail(user.email, resetToken, user.name);
+        logger.info('Email reset password inviata', {
+          userId: user.id,
+          email: user.email
+        });
+      } catch (error) {
+        logger.error('Errore invio email reset password', {
+          userId: user.id,
+          email: user.email,
+          error: error.message
+        });
+        throw new Error('Errore invio email reset password');
+      }
 
       res.json({
         success: true,
-        message: 'Se l\'email esiste, riceverai le istruzioni per il reset della password',
+        message: 'Se l\'email esiste, riceverai le istruzioni per il reset della password'
       });
     } catch (error) {
-      if (error.message === 'Servizio email non configurato') {
-        throw new Error('Reset password non disponibile. Contatta l\'amministratore.');
-      }
-      
-      logEmail('password_reset', req.body.email, 'failed', error);
-      throw error;
+      logger.error('Errore richiesta reset password', { error: error.message });
+      next(error);
     }
   }
 
   // Reset password con token
-  static async resetPassword(req, res) {
+  static async resetPassword(req, res, next) {
     try {
       const { token } = req.params;
       const { password, confirmPassword } = req.body;
 
-      // Validazione password
+      if (!token || !password || !confirmPassword) {
+        throw new ValidationError('Token e nuova password sono obbligatori');
+      }
+
       if (password !== confirmPassword) {
         throw new ValidationError('Le password non corrispondono');
       }
@@ -218,40 +267,49 @@ class AuthController {
       const user = await User.findById(payload.userId);
 
       if (!user || user.reset_token !== token) {
+        logger.warn('Tentativo reset password con token non valido', {
+          token,
+          userId: payload.userId
+        });
         throw new UnauthorizedError('Token reset non valido o scaduto');
       }
 
-      // Verifica scadenza token
       if (user.reset_token_expires && new Date() > new Date(user.reset_token_expires)) {
+        logger.warn('Tentativo reset password con token scaduto', {
+          userId: user.id,
+          email: user.email
+        });
         throw new UnauthorizedError('Token reset scaduto');
       }
 
       // Cambia password
       await user.changePassword(password);
 
-      // Log evento
-      logSecurity('password_reset_completed', {
+      logger.info('Password resettata con successo', {
         userId: user.id,
         email: user.email,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
+        ip: req.ip
       });
 
       res.json({
         success: true,
-        message: 'Password cambiata con successo',
+        message: 'Password cambiata con successo'
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore reset password', { error: error.message });
+      next(error);
     }
   }
 
   // Cambio password (utente autenticato)
-  static async changePassword(req, res) {
+  static async changePassword(req, res, next) {
     try {
       const { currentPassword, newPassword, confirmPassword } = req.body;
 
-      // Validazione
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        throw new ValidationError('Password attuale e nuova password sono obbligatorie');
+      }
+
       if (newPassword !== confirmPassword) {
         throw new ValidationError('Le nuove password non corrispondono');
       }
@@ -260,48 +318,51 @@ class AuthController {
         throw new ValidationError('Password deve contenere almeno 8 caratteri, una maiuscola e un numero');
       }
 
-      // Verifica password attuale
       const isCurrentPasswordValid = await req.user.verifyPassword(currentPassword);
       if (!isCurrentPasswordValid) {
+        logger.warn('Tentativo cambio password con password attuale errata', {
+          userId: req.user.id,
+          email: req.user.email,
+          ip: req.ip
+        });
         throw new UnauthorizedError('Password attuale non corretta');
       }
 
-      // Cambia password
       await req.user.changePassword(newPassword);
 
-      // Log evento
-      logSecurity('password_changed', {
+      logger.info('Password cambiata con successo', {
         userId: req.user.id,
         email: req.user.email,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
+        ip: req.ip
       });
 
       res.json({
         success: true,
-        message: 'Password cambiata con successo',
+        message: 'Password cambiata con successo'
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore cambio password', { error: error.message });
+      next(error);
     }
   }
 
-  // Profilo utente corrente
-  static async getProfile(req, res) {
+  // Profilo utente
+  static async getProfile(req, res, next) {
     try {
       res.json({
         success: true,
         data: {
-          user: req.user.toJSON(),
-        },
+          user: req.user.toJSON()
+        }
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore recupero profilo', { error: error.message });
+      next(error);
     }
   }
 
-  // Aggiorna profilo utente
-  static async updateProfile(req, res) {
+  // Aggiorna profilo
+  static async updateProfile(req, res, next) {
     try {
       const allowedFields = [
         'name', 'avatar_path', 'date_of_birth', 'gender',
@@ -321,20 +382,27 @@ class AuthController {
 
       await req.user.update(updates);
 
+      logger.info('Profilo aggiornato', {
+        userId: req.user.id,
+        email: req.user.email,
+        updatedFields: Object.keys(updates)
+      });
+
       res.json({
         success: true,
         message: 'Profilo aggiornato con successo',
         data: {
-          user: req.user.toJSON(),
-        },
+          user: req.user.toJSON()
+        }
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore aggiornamento profilo', { error: error.message });
+      next(error);
     }
   }
 
   // Verifica token reset (controllo validità)
-  static async verifyResetToken(req, res) {
+  static async verifyResetToken(req, res, next) {
     try {
       const { token } = req.params;
 
@@ -360,44 +428,54 @@ class AuthController {
         },
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore verifica token reset', { 
+        error: error.message,
+        token: req.params.token
+      });
+      next(error);
     }
   }
 
-  // Elimina account utente
-  static async deleteAccount(req, res) {
+  // Elimina account
+  static async deleteAccount(req, res, next) {
     try {
       const { password } = req.body;
 
-      // Verifica password per sicurezza
       const isPasswordValid = await req.user.verifyPassword(password);
       if (!isPasswordValid) {
+        logger.warn('Tentativo eliminazione account con password errata', {
+          userId: req.user.id,
+          email: req.user.email,
+          ip: req.ip
+        });
         throw new UnauthorizedError('Password non corretta');
       }
 
-      // Log evento
-      logSecurity('account_deleted', {
+      logger.info('Account eliminato', {
         userId: req.user.id,
         email: req.user.email,
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
+        ip: req.ip
       });
 
-      // Elimina account (soft delete)
       await req.user.delete(false);
 
       res.json({
         success: true,
-        message: 'Account eliminato con successo',
+        message: 'Account eliminato con successo'
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore eliminazione account', { error: error.message });
+      next(error);
     }
   }
 
   // Statistiche autenticazione (admin)
-  static async getAuthStats(req, res) {
+  static async getAuthStats(req, res, next) {
     try {
+      // Verifica permessi admin
+      if (!req.user.isAdmin) {
+        throw new UnauthorizedError('Accesso non autorizzato');
+      }
       const stats = await User.getStats();
 
       res.json({
@@ -408,7 +486,11 @@ class AuthController {
         },
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore recupero statistiche auth', { 
+        error: error.message,
+        userId: req.user?.id
+      });
+      next(error);
     }
   }
 }

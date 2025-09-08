@@ -1,38 +1,86 @@
 const User = require('../models/User');
 const NutritionGoal = require('../models/NutritionGoal');
 const { ValidationError, NotFoundError } = require('../middleware/errorHandler');
+const { logger } = require('../middleware/logging');
 
 class UserController {
   // Ottieni profilo utente completo
-  static async getProfile(req, res) {
+  static async getProfile(req, res, next) {
     try {
       // Carica obiettivo attivo
       const activeGoal = await NutritionGoal.findActiveByUser(req.user.id);
 
+      // Filtra i dati sensibili dell'utente
+      const safeUserData = {
+        id: req.user.id,
+        email: req.user.email,
+        name: req.user.name,
+        avatar_path: req.user.avatar_path,
+        date_of_birth: req.user.date_of_birth,
+        gender: req.user.gender,
+        height: req.user.height,
+        weight: req.user.weight,
+        activity_level: req.user.activity_level,
+        timezone: req.user.timezone,
+        language: req.user.language,
+        createdAt: req.user.createdAt,
+        updatedAt: req.user.updatedAt
+      };
+
       res.json({
         success: true,
         data: {
-          user: req.user.toJSON(),
+          user: safeUserData,
           activeGoal: activeGoal ? activeGoal.toJSON() : null,
         },
       });
+
+      logger.info('Profilo utente recuperato', {
+        userId: req.user.id,
+        hasActiveGoal: !!activeGoal
+      });
     } catch (error) {
-      throw error;
+      logger.error('Errore recupero profilo utente', {
+        userId: req.user.id,
+        error: error.message
+      });
+      next(error);
     }
   }
 
   // Aggiorna profilo utente
-  static async updateProfile(req, res) {
+  static async updateProfile(req, res, next) {
     try {
       const allowedFields = [
         'name', 'avatar_path', 'date_of_birth', 'gender',
         'height', 'weight', 'activity_level', 'timezone', 'language'
       ];
 
+      // Validazione e sanitizzazione input
       const updates = {};
       Object.keys(req.body).forEach(key => {
         if (allowedFields.includes(key) && req.body[key] !== undefined) {
-          updates[key] = req.body[key];
+          let value = req.body[key];
+          
+          // Validazione tipo di dato
+          switch(key) {
+            case 'height':
+            case 'weight':
+              value = parseFloat(value);
+              if (isNaN(value) || value <= 0) {
+                throw new ValidationError(`${key} deve essere un numero positivo`);
+              }
+              break;
+            case 'date_of_birth':
+              const date = new Date(value);
+              if (isNaN(date.getTime())) {
+                throw new ValidationError('Data di nascita non valida');
+              }
+              value = date;
+              break;
+          }
+          
+          updates[key] = value;
         }
       });
 
@@ -42,23 +90,70 @@ class UserController {
 
       await req.user.update(updates);
 
+      // Se sono stati aggiornati dati rilevanti per il calcolo degli obiettivi,
+      // ricalcola gli obiettivi nutrizionali
+      const nutritionRelevantFields = ['weight', 'height', 'activity_level', 'date_of_birth', 'gender'];
+      const needsRecalculation = Object.keys(updates).some(field => nutritionRelevantFields.includes(field));
+
+      let newGoal = null;
+      if (needsRecalculation) {
+        const NutritionController = require('./nutritionController');
+        newGoal = await NutritionController.recalculateGoals(req.user);
+        logger.info('Obiettivi nutrizionali ricalcolati dopo aggiornamento profilo', {
+          userId: req.user.id,
+          updatedFields: Object.keys(updates)
+        });
+      }
+
+      // Filtra i dati sensibili nella risposta
+      const safeUserData = {
+        id: req.user.id,
+        name: req.user.name,
+        avatar_path: req.user.avatar_path,
+        date_of_birth: req.user.date_of_birth,
+        gender: req.user.gender,
+        height: req.user.height,
+        weight: req.user.weight,
+        activity_level: req.user.activity_level,
+        timezone: req.user.timezone,
+        language: req.user.language,
+        updatedAt: req.user.updatedAt
+      };
+
+      logger.info('Profilo utente aggiornato', {
+        userId: req.user.id,
+        updatedFields: Object.keys(updates),
+        goalsRecalculated: needsRecalculation
+      });
+
       res.json({
         success: true,
         message: 'Profilo aggiornato con successo',
         data: {
-          user: req.user.toJSON(),
+          user: safeUserData,
+          newGoal: newGoal ? newGoal.toJSON() : null
         },
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore aggiornamento profilo utente', {
+        userId: req.user.id,
+        error: error.message
+      });
+      next(error);
     }
   }
 
   // Ottieni obiettivi nutrizionali dell'utente
-  static async getGoals(req, res) {
+  static async getGoals(req, res, next) {
     try {
       const includeInactive = req.query.include_inactive === 'true';
       const goals = await NutritionGoal.findByUser(req.user.id, includeInactive);
+
+      logger.info('Obiettivi nutrizionali recuperati', {
+        userId: req.user.id,
+        goalsCount: goals.length,
+        includeInactive
+      });
 
       res.json({
         success: true,
@@ -68,7 +163,11 @@ class UserController {
         },
       });
     } catch (error) {
-      throw error;
+      logger.error('Errore recupero obiettivi nutrizionali', {
+        userId: req.user.id,
+        error: error.message
+      });
+      next(error);
     }
   }
 

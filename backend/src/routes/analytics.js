@@ -1,8 +1,9 @@
 const express = require('express');
-const router = express.Router();
 const AuthMiddleware = require('../middleware/auth');
 const database = require('../config/database');
 const AnalyticsController = require('../controllers/analyticsController');
+
+const router = express.Router();
 
 // Inizializza controller
 const analyticsController = new AnalyticsController(database.db);

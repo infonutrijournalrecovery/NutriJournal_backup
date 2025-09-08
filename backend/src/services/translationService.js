@@ -196,7 +196,7 @@ class TranslationService {
   translateCategories(categories) {
     if (!categories) return null;
 
-    const categoryList = categories.split(',').map(cat => cat.trim());
+    const categoryList = Array.isArray(categories) ? categories : categories.split(',').map(cat => cat.trim());
     const translatedCategories = categoryList.map(category => {
       const normalizedCat = category.toLowerCase().replace(/^en:/, 'en:');
       return this.categoryTranslations[normalizedCat] || category;

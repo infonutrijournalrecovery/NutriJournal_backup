@@ -1,9 +1,10 @@
 const express = require('express');
-const router = express.Router();
 const AuthMiddleware = require('../middleware/auth');
 const { validate } = require('../utils/validation');
 const database = require('../config/database');
 const PantryController = require('../controllers/pantryController');
+
+const router = express.Router();
 
 // Inizializza controller
 const pantryController = new PantryController(database.db);
@@ -16,6 +17,21 @@ const auth = AuthMiddleware.verifyToken;
 // GET /api/pantry - Ottieni elementi dispensa
 router.get('/', auth, async (req, res) => {
     await pantryController.getItems(req, res);
+});
+
+// GET /api/pantry/search - Cerca prodotti in dispensa
+router.get('/search', auth, async (req, res, next) => {
+    await pantryController.searchPantryProducts(req, res, next);
+});
+
+// POST /api/pantry/products/:productId - Aggiungi prodotto alla dispensa
+router.post('/products/:productId', auth, async (req, res, next) => {
+    await pantryController.addToPantry(req, res, next);
+});
+
+// DELETE /api/pantry/products/:productId - Rimuovi prodotto dalla dispensa
+router.delete('/products/:productId', auth, async (req, res, next) => {
+    await pantryController.removeFromPantry(req, res, next);
 });
 
 // POST /api/pantry - Aggiungi elemento alla dispensa
