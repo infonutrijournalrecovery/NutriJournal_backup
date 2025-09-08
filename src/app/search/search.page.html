@@ -82,52 +82,31 @@
     <!-- Mobile Controls -->
     <div *ngIf="!isScanning" class="mobile-controls">
       <div class="search-header mobile-header">
-        <h1>search Prodotti</h1>
-        <p>Scansiona il barcode per analizzare il prodotto</p>
+        <h1>Cerca Prodotti</h1>
+        <p>Cerca prodotto per nome</p>
       </div>
-      
-      <!-- Primary search Button -->
-      <div class="scan-button-container">
-        <ion-button 
-          expand="block" 
-          size="large" 
-          (click)="startScanning()"
-          class="primary-scan-button">
-          <ion-icon name="scan-outline" slot="start"></ion-icon>
-          Scansiona Prodotto
-        </ion-button>
-      </div>
+
       
       <!-- Manual Input Option -->
       <div class="manual-input-section">
-        <ion-button 
-          fill="outline" 
-          expand="block" 
-          (click)="showManualInput = !showManualInput">
-          <ion-icon name="create-outline" slot="start"></ion-icon>
-          Inserisci Codice Manualmente
-        </ion-button>
+        <ion-item>
+          <ion-label position="stacked">Nome prodotto</ion-label>
+          <ion-input 
+            [(ngModel)]="searchCode" 
+            placeholder="es. Pizza Margherita"
+            type="string">
+          </ion-input>
+        </ion-item>
         
-        <div *ngIf="showManualInput" class="manual-input-form">
-          <ion-item>
-            <ion-label position="stacked">Codice Barcode</ion-label>
-            <ion-input 
-              [(ngModel)]="searchCode" 
-              placeholder="es. 8076809513726"
-              type="number">
-            </ion-input>
-          </ion-item>
-          
-          <ion-button 
-            expand="block" 
-            (click)="searchByCode()"
-            [disabled]="!searchCode || isLoading"
-            class="manual-search-button">
-            <ion-icon name="search-outline" slot="start"></ion-icon>
-            <span *ngIf="!isLoading">Cerca</span>
-            <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
-          </ion-button>
-        </div>
+        <ion-button 
+          expand="block" 
+          (click)="searchByCode()"
+          [disabled]="!searchCode || isLoading"
+          class="manual-search-button">
+          <ion-icon name="search-outline" slot="start"></ion-icon>
+          <span *ngIf="!isLoading">Cerca</span>
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        </ion-button>
       </div>
     </div>
     

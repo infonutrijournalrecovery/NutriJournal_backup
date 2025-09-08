@@ -198,13 +198,15 @@ ion-toolbar {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  background: #75b972;
 }
 
 .scan-button-container {
   text-align: center;
   
   .primary-scan-button {
-    --background: var(--scanner-gradient);
+    --background: #ffffff;
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     height: 60px;
     font-size: 1.2rem;
     --border-radius: 30px;
@@ -221,10 +223,13 @@ ion-toolbar {
 }
 
 .manual-input-section {
+  ion-button{
+
+  }
   .manual-input-form {
     margin-top: 1rem;
     padding: 1.5rem;
-    background: #f8f9fa;
+    background: #ffffff;
     border-radius: 16px;
     
     ion-item {
@@ -235,6 +240,7 @@ ion-toolbar {
     
     .manual-search-button {
       --background: var(--scanner-primary);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       height: 45px;
       --border-radius: 12px;
     }
@@ -329,9 +335,13 @@ ion-toolbar {
   }
   
   ion-button {
-    --background: rgba(255, 255, 255, 0.2);
+    --background: rgba(255, 255, 255, 1);
     --color: white;
     --border-radius: 20px;
+  }
+  .annulla-button{
+    --color: #ff0000;
+    color: #ff0000;
   }
 }
 
@@ -529,39 +539,6 @@ ion-toolbar {
   }
 }
 
-// ===========================================
-// DARK MODE SUPPORT
-// ===========================================
-/*
-@media (prefers-color-scheme: dark) {
-  .desktop-scanner-layout {
-    background: #29304a;
-  }
-  
-  .search-card,
-  .camera-card,
-  .nutrition-card,
-  .additives-card,
-  .allergens-card,
-  .ingredients-card {
-    --background: #161b22;
-    border: 1px solid #30363d;
-  }
-  
-  .search-card ion-card-header,
-  .camera-card ion-card-header {
-    background: #21262d;
-  }
-  
-  .nutrition-item {
-    background: #21262d !important;
-  }
-  
-  .manual-input-form {
-    background: #21262d !important;
-  }
-}
-*/
 // ===========================================
 // ANIMATIONS
 // ===========================================

@@ -88,7 +88,7 @@
         </div>
         <div class="scanner-instructions">
           <p>Inquadra il codice a barre del prodotto</p>
-          <ion-button fill="clear" color="light" (click)="stopScanning()">
+          <ion-button class="annulla-button" fill="clear" color="light" (click)="stopScanning()">
             <ion-icon name="close-outline"></ion-icon>
             Annulla
           </ion-button>
@@ -118,7 +118,7 @@
       <!-- Manual Input Option -->
       <div class="manual-input-section">
         <ion-button 
-          fill="outline" 
+          fill="solid" 
           expand="block" 
           (click)="showManualInput = !showManualInput">
           <ion-icon name="create-outline" slot="start"></ion-icon>
