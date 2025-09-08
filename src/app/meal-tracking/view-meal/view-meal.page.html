@@ -1,21 +1,106 @@
-<ion-header class="desktop-header">
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
-      </ion-buttons>
-  
-      <div class="header-content">
-        <h1>
-          <ion-icon name="cart-outline"></ion-icon>
-          Pasto
-        </h1>
-        <p>Gestisci e tieni traccia di quello che hai mangiato</p>
-      </div>
-    </ion-toolbar>
-  </ion-header>
-  
-  
-  <ion-content [fullscreen]="true">
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Visualizza pasto</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-  </ion-content>
-  
+<ion-content [fullscreen]="true">
+
+  <ion-list lines="none" class="meal-details">
+
+    <ion-item>
+      <ion-label>
+        <strong>DATA:</strong>
+        <div class="value">{{ prodotto.nome }}</div>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <strong>TIPO:</strong>
+        <div class="value">{{ prodotto.marca }}</div>
+      </ion-label>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <strong>PRODOTTI:</strong>
+        <ion-list class="products-list">
+          <ion-item *ngFor="let prod of prodotti" button detail="true" (click)="goToProduct(prod)">
+            <ion-label>
+              <h3>{{ prod.nome }}</h3>
+              <p>{{ prod.marca }} • {{ prod.quantita }}</p>
+            </ion-label>
+        
+            <ion-button 
+              class="elimina-btn" 
+              fill="outline" 
+              (click)="removeProduct(prod); $event.stopPropagation()">
+              Rimuovi
+            </ion-button>
+        
+            <ion-note slot="end">
+              {{ prod.note || '' }}
+            </ion-note>
+          </ion-item>
+        </ion-list>
+      </ion-label>
+    </ion-item>
+    
+    <!-- <ion-item >
+      <ion-label>
+        <h2><strong>Resoconto pasto</strong></h2>
+        <div class="nutrient-list">
+          <div class="nutrient">
+            <span class="label">Energia:</span>
+            <span class="value">{{ prodotto.nutrienti?.energia }} kcal</span>
+          </div>
+          <div class="nutrient">
+            <span class="label">Carboidrati:</span>
+            <span class="value">{{ prodotto.nutrienti?.carboidrati }} g</span>
+          </div>
+          <div class="nutrient">
+            <span class="label">Grassi:</span>
+            <span class="value">{{ prodotto.nutrienti?.grassi }} g</span>
+          </div>
+          <div class="nutrient">
+            <span class="label">Proteine:</span>
+            <span class="value">{{ prodotto.nutrienti?.proteine }} g</span>
+          </div>
+          <div class="nutrient">
+            <span class="label">Sale:</span>
+            <span class="value">{{ prodotto.nutrienti?.sale }} g</span>
+          </div>
+        </div>
+      </ion-label>
+    </ion-item> -->
+    <ion-item>
+      <ion-label>
+        <strong>Resoconto Pasto:</strong>
+      </ion-label>
+    </ion-item>
+    <div class="nutrient" *ngFor="let nutriente of nutrienti">
+      <span class="label">{{ nutriente.nome }}:</span>
+      <span class="value">{{ nutriente.assunto }} {{ nutriente.unita }}</span>
+    
+      <ion-progress-bar 
+        [value]="nutriente.assunto / nutriente.obiettivo"
+        [color]="nutriente.assunto > nutriente.obiettivo ? 'danger' : 'success'">
+      </ion-progress-bar>
+    
+      <div class="progress-text">
+        Obiettivo: {{ nutriente.obiettivo }} {{ nutriente.unita }} 
+        <ng-container *ngIf="nutriente.assunto > nutriente.obiettivo">
+          <span class="warning-text">
+          <ion-icon name="warning-outline"></ion-icon> Attenzione! Sei andato oltre il tuo obiettivo!
+        </span>
+        </ng-container>
+      </div>
+    </div>
+item>
+
+  </ion-list>
+</ion-content>

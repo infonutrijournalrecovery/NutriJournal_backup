@@ -55,9 +55,10 @@ ion-content {
 
 .nav-btn-pantry {
   position: absolute;
+  transform: translateY(-75%);
+
   right: 2rem;
   top: 50%;
-  transform: translateY(-75%);
   font-size: 1rem;
   --background: #415540;
   --color: white;
@@ -73,9 +74,10 @@ ion-content {
 
 .nav-btn-meal {
   position: absolute;
+  transform: translateY(+75%);
+
   right: 2rem;
   top: 50%;
-  transform: translateY(+75%);
   font-size: 1rem;
   --background: #415540;
   --color: white;
@@ -101,6 +103,37 @@ ion-content {
   padding: 0 1rem;
   box-shadow: 0 4px 12px rgba(0,0,0,1);
 }
+
+.button-group {
+  display: flex;
+  justify-content: space-between; 
+  width: 100%;
+  gap: 2rem; 
+}
+
+.button-group ion-button {
+  flex: 1; 
+  right: 2rem;
+  top: 50%;
+  font-size: 1rem;
+  --background: #415540;
+  --color: white;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0rem 0rem;
+  gap: 3rem;
+  box-shadow: 0 4px 12px rgba(0,0,0, 0.2);
+  border-radius: 8px;
+  margin-top: 1.5rem;
+
+  &:hover{
+    --background: #75b972;
+    --color: black;
+  }
+}
+
 
 .product-details {
   background: #ffffff;
@@ -144,8 +177,8 @@ ion-content {
     .value-list > div > .additivo-wrapper {
       display: flex;
       align-items: center;
-      gap: 0.5rem; /* spazio tra pill e commento */
-      margin-bottom: 0.5rem; /* spazio tra le righe */
+      gap: 0.5rem; 
+      margin-bottom: 0.5rem; 
     }
     
     .additivo-pill {
