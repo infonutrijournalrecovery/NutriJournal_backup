@@ -1,4 +1,3 @@
-
 :root {
   --product-primary: #fff000;
   --product-secondary: #0000ff;
@@ -10,18 +9,17 @@
   --product-text-dark: #222;
   --product-text-light: #666;
   --product-card-bg: #fff;
-
 }
 
 ion-toolbar {
-  position: relative;
+  --background: #415540;
+  --color: white;
 }
 
-/* HEADER */
 .desktop-header {
   background: #202020;
   color: white;
-  padding: 0.5rem 0; /* meno padding verticale, nessuno orizzontale */
+  padding: 0.5rem 0;
   text-align: center;
   border-radius: 0 0 24px 24px;
   margin-bottom: 1rem;
@@ -32,8 +30,7 @@ ion-toolbar {
     flex-direction: column;
     align-items: center;
     gap: 0.3rem;
-    padding: 0.5rem 1rem; /* padding interno SOLO al contenitore del testo */
-    
+    padding: 0.5rem 1rem;
 
     h1 {
       font-size: 2rem;
@@ -49,52 +46,51 @@ ion-toolbar {
       opacity: 0.9;
       margin: 0;
     }
-
-
-    
   }
 }
+
 ion-content {
-  --background: #c0c0c0; 
+  --background: #75b972 !important;
 }
+
 .nav-btn-pantry {
   position: absolute;
   right: 2rem;
   top: 50%;
-  transform: translateY(-75%); /* \u2705 centrata verticalmente */
+  transform: translateY(-75%);
   font-size: 1rem;
-  --background: #2030a0;
+  --background: #415540;
   --color: white;
   height: 50px;
-  display: flex;           /* flex per centrare contenuto */
-  align-items: center;     /* centraggio verticale */
-  justify-content: center; /* centraggio orizzontale */
-  padding: 0rem 0rem;  /* spazio interno */
-  gap: 3rem;             /* distanza tra testo e icona */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0rem 0rem;
+  gap: 3rem;
   box-shadow: 0 4px 12px rgba(0,0,0,1);
-  border-radius: 8px;    /* bordi arrotondati */
+  border-radius: 8px;
 }
 
 .nav-btn-meal {
   position: absolute;
   right: 2rem;
   top: 50%;
-  transform: translateY(+75%); /* \u2705 centrata verticalmente */
+  transform: translateY(+75%);
   font-size: 1rem;
-  --background: #f9aa00;
+  --background: #415540;
   --color: white;
   height: 50px;
-  display: flex;           /* flex per centrare contenuto */
-  align-items: center;     /* centraggio verticale */
-  justify-content: center; /* centraggio orizzontale */
-  padding: 0rem 0rem;  /* spazio interno */
-  gap: 3rem;             /* distanza tra testo e icona */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0rem 0rem;
+  gap: 3rem;
   box-shadow: 0 4px 12px rgba(0,0,0,1);
-  border-radius: 8px;    /* bordi arrotondati */
+  border-radius: 8px;
 }
 
 .nav-btn-meal-select {
-  --background: #f9aa00;
+  --background: #415540;
   --color: white;
   height: 50px;
   font-size: 1rem;
@@ -106,9 +102,8 @@ ion-content {
   box-shadow: 0 4px 12px rgba(0,0,0,1);
 }
 
-/* CONTENT LIST */
 .product-details {
-  background: var(--product-card-bg);
+  background: #ffffff;
   margin: 1rem;
   padding: 1rem;
   border-radius: 16px;
@@ -119,9 +114,8 @@ ion-content {
     --padding-start: 0;
     --inner-padding-end: 0;
     margin-bottom: 0.5rem;
-    font-size: 1rem;
-    color: var(--product-text-dark);
-    border-bottom: 1px solid #e0e0e0;
+    font-size: 1.3rem;
+    color: #000000;
 
     &:last-child {
       border-bottom: none;
@@ -135,65 +129,100 @@ ion-content {
       margin-bottom: 0.2rem;
     }
 
-    .value,
-  /*  .value-list {
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: var(--product-text-dark);
-    }
-
-    .value-list div {
-      background: #00ff00;
-      color: #000000;
-      padding: 0.3rem 0.6rem;
-      border-radius: 6px;
-      display: inline-block;
-      margin: 0.2rem 0.3rem 0 0;
-      font-size: 0.9rem;
-    }
-
-    
     .value-list {
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
+      align-items: flex-start;
+    
+      > div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+    }
+
+    .value-list > div > .additivo-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem; /* spazio tra pill e commento */
+      margin-bottom: 0.5rem; /* spazio tra le righe */
     }
     
-    .value-list div {
-      background: #f3f3f3;
-      padding: 0.5rem 0.7rem;
-      border-radius: 8px;
-      display: block;
+    .additivo-pill {
+      display: flex;
+      align-items: center;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
       font-size: 0.95rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    }   */ 
+      font-weight: 600;
+      color: #000000;
+      white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    
+      &.Innocuo {
+        background-color: #20ca86;
+      }
+    
+      &.Potenzialmente-pericoloso {
+        background-color: #ff8300;
+      }
+    
+      &.Pericoloso {
+        background-color: #ff3020;
+      }
+    }
+    
+    .additivo-comment {
+      font-size: 0.85rem;
+      color: #222;
+    }
+    
 
+    .value-list > div > div.allergene-pill {
+      display: flex;
+      align-items: center;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #000000;
+      white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      background-color: #ffcf86;
+      margin-bottom: 0.5rem;
+    }
 
-    /* ---- Lista in colonna, ma i figli non si allungano ---- */
-.value-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  align-items: flex-start; /* <- fondamentale: impedisce lo stretch */
-}
+    .value-list > div > .allergene-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .allergene-pill {
+      display: flex;
+      align-items: center;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #000000;
+      white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      background-color: #ffcf86;
+    }
+    
+    .allergene-warning {
 
-/* ---- Se non puoi modificare l'HTML: fallback che targetta i div interni (lo lascia come alternativa) ---- */
-.value-list > div > div {
-  display: inline-flex;
-  align-self: flex-start;
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.95rem;
-  white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  background: #00ffff;
-  color: #000000;
-}
-
+      font-size: 0.85rem;
+      color: #ff0000;
+      font-weight: bold;
+    }
+    
+    
     
   }
 
-  /* Nutrients section */
   .nutrient-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -201,10 +230,10 @@ ion-content {
     margin-top: 0.5rem;
 
     .nutrient {
-      background: #ff0000;
+      background: #eff0f0;
       padding: 0.5rem;
       border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
       display: flex;
       flex-direction: column;
 
@@ -222,6 +251,7 @@ ion-content {
     }
   }
 }
+
 
 /* Responsive */
 @media (min-width: 768px) {

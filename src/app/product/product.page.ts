@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { warningOutline, trashOutline } from 'ionicons/icons';
 import {
   IonContent,
   IonHeader,
@@ -80,7 +80,21 @@ export class ProductPage {
   isDesktop = false;
   isMobile = false;
 
+  userAllergeni: string[] = ['Glutine', 'Soia'];
+
   prodotto: any;
+
+dispensa: any[] = [
+  { id: 1, nome: 'Pasta di Semola' },
+  { id: 2, nome: 'Riso Arborio' }
+];
+
+alreadyInPantry(): boolean {
+  if (!this.prodotto) return false;
+
+  return this.dispensa.some(item => item.nome === this.prodotto.nome);
+}
+
 
   meals: string[] = ['Colazione', 'Pranzo', 'Cena', 'Spuntino'];
   selectedMeal: string | null = null;
@@ -96,7 +110,10 @@ export class ProductPage {
       nome: 'Pasta di Semola',
       marca: 'Barilla',
       quantita: '500 g',
-      additivi: ['E300', 'E471'],
+      additivi: [
+        { nome: 'E300', pericolosita: 0 },
+        { nome: 'E471', pericolosita: 2 }
+      ],
       allergeni: ['Glutine'],
       nutrienti: {
         energia: 350,
@@ -109,6 +126,10 @@ export class ProductPage {
         sale: 0.01
       }
     };
+  }
+
+  isUserAllergic(allergene: string): boolean {
+    return this.userAllergeni.includes(allergene);
   }
 
   async onButtonClick(item: any) {
@@ -164,7 +185,6 @@ export class ProductPage {
   </ion-header>
 
   <ion-content class="ion-padding">
-    <!-- Selezione pasto -->
     <ion-label>Pasto</ion-label>
     <ion-radio-group [(ngModel)]="selectedMeal">
       <ion-item *ngFor="let meal of meals">
@@ -173,17 +193,14 @@ export class ProductPage {
       </ion-item>
     </ion-radio-group>
 
-    <!-- Selezione data -->
     <ion-label class="ion-margin-top">Data</ion-label>
     <ion-datetime [(ngModel)]="selectedDate" displayFormat="DD/MM/YYYY" pickerFormat="DD/MM/YYYY" presentation="date"></ion-datetime>
 
-    <!-- Input quantità -->
     <ion-item class="ion-margin-top">
       <ion-label position="stacked">Quantità (g)</ion-label>
       <ion-input type="number" [(ngModel)]="quantity" placeholder="Inserisci grammi"></ion-input>
     </ion-item>
 
-    <!-- Bottone conferma -->
     <ion-button expand="full" class="ion-margin-top" (click)="confirm()">Conferma</ion-button>
   </ion-content>
   `,
