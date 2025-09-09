@@ -65,8 +65,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
         tap(response => {
-          if (response.success && response.data) {
-            this.setSession(response.data.token, response.data.user);
+          if (response.success && response.data && response.data.tokens) {
+            this.setSession(response.data.tokens.accessToken, response.data.user);
           }
         }),
         catchError(this.handleError<AuthResponse>('login'))
@@ -80,8 +80,8 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData)
       .pipe(
         tap(response => {
-          if (response.success && response.data) {
-            this.setSession(response.data.token, response.data.user);
+          if (response.success && response.data && response.data.tokens) {
+            this.setSession(response.data.tokens.accessToken, response.data.user);
           }
         }),
         catchError(this.handleError<AuthResponse>('register'))

@@ -67,7 +67,6 @@ interface PersonalFormData {
   preferences: {
     notifications: boolean;
     darkMode: boolean;
-    units: string;
   };
 }
 
@@ -97,7 +96,7 @@ interface PersonalFormData {
     IonSelect,
     IonSelectOption,
     IonDatetime,
-    IonToggle,
+  // IonToggle rimosso
     IonIcon,
     IonSpinner,
     IonChip
@@ -127,8 +126,7 @@ export class EditPersonalPage implements OnInit {
     additives_sensitivity: [],
     preferences: {
       notifications: true,
-      darkMode: false,
-      units: 'metric'
+      darkMode: false
     }
   };
 
@@ -198,73 +196,29 @@ export class EditPersonalPage implements OnInit {
    */
   async loadUserData() {
     this.isLoading = true;
-    
     try {
-      // In a real app, you would fetch from API
-      // For now, using mock data
-      const mockUser: User = {
-        id: 1,
-        firstName: 'Mario',
-        lastName: 'Rossi',
-        email: 'mario.rossi@email.com',
-        birthDate: '1990-05-15',
-        gender: 'male',
-        height: 175,
-        weight: 70.5,
-        activity_level: 'moderate',
-        allergies: [
-          {
-            allergen_code: 'nuts',
-            allergen_name: 'Frutta a guscio',
-            severity: 'severe'
-          },
-          {
-            allergen_code: 'milk',
-            allergen_name: 'Latte e derivati',
-            severity: 'moderate'
-          }
-        ],
-        additives_sensitivity: [
-          {
-            additive_code: 'E621',
-            additive_name: 'Glutammato monosodico',
-            sensitivity_level: 'medium'
-          }
-        ],
-        preferences: {
-          notifications: true,
-          darkMode: false,
-          units: 'metric'
-        },
-        totalMeals: 145,
-        currentStreak: 7,
-        joinDate: new Date('2024-01-15'),
-        created_at: '2024-01-15T10:00:00Z',
-        updated_at: '2024-01-15T10:00:00Z'
-      };
-
-      // Map user data to form data
-      this.formData = {
-        firstName: mockUser.firstName || '',
-        lastName: mockUser.lastName || '',
-        email: mockUser.email || '',
-        birthDate: mockUser.birthDate || '',
-        gender: mockUser.gender || '',
-        height: mockUser.height || null,
-        weight: mockUser.weight || null,
-        activityLevel: mockUser.activity_level || '',
-        allergies: mockUser.allergies || [],
-        additives_sensitivity: mockUser.additives_sensitivity || [],
-        preferences: mockUser.preferences || {
-          notifications: true,
-          darkMode: false,
-          units: 'metric'
-        }
-      };
-
-      // Store original data for comparison
-      this.originalData = JSON.parse(JSON.stringify(this.formData));
-
+      const userProfile = await this.apiService.getUserProfile().toPromise();
+      if (userProfile && userProfile.data) {
+        const data = userProfile.data;
+        // Type guard: check if data has 'user' property
+        const user = (typeof data === 'object' && 'user' in data) ? (data as any).user : data;
+        this.formData = {
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          email: user.email || '',
+          birthDate: user.birthDate || user.birth_date || '',
+          gender: (user.gender && ['male','female','other','prefer_not_to_say'].includes(user.gender) ? user.gender : 'other') as 'male' | 'female' | 'other' | 'prefer_not_to_say',
+          height: user.height || null,
+          weight: user.weight || null,
+          activityLevel: user.activity_level || '',
+          allergies: user.allergies || [],
+          additives_sensitivity: user.additives_sensitivity || [],
+          preferences: user.preferences
+            ? { notifications: user.preferences.notifications ?? true, darkMode: user.preferences.darkMode ?? false }
+            : { notifications: true, darkMode: false }
+        };
+        this.originalData = JSON.parse(JSON.stringify(this.formData));
+      }
     } catch (error) {
       console.error('Errore caricamento dati utente:', error);
       await this.showToast('Errore nel caricamento dei dati', 'danger');
@@ -306,22 +260,28 @@ export class EditPersonalPage implements OnInit {
       });
       await loading.present();
 
-      // Here you would call the API to save the changes
-      // await this.apiService.updateUserProfile(this.formData).toPromise();
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Chiamata reale al backend
+      // Mappo i campi per compatibilità backend
+      const payload: Partial<User> = {
+        ...this.formData,
+        height: this.formData.height === null ? undefined : this.formData.height,
+        weight: this.formData.weight === null ? undefined : this.formData.weight,
+        gender: (this.formData.gender && ['male','female','other','prefer_not_to_say'].includes(this.formData.gender) ? this.formData.gender : 'other') as 'male' | 'female' | 'other' | 'prefer_not_to_say',
+        activity_level: (this.formData.activityLevel as 'light' | 'sedentary' | 'moderate' | 'active' | 'very_active' | undefined),
+        preferences: {
+          ...this.formData.preferences
+        }
+      };
+      if ('activityLevel' in payload) {
+        delete (payload as any).activityLevel;
+      }
+      await this.apiService.updateUserProfile(payload).toPromise();
 
       await loading.dismiss();
-
-      // Update original data
       this.originalData = JSON.parse(JSON.stringify(this.formData));
-
       await this.showToast('Dati salvati con successo!', 'success');
-      
-      // Navigate back to profile
-      this.router.navigate(['/profile']);
-
+      // Naviga e forza refresh profilo
+      this.router.navigate(['/profile'], { state: { refresh: true } });
     } catch (error) {
       console.error('Errore salvataggio:', error);
       await this.showToast('Errore durante il salvataggio', 'danger');
@@ -332,9 +292,7 @@ export class EditPersonalPage implements OnInit {
         if (loading) {
           await loading.dismiss();
         }
-      } catch (e) {
-        // Loading already dismissed
-      }
+      } catch (e) {}
     }
   }
 

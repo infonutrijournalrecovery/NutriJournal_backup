@@ -20,8 +20,9 @@ class AuthMiddleware {
       // Verifica validità token
       const payload = authConfig.verifyToken(token);
       
-      // Carica dati utente
-      const user = await User.findById(payload.userId);
+  // Carica dati utente
+  const database = require('../config/database');
+  const user = await User.findById(payload.userId, database.sqliteDb);
       if (!user) {
         return res.status(401).json({
           success: false,
@@ -238,61 +239,6 @@ class AuthMiddleware {
     });
   }
 
-  // Middleware per verificare token reset password
-  static async verifyResetToken(req, res, next) {
-    try {
-      const { token } = req.params;
-
-      if (!token) {
-        return res.status(400).json({
-          success: false,
-          message: 'Token reset richiesto',
-          error: 'MISSING_RESET_TOKEN',
-        });
-      }
-
-      const payload = authConfig.verifyResetToken(token);
-      const user = await User.findById(payload.userId);
-
-      if (!user) {
-        return res.status(404).json({
-          success: false,
-          message: 'Utente non trovato',
-          error: 'USER_NOT_FOUND',
-        });
-      }
-
-      // Verifica che il token corrisponda a quello salvato nel database
-      if (user.reset_token !== token) {
-        return res.status(401).json({
-          success: false,
-          message: 'Token reset non valido',
-          error: 'INVALID_RESET_TOKEN',
-        });
-      }
-
-      // Verifica che il token non sia scaduto
-      if (user.reset_token_expires && new Date() > new Date(user.reset_token_expires)) {
-        return res.status(401).json({
-          success: false,
-          message: 'Token reset scaduto',
-          error: 'RESET_TOKEN_EXPIRED',
-        });
-      }
-
-      req.user = user;
-      req.resetToken = token;
-      next();
-    } catch (error) {
-      console.error('❌ Errore verifica token reset:', error);
-
-      return res.status(401).json({
-        success: false,
-        message: 'Token reset non valido o scaduto',
-        error: 'INVALID_RESET_TOKEN',
-      });
-    }
-  }
 
   // Estrai informazioni di autenticazione dalla request
   static extractAuthInfo(req) {

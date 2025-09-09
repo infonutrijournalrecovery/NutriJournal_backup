@@ -58,7 +58,7 @@ router.get('/search', async (req, res) => {
             });
         }
 
-        if (allergens) {
+        if (typeof allergens === 'string') {
             const excludeAllergens = allergens.split(',');
             filteredResults = filteredResults.filter(item => 
                 !item.allergens || 
@@ -301,7 +301,7 @@ router.get('/filter', (req, res) => {
             results = italianFoodService.filterByDiet(diet);
         }
         
-        if (exclude_allergens) {
+        if (typeof exclude_allergens === 'string') {
             const excludeList = exclude_allergens.split(',');
             if (results.length > 0) {
                 results = results.filter(dish => 

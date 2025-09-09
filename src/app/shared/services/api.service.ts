@@ -10,7 +10,8 @@ import {
   NutritionGoals, 
   Analytics,
   PantryItem,
-  ItalianDish
+  ItalianDish,
+  User
 } from '../interfaces/types';
 
 @Injectable({
@@ -255,6 +256,22 @@ export class ApiService {
   }
 
   // =================== USER MANAGEMENT ===================
+
+  /**
+   * Aggiorna il profilo utente
+   */
+  updateUserProfile(data: Partial<User>): Observable<ApiResponse<User>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<User>>(`${this.baseUrl}/users/profile`, data, { headers });
+  }
+
+  /**
+   * Ottieni il profilo utente
+   */
+  getUserProfile(): Observable<ApiResponse<{ user: User; activeGoal?: any } | User>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<ApiResponse<{ user: User; activeGoal?: any } | User>>(`${this.baseUrl}/users/profile`, { headers });
+  }
 
   /**
    * Cambia password utente

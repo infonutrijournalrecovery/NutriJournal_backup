@@ -89,26 +89,26 @@ export class ForgotPasswordPage implements OnInit {
       await loading.present();
 
       this.isLoading = true;
-      
       const email = this.forgotPasswordForm.value.email;
-      
-      // Simuliamo una chiamata API per ora
-      try {
-        // TODO: Sostituire con chiamata reale al backend
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        await loading.dismiss();
-        this.isLoading = false;
-        this.emailSent = true;
-        
-        await this.showToast('Email di recupero inviata con successo!', 'success');
-        
-      } catch (error) {
-        await loading.dismiss();
-        this.isLoading = false;
-        await this.showToast('Errore durante l\'invio. Riprova.', 'danger');
-        console.error('Forgot password error:', error);
-      }
+
+      this.authService.forgotPassword(email).subscribe({
+        next: async (response) => {
+          await loading.dismiss();
+          this.isLoading = false;
+          if (response.success) {
+            this.emailSent = true;
+            await this.showToast('Email di recupero inviata con successo!', 'success');
+          } else {
+            await this.showToast(response.message || 'Errore durante l\'invio', 'danger');
+          }
+        },
+        error: async (error) => {
+          await loading.dismiss();
+          this.isLoading = false;
+          await this.showToast('Errore durante l\'invio. Riprova.', 'danger');
+          console.error('Forgot password error:', error);
+        }
+      });
     } else {
       await this.showToast('Inserisci un indirizzo email valido', 'warning');
     }

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AuthGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
   {
@@ -16,63 +17,83 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard.page').then((m) => m.DashboardPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'scanner',
     loadComponent: () => import('./scanner/scanner.page').then((m) => m.ScannerPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'search',
     loadComponent: () => import('./search/search.page').then((m) => m.SearchPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'profile',
     loadComponent: () => import('./profile/profile.page').then((m) => m.ProfilePage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'profile/change-password',
     loadComponent: () => import('./profile/change-password/change-password.page').then((m) => m.ChangePasswordPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'profile/edit-personal',
     loadComponent: () => import('./profile/edit-personal/edit-personal.page').then((m) => m.EditPersonalPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'profile/view-goals',
     loadComponent: () => import('./profile/view-goals/view-goals.page').then((m) => m.ViewGoalsPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'meal/add',
     loadComponent: () => import('./meal-tracking/add-meal/add-meal.page').then((m) => m.AddMealPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'meal/edit/:id',
     loadComponent: () => import('./meal-tracking/add-meal/add-meal.page').then((m) => m.AddMealPage),
+    canActivate: [AuthGuard],
   },
 
   {
     path: 'meal/view',
     loadComponent: () => import('./meal-tracking/view-meal/view-meal.page').then((m) => m.ViewMealPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'vals',
     loadComponent: () => import('./vals/vals.page').then((m) => m.ValsPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'activity/add',
     loadComponent: () => import('./activity-tracking/add-activity/add-Activity.page').then((m) => m.AddActivityPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'activity/view',
     loadComponent: () => import('./activity-tracking/view-activity/view-activity.page').then((m) => m.ViewActivityPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'pantry',
     loadComponent: () => import('./pantry/pantry.page').then((m) => m.PantryPage),
+    canActivate: [AuthGuard],
   },
   {
     path: 'product',
     loadComponent: () => import('./product/product.page').then((m) => m.ProductPage),
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'product/:ean',
+    loadComponent: () => import('./product/product.page').then((m) => m.ProductPage),
+    canActivate: [AuthGuard],
   },
   // Main app with tabs
   {
@@ -136,16 +157,15 @@ export const routes: Routes = [
     loadComponent: () => import('./scanner/scanner.page').then((m) => m.ScannerPage),
   },
 
-  // Default redirects - tutto porta alla dashboard principale
+  // Default redirect: mostra la login se non autenticato
   {
     path: '',
-    redirectTo: 'tabs/dashboard',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
-  
-  // Wildcard route - gestisce tutti i path non trovati
+  // Wildcard route: fallback a login
   {
     path: '**',
-    redirectTo: 'tabs/dashboard',
+    redirectTo: 'login',
   },
 ];

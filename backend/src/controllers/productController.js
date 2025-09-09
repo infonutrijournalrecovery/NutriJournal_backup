@@ -512,9 +512,7 @@ class ProductController {
     }
   }
   // Implementazioni temporanee
-  static async getProductByBarcode(req, res) {
-    res.status(501).json({ message: 'Not implemented yet' });
-  }
+
 
   static async getFavoriteProducts(req, res) {
     res.status(501).json({ message: 'Not implemented yet' });

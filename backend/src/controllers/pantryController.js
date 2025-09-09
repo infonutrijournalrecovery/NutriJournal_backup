@@ -9,6 +9,24 @@ const { startTransaction } = require('../utils/database');
  * @class PantryController
  */
 class PantryController {
+
+    /**
+     * Verifica se un prodotto è già in dispensa per l'utente
+     */
+    async hasProduct(req, res, next) {
+        try {
+            const userId = req.user.id;
+            // Recupera nome e brand dal body o dalla query string
+            const { name, brand } = req.query;
+            if (!name || !brand) {
+                throw new ValidationError('Nome e brand richiesti');
+            }
+            const exists = await this.pantryModel.hasProduct(userId, name, brand);
+            res.json({ success: true, inPantry: exists });
+        } catch (error) {
+            next(error);
+        }
+    }
     /**
      * Crea una nuova istanza del controller
      * @param {Object} database - Istanza del database
@@ -55,19 +73,32 @@ class PantryController {
     static async addToPantry(req, res, next) {
         try {
             const { productId } = req.params;
-            const { quantity = 1, expirationDate = null } = req.body;
+            const { barcode, name, brand, category, quantity = 1, unit = 'pz', expiry_date = null, purchase_date = null, location = 'dispensa', notes = '', price = null, nutritional_info = null } = req.body;
             const userId = req.user.id;
 
             // Validazione
-            if (!productId) {
-                throw new ValidationError('ID prodotto richiesto');
+            if (!productId && !barcode) {
+                throw new ValidationError('ID prodotto o barcode richiesto');
             }
-
             if (quantity <= 0) {
                 throw new ValidationError('La quantità deve essere maggiore di zero');
             }
 
-            await this.pantryModel.addProduct(userId, productId, quantity, expirationDate);
+            await this.pantryModel.addItem({
+                userId,
+                barcode,
+                product_name: name,
+                brand,
+                category,
+                quantity,
+                unit,
+                purchase_date,
+                expiry_date,
+                location,
+                notes,
+                price,
+                nutritional_info
+            });
 
             res.json({
                 success: true,

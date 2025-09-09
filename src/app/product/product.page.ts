@@ -1,4 +1,27 @@
+// Mappa codici additivi a nomi leggibili (puoi espandere la lista)
+const ADDITIVI_MAP: Record<string, string> = {
+  'e330': 'Acido citrico',
+  'e202': 'Sorbato di potassio',
+  'e300': 'Acido ascorbico',
+  'e200': 'Acido sorbico',
+  'e220': 'Anidride solforosa',
+  'e250': 'Nitrito di sodio',
+  'e251': 'Nitrato di sodio',
+  'e160a': 'Carotene',
+  'e322': 'Lecitina',
+  'e410': 'Farina di semi di carrube',
+  'e412': 'Gomma di guar',
+  'e415': 'Gomma di xantano',
+  'e440': 'Pectina',
+  'e471': 'Mono- e digliceridi degli acidi grassi',
+  'e472e': 'Estere diacilico degli acidi grassi',
+  'e621': 'Glutammato monosodico',
+  // ...altri codici se vuoi
+};
+
 import { Component, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ProductService } from '../shared/services/product.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -76,56 +99,102 @@ export class ProductPage {
   private loadingController = inject(LoadingController);
   private actionSheetController = inject(ActionSheetController);
   private modalController = inject(ModalController);
+  private route = inject(ActivatedRoute);
+  private productService = inject(ProductService);
 
   isDesktop = false;
   isMobile = false;
 
-  userAllergeni: string[] = ['Glutine', 'Soia'];
 
-  prodotto: any;
+prodotto: any;
+userAllergeni: string[] = [];
+meals: string[] = ['Colazione', 'Pranzo', 'Cena', 'Spuntino'];
+selectedMeal: string | null = null;
+selectedDate: string = new Date().toISOString().split('T')[0];
+inPantry: boolean = false;
 
-dispensa: any[] = [
-  { id: 1, nome: 'Pasta di Semola' },
-  { id: 2, nome: 'Riso Arborio' }
-];
-
-alreadyInPantry(): boolean {
-  if (!this.prodotto) return false;
-
-  return this.dispensa.some(item => item.nome === this.prodotto.nome);
+constructor() {
+  this.isDesktop = this.deviceService.isDesktop();
+  this.isMobile = this.deviceService.isMobile();
 }
 
-
-  meals: string[] = ['Colazione', 'Pranzo', 'Cena', 'Spuntino'];
-  selectedMeal: string | null = null;
-  selectedDate: string = new Date().toISOString().split('T')[0];
-
-  constructor() {
-    this.isDesktop = this.deviceService.isDesktop();
-    this.isMobile = this.deviceService.isMobile();
-  }
-
   ngOnInit() {
-    this.prodotto = {
-      nome: 'Pasta di Semola',
-      marca: 'Barilla',
-      quantita: '500 g',
-      additivi: [
-        { nome: 'E300', pericolosita: 0 },
-        { nome: 'E471', pericolosita: 2 }
-      ],
-      allergeni: ['Glutine'],
-      nutrienti: {
-        energia: 350,
-        carboidrati: 72,
-        zuccheri: 2.5,
-        grassi: 1.5,
-        saturi: 0.3,
-        proteine: 12,
-        fibre: 3.0,
-        sale: 0.01
-      }
-    };
+    const ean = this.route.snapshot.paramMap.get('ean');
+    if (ean) {
+      this.productService.getProductByBarcode(ean).subscribe({
+        next: (res) => {
+          // Supporta sia risposta backend custom che OpenFoodFacts
+          // Supporta sia risposta backend custom che OpenFoodFacts
+          const data = res?.data;
+          // Se data ha la proprietà 'product', usa quella, altrimenti usa data stesso
+          const p = (data && typeof data === 'object' && 'product' in data) ? (data as any).product : data;
+          if (p) {
+            // Mapping leggibile per template, compatibile con risposta backend
+            this.prodotto = {
+              nome: p.name_it || p.name || '',
+              marca: p.brand || '',
+              quantita: p.serving?.size || '',
+              nutrienti: p.nutrition_per_100g ? {
+                energia: p.nutrition_per_100g.calories || '',
+                carboidrati: p.nutrition_per_100g.carbohydrates || '',
+                grassi: p.nutrition_per_100g.fats || '',
+                proteine: p.nutrition_per_100g.proteins || '',
+                sale: p.nutrition_per_100g.sodium || '',
+                zuccheri: p.nutrition_per_100g.sugars || '',
+                fibre: p.nutrition_per_100g.fiber || ''
+              } : {},
+              additivi: Array.isArray(p.additives)
+                ? p.additives
+                    .map((codice: string) => {
+                      const code = codice.replace(/^\w+:/, '').toLowerCase();
+                      return {
+                        nome: code.toUpperCase() + (ADDITIVI_MAP[code] ? ' - ' + ADDITIVI_MAP[code] : '')
+                      };
+                    })
+                    .filter((a: { nome: string }) => a.nome && a.nome.trim() !== '')
+                : (typeof p.additives === 'string' ? p.additives.split(',')
+                    .map((a: string) => {
+                      const code = a.trim().replace(/^\w+:/, '').toLowerCase();
+                      return {
+                        nome: code.toUpperCase() + (ADDITIVI_MAP[code] ? ' - ' + ADDITIVI_MAP[code] : '')
+                      };
+                    })
+                    .filter((a: { nome: string }) => a.nome && a.nome.trim() !== '') : []),
+              allergeni: Array.isArray(p.allergens)
+                ? p.allergens
+                    .map((codice: string) => codice.replace(/^\w+:/, ''))
+                    .filter((a: string) => a && a.trim() !== '')
+                : (typeof p.allergens === 'string' ? p.allergens.split(',')
+                    .map((a: string) => a.trim().replace(/^\w+:/, ''))
+                    .filter((a: string) => a && a.trim() !== '') : [])
+            };
+            // Dopo aver caricato il prodotto, verifica se è già in dispensa SOLO se nome e marca sono valorizzati
+            if (this.prodotto.nome && this.prodotto.marca) {
+              this.productService.checkProductInPantry(this.prodotto.nome, this.prodotto.marca).subscribe({
+                next: (result) => {
+                  this.inPantry = !!result.inPantry;
+                },
+                error: () => {
+                  this.inPantry = false;
+                }
+              });
+            } else {
+              this.inPantry = false;
+            }
+          } else {
+            this.prodotto = null;
+            this.showToast('Prodotto non trovato');
+          }
+        },
+        error: (err) => {
+          this.prodotto = null;
+          this.showToast('Errore nel recupero del prodotto');
+        }
+      });
+    } else {
+      this.prodotto = null;
+      this.showToast('EAN non valido');
+    }
   }
 
   isUserAllergic(allergene: string): boolean {

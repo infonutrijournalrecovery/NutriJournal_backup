@@ -7,6 +7,41 @@ const { ValidationError, UnauthorizedError, ConflictError, NotFoundError } = req
 const { logger } = require('../middleware/logging');
 
 class AuthController {
+
+  // Cambio password utente autenticato
+  static async changePassword(req, res, next) {
+    console.log('>>> [DEBUG] ENTERED changePassword TOP (lines 12-60)');
+    try {
+      // DEBUG: logga il body ricevuto
+      console.log('DEBUG changePassword req.body:', req.body);
+      const user = req.user;
+      const { currentPassword, newPassword } = req.body;
+      // Log valori estratti
+      console.log('DEBUG controller currentPassword:', currentPassword, 'newPassword:', newPassword);
+      // Controllo robusto: stringhe vuote/spazi
+      if (!currentPassword || !newPassword || !currentPassword.trim() || !newPassword.trim()) {
+        throw new ValidationError('Password attuale e nuova password sono obbligatorie');
+      }
+      // Verifica password attuale
+      const isMatch = await user.verifyPassword(currentPassword);
+      if (!isMatch) {
+        throw new UnauthorizedError('La password attuale non è corretta');
+      }
+      // Valida nuova password
+      if (!authConfig.isValidPassword(newPassword)) {
+        throw new ValidationError('La nuova password non rispetta i requisiti di sicurezza');
+      }
+      // Aggiorna hash
+      const bcrypt = require('bcryptjs');
+      const newHash = await bcrypt.hash(newPassword, authConfig.saltRounds || 10);
+      await user.updatePasswordHash(newHash);
+      logger.info('Password cambiata', { userId: user.id });
+      res.json({ success: true, message: 'Password aggiornata con successo' });
+    } catch (error) {
+      logger.warn('Errore cambio password', { userId: req.user?.id, error: error.message });
+      next(error);
+    }
+  }
   // Registrazione nuovo utente
   static async register(req, res, next) {
     try {
@@ -25,8 +60,8 @@ class AuthController {
         throw new ValidationError('Password deve contenere almeno 8 caratteri, una maiuscola e un numero');
       }
 
-      // Verifica se email già esistente
-      const existingUser = await User.findByEmail(email);
+  // Verifica se email già esistente
+  const existingUser = await User.findByEmail(email, database.sqliteDb);
       if (existingUser) {
         throw new ConflictError('Email già registrata');
       }
@@ -37,7 +72,29 @@ class AuthController {
         password,
         name,
         ...profileData,
-      });
+      }, database.sqliteDb);
+
+      // Se sono presenti dati obiettivo, crea subito un NutritionGoal
+      const goalFields = [
+        'goal_type', 'target_weight', 'start_date'
+      ];
+      const goalData = {};
+      for (const field of goalFields) {
+        if (req.body[field] !== undefined) goalData[field] = req.body[field];
+      }
+      let createdGoal = null;
+      if (goalData.goal_type) {
+        const NutritionGoal = require('../models/NutritionGoal');
+        createdGoal = await NutritionGoal.create({
+          user_id: user.id,
+          is_active: 1,
+          ...goalData
+        });
+        logger.info('Obiettivo nutrizionale creato contestualmente alla registrazione', {
+          userId: user.id,
+          goal_type: goalData.goal_type
+        });
+      }
 
       // Log evento registrazione
       logger.info('Nuovo utente registrato', {
@@ -129,7 +186,7 @@ class AuthController {
       });
     } catch (error) {
       logger.error('Errore durante il login', { error: error.message });
-      throw error;
+      return next(error);
     }
   }
 
@@ -193,19 +250,24 @@ class AuthController {
   // Richiesta reset password
   static async forgotPassword(req, res, next) {
     try {
+      if (!req || !req.body) {
+        logger.error('forgotPassword: req o req.body undefined', { req });
+        throw new ValidationError('Richiesta non valida: corpo mancante');
+      }
+      logger.info('forgotPassword: req.body ricevuto', { body: req.body });
       const { email } = req.body;
 
       if (!email || !email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
         throw new ValidationError('Indirizzo email non valido');
       }
 
-      // Trova utente
-      const user = await User.findByEmail(email);
+  // Trova utente
+  const user = await User.findByEmail(email, database.sqliteDb);
       if (!user) {
         // Non rivelare se l'email esiste o meno per sicurezza
         return res.json({
           success: true,
-          message: 'Se l\'email esiste, riceverai le istruzioni per il reset della password'
+          message: 'Se l\'email esiste, riceverai una nuova password temporanea'
         });
       }
 
@@ -214,29 +276,34 @@ class AuthController {
         throw new Error('Servizio email non configurato');
       }
 
-      // Genera token reset
-      const resetToken = authConfig.generateResetToken(user.id);
-      await user.setResetToken(resetToken);
+      // Genera password temporanea sicura
+      const tempPassword = Math.random().toString(36).slice(-10) + Math.floor(Math.random()*100);
+      const bcrypt = require('bcryptjs');
+      const saltRounds = authConfig.getSaltRounds ? authConfig.getSaltRounds() : 10;
+      const passwordHash = await bcrypt.hash(tempPassword, saltRounds);
+
+      // Aggiorna la password dell'utente nel db
+      await user.updatePasswordHash(passwordHash);
 
       try {
-        // Invia email
-        await emailConfig.sendPasswordResetEmail(user.email, resetToken, user.name);
-        logger.info('Email reset password inviata', {
+        // Invia email con la password temporanea
+        await emailConfig.sendTemporaryPasswordEmail(user.email, tempPassword, user.name);
+        logger.info('Email password temporanea inviata', {
           userId: user.id,
           email: user.email
         });
       } catch (error) {
-        logger.error('Errore invio email reset password', {
+        logger.error('Errore invio email password temporanea', {
           userId: user.id,
           email: user.email,
           error: error.message
         });
-        throw new Error('Errore invio email reset password');
+        throw new Error('Errore invio email password temporanea');
       }
 
       res.json({
         success: true,
-        message: 'Se l\'email esiste, riceverai le istruzioni per il reset della password'
+        message: 'Se l\'email esiste, riceverai una nuova password temporanea'
       });
     } catch (error) {
       logger.error('Errore richiesta reset password', { error: error.message });
@@ -244,107 +311,8 @@ class AuthController {
     }
   }
 
-  // Reset password con token
-  static async resetPassword(req, res, next) {
-    try {
-      const { token } = req.params;
-      const { password, confirmPassword } = req.body;
 
-      if (!token || !password || !confirmPassword) {
-        throw new ValidationError('Token e nuova password sono obbligatori');
-      }
 
-      if (password !== confirmPassword) {
-        throw new ValidationError('Le password non corrispondono');
-      }
-
-      if (!authConfig.isValidPassword(password)) {
-        throw new ValidationError('Password deve contenere almeno 8 caratteri, una maiuscola e un numero');
-      }
-
-      // Verifica token
-      const payload = authConfig.verifyResetToken(token);
-      const user = await User.findById(payload.userId);
-
-      if (!user || user.reset_token !== token) {
-        logger.warn('Tentativo reset password con token non valido', {
-          token,
-          userId: payload.userId
-        });
-        throw new UnauthorizedError('Token reset non valido o scaduto');
-      }
-
-      if (user.reset_token_expires && new Date() > new Date(user.reset_token_expires)) {
-        logger.warn('Tentativo reset password con token scaduto', {
-          userId: user.id,
-          email: user.email
-        });
-        throw new UnauthorizedError('Token reset scaduto');
-      }
-
-      // Cambia password
-      await user.changePassword(password);
-
-      logger.info('Password resettata con successo', {
-        userId: user.id,
-        email: user.email,
-        ip: req.ip
-      });
-
-      res.json({
-        success: true,
-        message: 'Password cambiata con successo'
-      });
-    } catch (error) {
-      logger.error('Errore reset password', { error: error.message });
-      next(error);
-    }
-  }
-
-  // Cambio password (utente autenticato)
-  static async changePassword(req, res, next) {
-    try {
-      const { currentPassword, newPassword, confirmPassword } = req.body;
-
-      if (!currentPassword || !newPassword || !confirmPassword) {
-        throw new ValidationError('Password attuale e nuova password sono obbligatorie');
-      }
-
-      if (newPassword !== confirmPassword) {
-        throw new ValidationError('Le nuove password non corrispondono');
-      }
-
-      if (!authConfig.isValidPassword(newPassword)) {
-        throw new ValidationError('Password deve contenere almeno 8 caratteri, una maiuscola e un numero');
-      }
-
-      const isCurrentPasswordValid = await req.user.verifyPassword(currentPassword);
-      if (!isCurrentPasswordValid) {
-        logger.warn('Tentativo cambio password con password attuale errata', {
-          userId: req.user.id,
-          email: req.user.email,
-          ip: req.ip
-        });
-        throw new UnauthorizedError('Password attuale non corretta');
-      }
-
-      await req.user.changePassword(newPassword);
-
-      logger.info('Password cambiata con successo', {
-        userId: req.user.id,
-        email: req.user.email,
-        ip: req.ip
-      });
-
-      res.json({
-        success: true,
-        message: 'Password cambiata con successo'
-      });
-    } catch (error) {
-      logger.error('Errore cambio password', { error: error.message });
-      next(error);
-    }
-  }
 
   // Profilo utente
   static async getProfile(req, res, next) {
@@ -401,40 +369,6 @@ class AuthController {
     }
   }
 
-  // Verifica token reset (controllo validità)
-  static async verifyResetToken(req, res, next) {
-    try {
-      const { token } = req.params;
-
-      // Verifica token
-      const payload = authConfig.verifyResetToken(token);
-      const user = await User.findById(payload.userId);
-
-      if (!user || user.reset_token !== token) {
-        throw new UnauthorizedError('Token reset non valido');
-      }
-
-      // Verifica scadenza
-      if (user.reset_token_expires && new Date() > new Date(user.reset_token_expires)) {
-        throw new UnauthorizedError('Token reset scaduto');
-      }
-
-      res.json({
-        success: true,
-        message: 'Token reset valido',
-        data: {
-          email: user.email,
-          expiresAt: user.reset_token_expires,
-        },
-      });
-    } catch (error) {
-      logger.error('Errore verifica token reset', { 
-        error: error.message,
-        token: req.params.token
-      });
-      next(error);
-    }
-  }
 
   // Elimina account
   static async deleteAccount(req, res, next) {

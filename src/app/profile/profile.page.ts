@@ -18,8 +18,6 @@ import {
   IonItem,
   IonLabel,
   IonIcon,
-  IonAvatar,
-  IonToggle,
   IonSpinner,
   IonRefresher,
   IonRefresherContent,
@@ -78,20 +76,44 @@ import { Subscription } from 'rxjs';
     IonCardHeader,
     IonCardTitle,
     IonCardContent,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonIcon,
-    IonAvatar,
-    IonToggle,
-    IonSpinner,
-    IonRefresher,
-    IonRefresherContent,
-    IonBadge,
-    IonChip
+  IonList,
+  IonItem,
+  IonLabel,
+  IonIcon,
+  IonSpinner,
+  IonRefresher,
+  IonRefresherContent,
+  IonBadge,
+  IonChip
   ]
 })
 export class ProfilePage implements OnInit, OnDestroy {
+  async takePhoto() {
+    await this.showToast('Funzionalità non ancora disponibile', 'warning');
+  }
+
+  async selectFromGallery() {
+    await this.showToast('Funzionalità non ancora disponibile', 'warning');
+  }
+
+  async removeAvatar() {
+    await this.showToast('Funzionalità non ancora disponibile', 'warning');
+  }
+  /**
+   * Restituisce una stringa con i nomi degli allergeni separati da virgola
+   */
+  getAllergyNames(): string {
+    if (!this.user?.allergies || this.user.allergies.length === 0) return 'Nessuno';
+    return this.user.allergies.map(a => a.allergen_name).join(', ');
+  }
+
+  /**
+   * Restituisce una stringa con i nomi degli additivi sensibili separati da virgola
+   */
+  getAdditiveNames(): string {
+    if (!this.user?.additives_sensitivity || this.user.additives_sensitivity.length === 0) return 'Nessuno';
+    return this.user.additives_sensitivity.map(a => a.additive_name).join(', ');
+  }
   private authService = inject(AuthService);
   private apiService = inject(ApiService);
   private router = inject(Router);
@@ -116,84 +138,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  /**
-   * Carica il profilo utente
-   */
-  async loadUserProfile(event?: any) {
-    if (!event) {
-      this.isLoading = true;
-    }
-
-    try {
-      // TODO: Implementare chiamata API reale
-      // const userProfile = await this.apiService.getUserProfile().toPromise();
-      
-      // Mock data per ora
-      this.user = {
-        id: 1,
-        name: 'Mario Rossi',
-        email: 'mario.rossi@email.com',
-        birth_date: '1990-05-15',
-        dateOfBirth: new Date('1990-05-15'),
-        gender: 'male',
-        height: 175,
-        weight: 70,
-        avatar: null,
-        nutritionGoals: {
-          daily_calories: 2000,
-          dailyCalories: 2000,
-          daily_proteins: 150,
-          daily_carbs: 250,
-          daily_fats: 67,
-          goal_type: 'maintain',
-          goal: 'maintain', 
-          activityLevel: 'moderate'
-        },
-        preferences: {
-          notifications: true,
-          darkMode: false,
-          units: 'metric'
-        },
-        allergies: [
-          {
-            allergen_code: 'nuts',
-            allergen_name: 'Frutta a guscio',
-            severity: 'severe'
-          },
-          {
-            allergen_code: 'lactose',
-            allergen_name: 'Lattosio',
-            severity: 'moderate'
-          }
-        ],
-        additives_sensitivity: [
-          {
-            additive_code: 'E621',
-            additive_name: 'Glutammato monosodico',
-            sensitivity_level: 'medium'
-          }
-        ],
-        totalMeals: 145,
-        currentStreak: 7,
-        joinDate: new Date('2024-01-15'),
-        created_at: '2024-01-15T10:00:00Z',
-        updated_at: '2024-01-15T10:00:00Z'
-      };
-
-      if (event) {
-        event.target.complete();
-      }
-    } catch (error) {
-      console.error('Errore caricamento profilo:', error);
-      await this.showToast('Errore nel caricamento del profilo', 'danger');
-      
-      if (event) {
-        event.target.complete();
-      }
-    } finally {
-      this.isLoading = false;
-    }
-  }
 
   /**
    * Calcola età dell'utente
@@ -217,16 +161,53 @@ export class ProfilePage implements OnInit, OnDestroy {
    * Calcola giorni attivi
    */
   getDaysActive(): number {
-    if (!this.user?.joinDate) return 0;
-    
-    const today = new Date();
-    const joinDate = new Date(this.user.joinDate);
-    const timeDiff = today.getTime() - joinDate.getTime();
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    
-    return daysDiff;
+    if (this.user?.created_at) {
+      const today = new Date();
+      const start = new Date(this.user.created_at);
+      const diff = today.getTime() - start.getTime();
+      return Math.max(1, Math.ceil(diff / (1000 * 3600 * 24)));
+    }
+    return 0;
   }
 
+  /**
+   * Carica il profilo utente
+   */
+  async loadUserProfile(event?: any) {
+    if (!event) {
+      this.isLoading = true;
+    }
+
+    try {
+      const userProfile = await this.apiService.getUserProfile().toPromise();
+      if (userProfile && userProfile.data) {
+        const data = userProfile.data;
+        let user: any = (typeof data === 'object' && 'user' in data) ? (data as any).user : data;
+        // Mappa date e fallback
+        user = {
+          ...user,
+          dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth) : (user.date_of_birth ? new Date(user.date_of_birth) : undefined),
+          createdAt: user.createdAt ? new Date(user.createdAt) : undefined,
+        };
+        // Merge activeGoal as nutritionGoals if presente
+        if (typeof data === 'object' && 'activeGoal' in data && data.activeGoal) {
+          user.nutritionGoals = (data as any).activeGoal;
+        }
+        this.user = user;
+      }
+      if (event) {
+        event.target.complete();
+      }
+    } catch (error) {
+      console.error('Errore caricamento profilo:', error);
+      await this.showToast('Errore nel caricamento del profilo', 'danger');
+      if (event) {
+        event.target.complete();
+      }
+    } finally {
+      this.isLoading = false;
+    }
+  }
   /**
    * Ottieni label obiettivo
    */
@@ -396,35 +377,7 @@ export class ProfilePage implements OnInit, OnDestroy {
         }
       ]
     });
-
     await actionSheet.present();
-  }
-
-  /**
-   * Scatta foto per avatar
-   */
-  async takePhoto() {
-    // TODO: Implementare capture camera con Capacitor
-    await this.showToast('Funzionalità camera in sviluppo', 'warning');
-  }
-
-  /**
-   * Seleziona foto dalla galleria
-   */
-  async selectFromGallery() {
-    // TODO: Implementare selezione da galleria con Capacitor
-    await this.showToast('Funzionalità galleria in sviluppo', 'warning');
-  }
-
-  /**
-   * Rimuovi avatar
-   */
-  async removeAvatar() {
-    if (this.user) {
-      this.user.avatar = null;
-      // TODO: Salvare su backend
-      await this.showToast('Avatar rimosso', 'success');
-    }
   }
 
   /**

@@ -28,7 +28,7 @@ const nutritionRoutes = require('./routes/nutrition');
 const italianFoodRoutes = require('./routes/italian-food');
 const activityRoutes = require('./routes/activities');
 const analyticsRoutes = require('./routes/analytics');
-const pantryRoutes = require('./routes/pantry');
+const createPantryRouter = require('./routes/pantry');
 
 class NutriJournalServer {
   constructor() {
@@ -47,6 +47,41 @@ class NutriJournalServer {
       // Inizializza database
       await database.initialize();
       console.log('✅ Database inizializzato');
+
+      // Forza la creazione della tabella nutrition_trends se non esiste
+      if (database.sqliteDb) {
+        database.sqliteDb.run(`
+          CREATE TABLE IF NOT EXISTS nutrition_trends (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            date DATE NOT NULL,
+            calories_consumed DECIMAL(8,2) DEFAULT 0,
+            calories_goal DECIMAL(8,2) DEFAULT 0,
+            calories_burned DECIMAL(8,2) DEFAULT 0,
+            proteins_consumed DECIMAL(8,2) DEFAULT 0,
+            proteins_goal DECIMAL(8,2) DEFAULT 0,
+            carbs_consumed DECIMAL(8,2) DEFAULT 0,
+            carbs_goal DECIMAL(8,2) DEFAULT 0,
+            fats_consumed DECIMAL(8,2) DEFAULT 0,
+            fats_goal DECIMAL(8,2) DEFAULT 0,
+            fiber_consumed DECIMAL(8,2) DEFAULT 0,
+            water_consumed DECIMAL(8,2) DEFAULT 0,
+            meals_count INTEGER DEFAULT 0,
+            activities_count INTEGER DEFAULT 0,
+            weight_kg DECIMAL(5,2),
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            UNIQUE(user_id, date)
+          )
+        `, (err) => {
+          if (err) {
+            console.error('❌ Errore creazione tabella nutrition_trends:', err);
+          } else {
+            console.log('✅ Tabella nutrition_trends creata/verificata');
+          }
+        });
+      }
 
       // Inizializza configurazione email
       await emailConfig.initialize();
@@ -90,7 +125,7 @@ class NutriJournalServer {
     this.app.use(helmetConfig);
 
     // CORS configurato per Ionic
-    this.app.use(cors(corsOptions));
+    this.app.use(cors());
 
     // Rate limiting base
     this.app.use(rateLimiter);
@@ -111,6 +146,14 @@ class NutriJournalServer {
     // Body parsing
     this.app.use(express.json({ limit: '10mb' }));
     this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+    // DEBUG: logga ogni req.body ricevuto
+    this.app.use((req, res, next) => {
+      if (req.body && Object.keys(req.body).length > 0) {
+        console.log('DEBUG GLOBAL req.body:', req.method, req.path, req.body);
+      }
+      next();
+    });
 
     // Request logging
     this.app.use(requestLogger);
@@ -181,7 +224,9 @@ class NutriJournalServer {
     this.app.use('/api/italian-food', italianFoodRoutes);
     this.app.use('/api/activities', activityRoutes);
     this.app.use('/api/analytics', analyticsRoutes);
-    this.app.use('/api/pantry', pantryRoutes);
+  // Inizializza pantry router con db solo dopo che il db è pronto
+  const pantryRouter = createPantryRouter(this.database.sqliteDb);
+  this.app.use('/api/pantry', pantryRouter);
 
     // 404 handler per API
     this.app.use('/api/*', (req, res) => {

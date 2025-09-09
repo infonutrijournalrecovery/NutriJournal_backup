@@ -21,6 +21,8 @@ export interface User {
   totalMeals?: number;
   currentStreak?: number;
   joinDate?: Date;
+  age?: number; // Età calcolata dal backend
+  dailyCalories?: number; // Kcal giornaliere obiettivo dal backend
   created_at: string;
   updated_at: string;
 }
@@ -28,7 +30,6 @@ export interface User {
 export interface UserPreferences {
   notifications: boolean;
   darkMode: boolean;
-  units: 'metric' | 'imperial';
   language?: string;
 }
 
@@ -89,7 +90,10 @@ export interface AuthResponse {
   message: string;
   data?: {
     user: User;
-    token: string;
+    tokens: {
+      accessToken: string;
+      refreshToken: string;
+    };
   };
   errors?: any[];
 }
@@ -181,6 +185,7 @@ export interface NutritionGoals {
   user_id?: number;
   daily_calories: number;
   dailyCalories?: number; // Per compatibilità frontend
+  calories_target?: number; // Per compatibilità backend/template
   daily_proteins: number;
   daily_carbs: number;
   daily_fats: number;

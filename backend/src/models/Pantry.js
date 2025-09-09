@@ -1,6 +1,20 @@
 const sqlite3 = require('sqlite3');
 
 class Pantry {
+
+    // Verifica se un prodotto è già in dispensa per l'utente (usando nome + brand)
+    async hasProduct(userId, name, brand) {
+                        const sql = `
+                                SELECT COUNT(*) as count
+                                FROM pantry_items pi
+                                JOIN products p ON pi.product_id = p.id
+                                WHERE pi.user_id = ?
+                                    AND p.name = ?
+                                    AND p.brand = ?
+                        `;
+                const row = await this.getQuery(sql, [userId, name, brand]);
+        return row && row.count > 0;
+    }
     constructor(database) {
         this.db = database;
     }

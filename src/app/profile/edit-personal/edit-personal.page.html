@@ -35,7 +35,7 @@
       </ion-card-header>
       
       <ion-card-content>
-        <form #personalForm="ngForm">
+  <form #personalForm="ngForm" (ngSubmit)="$event.preventDefault()">
           
           <!-- Nome -->
           <ion-item class="form-item">
@@ -119,7 +119,7 @@
       </ion-card-header>
       
       <ion-card-content>
-        <form #physicalForm="ngForm">
+  <form #physicalForm="ngForm" (ngSubmit)="$event.preventDefault()">
           
           <!-- Genere -->
           <ion-item class="form-item">

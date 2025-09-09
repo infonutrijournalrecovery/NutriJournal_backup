@@ -10,7 +10,57 @@ class UserController {
       // Carica obiettivo attivo
       const activeGoal = await NutritionGoal.findActiveByUser(req.user.id);
 
-      // Filtra i dati sensibili dell'utente
+      // Estrai allergeni e additivi dal DB
+      const db = req.user.db;
+      const allergies = await new Promise((resolve) => {
+        db.all(
+          'SELECT id, allergen_code, allergen_name, severity, notes, created_at FROM user_allergies WHERE user_id = ?',
+          [req.user.id],
+          (err, rows) => {
+            if (err) return resolve([]);
+            resolve(rows || []);
+          }
+        );
+      });
+      const additives_sensitivity = await new Promise((resolve) => {
+        db.all(
+          'SELECT id, additive_code, additive_name, sensitivity_level, notes, created_at FROM user_additive_sensitivities WHERE user_id = ?',
+          [req.user.id],
+          (err, rows) => {
+            if (err) return resolve([]);
+            resolve(rows || []);
+          }
+        );
+      });
+
+      // Calcola età
+      let age = null;
+      if (req.user.date_of_birth) {
+        const birth = new Date(req.user.date_of_birth);
+        const today = new Date();
+        age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+          age--;
+        }
+      }
+
+      // Calorie giornaliere obiettivo
+      let dailyCalories = null;
+      if (activeGoal && activeGoal.calories_target) {
+        dailyCalories = activeGoal.calories_target;
+      }
+
+      // Pasti registrati e streak
+      const Meal = require('../models/Meal');
+      const mealStats = await Meal.getUserMealStats(req.user.id, 365);
+      const totalMeals = mealStats?.total_meals || 0;
+
+      const Analytics = require('../models/Analytics');
+      const analytics = new Analytics(db);
+      const dashboard = await analytics.getDashboard(req.user.id, 365);
+      const currentStreak = dashboard?.streaks?.current || 0;
+
       const safeUserData = {
         id: req.user.id,
         email: req.user.email,
@@ -24,7 +74,13 @@ class UserController {
         timezone: req.user.timezone,
         language: req.user.language,
         createdAt: req.user.createdAt,
-        updatedAt: req.user.updatedAt
+        updatedAt: req.user.updatedAt,
+        allergies,
+        additives_sensitivity,
+        age,
+        dailyCalories,
+        totalMeals,
+        currentStreak
       };
 
       res.json({
@@ -37,7 +93,9 @@ class UserController {
 
       logger.info('Profilo utente recuperato', {
         userId: req.user.id,
-        hasActiveGoal: !!activeGoal
+        hasActiveGoal: !!activeGoal,
+        totalMeals,
+        currentStreak
       });
     } catch (error) {
       logger.error('Errore recupero profilo utente', {
@@ -292,12 +350,7 @@ class UserController {
         privacy: {
           data_sharing: false,
           analytics: true,
-        },
-        units: {
-          weight: 'kg',
-          height: 'cm',
-          temperature: 'celsius',
-        },
+        }
       };
 
       res.json({

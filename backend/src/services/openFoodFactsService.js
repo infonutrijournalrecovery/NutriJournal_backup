@@ -1,3 +1,4 @@
+const translationService = require('./translationService');
 const axios = require('axios');
 const { logger } = require('../middleware/logging');
 const usdaService = require('./usdaService');
@@ -103,6 +104,16 @@ class OpenFoodFactsService {
                     // Popolarità dal numero di scansioni
                     const popularity = product.unique_scans_n || 0;
                     
+                    // Estrai additivi da tutti i possibili campi
+                    let additives = [];
+                    if (Array.isArray(product.additives_tags) && product.additives_tags.length > 0) {
+                        additives = product.additives_tags;
+                    } else if (Array.isArray(product.additives_original_tags) && product.additives_original_tags.length > 0) {
+                        additives = product.additives_original_tags;
+                    } else if (typeof product.additives === 'string' && product.additives.length > 0) {
+                        additives = product.additives.split(',').map(a => a.trim());
+                    }
+
                     return {
                         id: product.code,
                         name: productName,
@@ -136,7 +147,8 @@ class OpenFoodFactsService {
                             saturated_fat: Math.round(nutritionPerServing.saturated_fat * 10) / 10
                         } : null,
                         categories: product.categories ? product.categories.split(',').map(c => c.trim()) : [],
-                        allergens: product.allergens ? product.allergens.split(',').map(a => a.trim()) : [],
+                        allergens: typeof product.allergens === 'string' ? product.allergens.split(',').map(a => a.trim()) : [],
+                        additives: additives,
                         ingredients: product.ingredients_text,
                         eco_score: product.ecoscore_grade,
                         nutri_score: product.nutriscore_grade,
@@ -250,6 +262,94 @@ class OpenFoodFactsService {
             acc[key] = Math.round(value * servingRatio * 10) / 10;
             return acc;
         }, {});
+    }
+
+    async getProductByBarcode(barcode) {
+    console.log('DEBUG: getProductByBarcode chiamato per', barcode);
+    console.log('[DEBUG] getProductByBarcode chiamato per barcode:', barcode);
+    try {
+            const url = `https://world.openfoodfacts.org/api/v2/product/${barcode}`;
+            const response = await axios.get(url);
+
+            if (!response.data || response.data.status === 0) {
+                logger.warn('Prodotto non trovato su OpenFoodFacts', { barcode });
+                return null;
+            }
+
+            const product = response.data.product;
+            if (!product) {
+                return null;
+            }
+
+            // Parsing campi secondo struttura v2
+            const servingSize = product.serving_size || '100g';
+            const servingQuantity = product.serving_quantity || 100;
+            const unit = this.extractUnit(servingSize);
+            const nutritionPerServing = this.calculateNutritionPerServing(product);
+
+
+            // Additivi: estrai sempre entrambi i campi se presenti
+            let additives = [];
+            if (Array.isArray(product.additives_tags) && product.additives_tags.length > 0) {
+                additives = product.additives_tags;
+            } else if (Array.isArray(product.additives_original_tags) && product.additives_original_tags.length > 0) {
+                additives = product.additives_original_tags;
+            } else {
+                // fallback: log per debug
+                if (process.env.NODE_ENV !== 'production') {
+                    console.log('DEBUG OpenFoodFacts: struttura prodotto senza additivi:', JSON.stringify(product, null, 2));
+                }
+            }
+
+            // Allergeni: estrai sempre allergens_tags se presente, fallback su stringa
+            let allergens = [];
+            if (Array.isArray(product.allergens_tags) && product.allergens_tags.length > 0) {
+                allergens = product.allergens_tags;
+            } else if (typeof product.allergens === 'string' && product.allergens.length > 0) {
+                allergens = product.allergens.split(',').map(a => a.trim());
+            } else {
+                allergens = [];
+                // fallback: log per debug
+                if (process.env.NODE_ENV !== 'production') {
+                    console.log('DEBUG OpenFoodFacts: struttura prodotto senza allergeni:', JSON.stringify(product, null, 2));
+                }
+            }
+            // Traduci allergeni in italiano SOLO ora che allergens è definito
+            let allergens_it = null;
+            if (Array.isArray(allergens) && allergens.length > 0) {
+                allergens_it = translationService.translateAllergens(allergens.join(','));
+            }
+
+            return {
+                id: product.code,
+                name: product.product_name || product.product_name_en,
+                brand: product.brands,
+                image: product.image_url,
+                serving: {
+                    size: servingSize,
+                    quantity: servingQuantity,
+                    unit: unit,
+                    description: `${servingSize} (${servingQuantity}${unit})`
+                },
+                nutrition_per_100g: this.calculateNutritionPer100g(product),
+                nutrition_per_serving: nutritionPerServing,
+                categories: product.categories ? product.categories.split(',').map(c => c.trim()) : [],
+                allergens: allergens,
+                allergens_it: allergens_it,
+                additives: additives,
+                ingredients: product.ingredients_text,
+                eco_score: product.ecoscore_grade,
+                nutri_score: product.nutriscore_grade,
+                popularity: product.unique_scans_n || 0,
+                countries: product.countries_tags || []
+            };
+        } catch (error) {
+            logger.error('Errore nel recupero del prodotto da OpenFoodFacts', {
+                error: error.message,
+                barcode
+            });
+            throw error;
+        }
     }
 }
 

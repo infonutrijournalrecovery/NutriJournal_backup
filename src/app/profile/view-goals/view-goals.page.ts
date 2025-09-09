@@ -178,45 +178,29 @@ export class ViewGoalsPage implements OnInit {
     this.deviceInfo = this.deviceService.getDeviceInfo();
     this.isDesktop = this.deviceInfo.isDesktop;
     this.isMobile = this.deviceInfo.isMobile;
-    
+
     this.isLoading = true;
-    
+
     try {
-      // In a real app, you would fetch from API
-      // For now, using mock data
-      const mockUser: User = {
-        id: 1,
-        firstName: 'Mario',
-        lastName: 'Rossi',
-        email: 'mario.rossi@email.com',
-        birthDate: '1990-05-15',
-        gender: 'male',
-        height: 175,
-        weight: 70.5,
-        activity_level: 'moderate',
-        preferences: {
-          notifications: true,
-          darkMode: false,
-          units: 'metric'
-        },
-        totalMeals: 145,
-        currentStreak: 7,
-        joinDate: new Date('2024-01-15'),
-        created_at: '2024-01-15T10:00:00Z',
-        updated_at: '2024-01-15T10:00:00Z'
-      };
+      // Caricamento dati reali utente dal backend
+      const response = await this.apiService.getUserProfile().toPromise();
+      const data = response?.data;
+      if (!data) throw new Error('Dati utente non disponibili');
 
-      this.user = mockUser;
-      
-      // Extract user data for calculations
-      this.userAge = this.calculateAge(mockUser.birthDate || '1990-05-15');
-      this.userWeight = mockUser.weight || 70;
-      this.userHeight = mockUser.height || 175;
-      this.userGender = mockUser.gender || 'male';
-      this.userActivityLevel = mockUser.activity_level || 'moderate';
+      // Support both { user, activeGoal } and flat user
+  const user = (typeof data === 'object' && 'user' in data) ? (data as any).user : data;
+  this.user = user;
 
-      // Get current goal (in a real app, this would be stored in user preferences)
-      this.currentGoal = 'maintain_weight'; // Default goal
+  // Extract data for calculations
+  this.userAge = this.calculateAge(user.birthDate || user.birth_date || '1990-05-15');
+  this.userWeight = user.weight || 70;
+  this.userHeight = user.height || 175;
+  this.userGender = user.gender || 'male';
+  this.userActivityLevel = user.activity_level || 'moderate';
+
+  // Get current goal (if present, else default)
+  let activeGoal = (typeof data === 'object' && 'activeGoal' in data) ? (data as any).activeGoal : undefined;
+  this.currentGoal = (user.nutritionGoals?.goal_type as GoalType) || (activeGoal?.goal_type as GoalType) || 'maintain_weight';
 
       // Calculate nutrition goals
       this.calculateGoals();

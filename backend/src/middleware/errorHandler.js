@@ -1,4 +1,4 @@
-const { logger, logSecurity } = require('./logging');
+const { logger } = require('./logging');
 const config = require('../config/environment');
 
 // Error handler semplificato
@@ -107,7 +107,7 @@ const errorHandler = (error, req, res, next) => {
 
   // Log eventi di sicurezza
   if (statusCode === 401 || statusCode === 403) {
-    logSecurity('access_denied', {
+    logger.warn('Accesso negato', {
       url: req.url,
       method: req.method,
       ip: req.ip,

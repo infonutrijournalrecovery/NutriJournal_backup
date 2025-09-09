@@ -222,9 +222,9 @@ class TranslationService {
 
   // Traduce allergeni
   translateAllergens(allergens) {
-    if (!allergens) return null;
+  if (typeof allergens !== 'string' || !allergens) return null;
 
-    const allergenList = allergens.split(',').map(all => all.trim());
+  const allergenList = allergens.split(',').map(all => all.trim());
     const translatedAllergens = allergenList.map(allergen => {
       const normalizedAllergen = allergen.toLowerCase().replace(/^en:/, 'en:');
       return this.allergenTranslations[normalizedAllergen] || allergen;

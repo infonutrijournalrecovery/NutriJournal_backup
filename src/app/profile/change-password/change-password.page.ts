@@ -242,10 +242,20 @@ export class ChangePasswordPage implements OnInit {
    * Submit password change
    */
   async changePassword() {
-    if (!this.isFormValid()) {
-      await this.showToast('Completa tutti i campi richiesti', 'warning');
+    if (!this.formData.currentPassword || !this.formData.newPassword || !this.formData.confirmPassword) {
+      await this.showToast('Compila tutti i campi password', 'warning');
       return;
     }
+    if (!this.isFormValid()) {
+      await this.showToast('La nuova password non rispetta i requisiti o le password non coincidono', 'warning');
+      return;
+    }
+
+    // DEBUG: logga i dati che verranno inviati
+    console.log('DEBUG changePassword payload:', {
+      currentPassword: this.formData.currentPassword,
+      newPassword: this.formData.newPassword
+    });
 
     this.isSubmitting = true;
     this.clearErrors();
