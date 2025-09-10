@@ -73,7 +73,7 @@ class PantryController {
     static async addToPantry(req, res, next) {
         try {
             const { productId } = req.params;
-            const { barcode, name, brand, category, quantity = 1, unit = 'pz', expiry_date = null, purchase_date = null, location = 'dispensa', notes = '', price = null, nutritional_info = null } = req.body;
+            const { barcode, name, brand, category, quantity = 1, unit = 'pz' } = req.body;
             const userId = req.user.id;
 
             // Validazione
@@ -91,13 +91,7 @@ class PantryController {
                 brand,
                 category,
                 quantity,
-                unit,
-                purchase_date,
-                expiry_date,
-                location,
-                notes,
-                price,
-                nutritional_info
+                unit
             });
 
             res.json({
@@ -139,19 +133,17 @@ class PantryController {
      * @param {Function} next - Next middleware function
      */
     async addItem(req, res, next) {
+
         try {
+            // Log dettagliato per debug
+            console.log('DEBUG addItem req.body:', req.body);
             const { 
                 product_id, barcode, name, brand, category, 
                 quantity, unit, expiry_date, purchase_date, 
                 cost, location, notes 
             } = req.body;
 
-            // Validazione campi obbligatori
-            if (!name || !quantity || !unit) {
-                throw new ValidationError('Nome, quantità e unità di misura sono obbligatori');
-            }
-
-            // Validazione quantità
+            // Validazione quantità (Joi già controlla required, qui solo valore positivo)
             if (isNaN(quantity) || quantity <= 0) {
                 throw new ValidationError('La quantità deve essere un numero positivo');
             }
@@ -170,22 +162,25 @@ class PantryController {
                 category
             });
 
-            const item = await this.pantryModel.addItem({
-                user_id: req.user.id,
-                product_id,
-                barcode,
-                name,
-                brand,
-                category,
-                quantity,
-                unit,
-                expiry_date,
-                purchase_date,
-                cost,
-                location,
-                notes,
-                created_at: new Date().toISOString()
-            });
+            // Mappa 'name' su 'product_name' per il model
+            const item = await this.pantryModel.addItem(
+                req.user.id,
+                {
+                    product_id,
+                    barcode,
+                    product_name: name,
+                    brand: brand || '',
+                    category: category || '',
+                    quantity,
+                    unit,
+                    expiry_date,
+                    purchase_date,
+                    cost,
+                    location,
+                    notes,
+                    created_at: new Date().toISOString()
+                }
+            );
 
             res.status(201).json({
                 success: true,
@@ -250,17 +245,12 @@ class PantryController {
                 pagination: { limit, offset }
             });
 
-            const items = await this.pantryModel.findByUser(
-                req.user.id, 
-                filters, 
-                search,
-                parseInt(limit), 
-                parseInt(offset),
-                sort_by,
-                sort_order
+            const items = await this.pantryModel.getItems(
+                req.user.id,
+                filters
             );
 
-            const total = await this.pantryModel.countByUser(req.user.id, filters, search);
+            const total = Array.isArray(items) ? items.length : 0;
 
             res.json({
                 success: true,

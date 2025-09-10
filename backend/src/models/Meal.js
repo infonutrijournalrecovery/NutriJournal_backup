@@ -580,31 +580,37 @@ class Meal {
 
   // Statistiche pasti utente
   static async getUserMealStats(userId, days = 30) {
-    try {
-      const endDate = new Date().toISOString().split('T')[0];
-      const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-
-      const stats = await this.db(this.tableName)
-        .where('user_id', userId)
-        .whereBetween('date', [startDate, endDate])
-        .select([
-          this.db.raw('COUNT(*) as total_meals'),
-          this.db.raw('AVG(total_calories) as avg_calories'),
-          this.db.raw('AVG(total_proteins) as avg_proteins'),
-          this.db.raw('AVG(total_carbs) as avg_carbs'),
-          this.db.raw('AVG(total_fats) as avg_fats'),
-          this.db.raw('COUNT(CASE WHEN meal_type = "breakfast" THEN 1 END) as breakfast_count'),
-          this.db.raw('COUNT(CASE WHEN meal_type = "lunch" THEN 1 END) as lunch_count'),
-          this.db.raw('COUNT(CASE WHEN meal_type = "dinner" THEN 1 END) as dinner_count'),
-          this.db.raw('COUNT(CASE WHEN meal_type = "snack" THEN 1 END) as snack_count'),
-        ])
-        .first();
-
-      return stats;
-    } catch (error) {
-      console.error('❌ Errore statistiche pasti utente:', error);
-      return null;
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        const db = this.db;
+        const endDate = new Date().toISOString().split('T')[0];
+        const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const sql = `
+          SELECT
+            COUNT(*) as total_meals,
+            AVG(total_calories) as avg_calories,
+            AVG(total_proteins) as avg_proteins,
+            AVG(total_carbs) as avg_carbs,
+            AVG(total_fats) as avg_fats,
+            SUM(CASE WHEN meal_type = 'breakfast' THEN 1 ELSE 0 END) as breakfast_count,
+            SUM(CASE WHEN meal_type = 'lunch' THEN 1 ELSE 0 END) as lunch_count,
+            SUM(CASE WHEN meal_type = 'dinner' THEN 1 ELSE 0 END) as dinner_count,
+            SUM(CASE WHEN meal_type = 'snack' THEN 1 ELSE 0 END) as snack_count
+          FROM meals
+          WHERE user_id = ? AND date BETWEEN ? AND ?
+        `;
+        db.get(sql, [userId, startDate, endDate], (err, row) => {
+          if (err) {
+            console.error('❌ Errore statistiche pasti utente:', err);
+            return reject(err);
+          }
+          resolve(row);
+        });
+      } catch (error) {
+        console.error('❌ Errore statistiche pasti utente:', error);
+        reject(error);
+      }
+    });
   }
 }
 

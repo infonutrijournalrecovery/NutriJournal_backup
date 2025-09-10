@@ -257,6 +257,7 @@ module.exports = {
   AuthMiddleware,
   authenticate: AuthMiddleware.verifyToken,
   verifyToken: AuthMiddleware.verifyToken,
+  authMiddleware: AuthMiddleware.verifyToken,
   requireRole: AuthMiddleware.requireRole,
   optionalAuth: AuthMiddleware.optionalAuth,
   getAuthContext: AuthMiddleware.getAuthContext,

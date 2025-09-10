@@ -100,10 +100,10 @@ class Database {
   }
 
   getConnection() {
-    if (!this.db) {
+    if (!this.sqliteDb) {
       throw new Error('Database non inizializzato. Chiamare initialize() prima.');
     }
-    return this.db;
+    return this.sqliteDb;
   }
 
   async close() {

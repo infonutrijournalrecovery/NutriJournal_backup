@@ -26,7 +26,7 @@ const productRoutes = require('./routes/products');
 const mealRoutes = require('./routes/meals');
 const nutritionRoutes = require('./routes/nutrition');
 const italianFoodRoutes = require('./routes/italian-food');
-const activityRoutes = require('./routes/activities');
+const setupActivitiesRoutes = require('./routes/activities');
 const analyticsRoutes = require('./routes/analytics');
 const createPantryRouter = require('./routes/pantry');
 
@@ -221,12 +221,20 @@ class NutriJournalServer {
     this.app.use('/api/products', productRoutes);
     this.app.use('/api/meals', mealRoutes);
     this.app.use('/api/nutrition', nutritionRoutes);
+
     this.app.use('/api/italian-food', italianFoodRoutes);
-    this.app.use('/api/activities', activityRoutes);
+
+    // Inizializza router attività solo dopo che il db è pronto
+    if (this.database && this.database.sqliteDb) {
+      const activitiesRouter = setupActivitiesRoutes(this.database.sqliteDb);
+      this.app.use('/api/activities', activitiesRouter);
+      const pantryRouter = createPantryRouter(this.database.sqliteDb);
+      this.app.use('/api/pantry', pantryRouter);
+    } else {
+      console.error('❌ Database non inizializzato, impossibile configurare /api/activities e /api/pantry');
+    }
+
     this.app.use('/api/analytics', analyticsRoutes);
-  // Inizializza pantry router con db solo dopo che il db è pronto
-  const pantryRouter = createPantryRouter(this.database.sqliteDb);
-  this.app.use('/api/pantry', pantryRouter);
 
     // 404 handler per API
     this.app.use('/api/*', (req, res) => {

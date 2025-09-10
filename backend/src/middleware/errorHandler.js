@@ -272,6 +272,7 @@ module.exports = {
   errorHandler,
   notFoundHandler,
   asyncErrorHandler,
+  handleErrors: asyncErrorHandler,
   correlationIdMiddleware,
   unhandledErrorMiddleware,
   

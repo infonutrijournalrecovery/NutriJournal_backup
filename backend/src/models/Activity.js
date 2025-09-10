@@ -25,14 +25,28 @@ const ACTIVITY_TYPES = {
         tennis: { name: 'Tennis', met: 5.0 },
         volleyball: { name: 'Pallavolo', met: 3.0 },
     },
-    OTHER: {
-        dancing: { name: 'Ballo', met: 4.8 },
-        hiking: { name: 'Escursione', met: 6.0 },
-        gardening: { name: 'Giardinaggio', met: 3.5 },
-    }
 };
 
 class Activity {
+    // Conta il numero totale di attività per utente e filtri opzionali
+    async countByUser(userId, filters = {}) {
+        let sql = `SELECT COUNT(*) as total FROM activities WHERE user_id = ?`;
+        const params = [userId];
+        if (filters.date) {
+            sql += ` AND date = ?`;
+            params.push(filters.date);
+        }
+        if (filters.type) {
+            sql += ` AND type = ?`;
+            params.push(filters.type);
+        }
+        return new Promise((resolve, reject) => {
+            this.db.get(sql, params, (err, row) => {
+                if (err) reject(err);
+                else resolve(row.total);
+            });
+        });
+    }
     constructor(database) {
         this.db = database;
         this.ACTIVITY_TYPES = ACTIVITY_TYPES;
@@ -48,17 +62,8 @@ class Activity {
                 name VARCHAR(255) NOT NULL,
                 duration_minutes INTEGER NOT NULL,
                 calories_burned DECIMAL(8,2) DEFAULT 0,
-                intensity VARCHAR(20) DEFAULT 'moderate',
                 date DATE NOT NULL,
-                start_time TIME,
-                end_time TIME,
-                notes TEXT,
-                heart_rate_avg INTEGER,
-                heart_rate_max INTEGER,
                 distance_km DECIMAL(10,2),
-                steps INTEGER,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
             )
         `;
@@ -83,30 +88,19 @@ class Activity {
             name,
             duration_minutes,
             calories_burned = 0,
-            intensity = 'moderate',
             date,
-            start_time,
-            end_time,
-            notes,
-            heart_rate_avg,
-            heart_rate_max,
-            distance_km,
-            steps
+            distance_km
         } = activityData;
 
         const sql = `
             INSERT INTO activities (
-                user_id, type, name, duration_minutes, calories_burned,
-                intensity, date, start_time, end_time, notes,
-                heart_rate_avg, heart_rate_max, distance_km, steps
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                user_id, type, name, duration_minutes, calories_burned, date, distance_km
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
 
         return new Promise((resolve, reject) => {
             this.db.run(sql, [
-                userId, type, name, duration_minutes, calories_burned,
-                intensity, date, start_time, end_time, notes,
-                heart_rate_avg, heart_rate_max, distance_km, steps
+                userId, type, name, duration_minutes, calories_burned, date, distance_km
             ], function(err) {
                 if (err) {
                     reject(err);
@@ -142,8 +136,8 @@ class Activity {
             params.push(type);
         }
 
-        sql += ` ORDER BY date DESC, start_time DESC LIMIT ? OFFSET ?`;
-        params.push(limit, offset);
+    sql += ` ORDER BY date DESC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
 
         return new Promise((resolve, reject) => {
             this.db.all(sql, params, (err, rows) => {
@@ -178,8 +172,7 @@ class Activity {
     async update(activityId, userId, updateData) {
         const allowedFields = [
             'type', 'name', 'duration_minutes', 'calories_burned',
-            'intensity', 'date', 'start_time', 'end_time', 'notes',
-            'heart_rate_avg', 'heart_rate_max', 'distance_km', 'steps'
+            'date', 'distance_km'
         ];
 
         const updates = [];

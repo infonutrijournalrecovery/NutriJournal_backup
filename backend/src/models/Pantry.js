@@ -169,29 +169,19 @@ class Pantry {
             brand,
             category,
             quantity = 1,
-            unit = 'pz',
-            purchase_date,
-            expiry_date,
-            location = 'dispensa',
-            notes,
-            price,
-            nutritional_info
+            unit = 'pz'
         } = itemData;
 
         const sql = `
             INSERT INTO pantry_items (
                 user_id, barcode, product_name, brand, category,
-                quantity, unit, purchase_date, expiry_date, location,
-                notes, price, nutritional_info
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                quantity, unit
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
-
-        const nutritionalJson = nutritional_info ? JSON.stringify(nutritional_info) : null;
 
         return this.runQuery(sql, [
             userId, barcode, product_name, brand, category,
-            quantity, unit, purchase_date, expiry_date, location,
-            notes, price, nutritionalJson
+            quantity, unit
         ]);
     }
 

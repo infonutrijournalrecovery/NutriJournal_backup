@@ -1,4 +1,54 @@
+
 const Joi = require('joi');
+
+
+// Validatori personalizzati per l'app NutriJournal
+
+/**
+ * Schema per aggiunta elemento in dispensa
+ */
+const addPantryItemSchema = Joi.object({
+    barcode: Joi.string()
+        .pattern(/^[0-9]{8,14}$/)
+        .required()
+        .messages({
+            'string.pattern.base': 'Il barcode deve essere numerico (8-14 cifre)',
+            'any.required': 'Il barcode è obbligatorio'
+        }),
+    name: Joi.string()
+        .min(1)
+        .max(200)
+        .required()
+        .messages({
+            'string.min': 'Il nome del prodotto è obbligatorio',
+            'string.max': 'Il nome non può superare 200 caratteri',
+            'any.required': 'Il nome del prodotto è obbligatorio'
+        }),
+    quantity: Joi.number()
+        .min(1)
+        .required()
+        .messages({
+            'number.min': 'La quantità deve essere almeno 1',
+            'any.required': 'La quantità è obbligatoria'
+        }),
+    unit: Joi.string()
+        .max(10)
+        .required()
+        .messages({
+            'string.max': 'L\'unità di misura non può superare 10 caratteri',
+            'any.required': 'L\'unità di misura è obbligatoria'
+        }),
+    brand: Joi.string()
+        .max(100)
+        .allow('', null),
+    category: Joi.string()
+        .max(100)
+        .allow('', null),
+    notes: Joi.string()
+        .max(500)
+        .optional()
+});
+
 
 // Validatori personalizzati per l'app NutriJournal
 
@@ -569,7 +619,8 @@ module.exports = {
     nutritionGoalSchema,
     activitySchema,
     productSearchSchema,
-    
+    addPantryItemSchema,
+
     // Middleware
     validate,
     validateQuery

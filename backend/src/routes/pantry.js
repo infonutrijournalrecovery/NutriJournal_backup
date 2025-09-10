@@ -1,7 +1,7 @@
 
 const express = require('express');
 const AuthMiddleware = require('../middleware/auth');
-const { validate } = require('../utils/validation');
+const { validate, addPantryItemSchema } = require('../utils/validation');
 const PantryController = require('../controllers/pantryController');
 
 // Export a function that receives the db and returns the router
@@ -44,8 +44,8 @@ module.exports = function createPantryRouter(sqliteDb) {
     });
 
     // POST /api/pantry - Aggiungi elemento alla dispensa
-    router.post('/', auth, validate('addPantryItem'), async (req, res) => {
-        await pantryController.addItem(req, res);
+    router.post('/', auth, validate(addPantryItemSchema), async (req, res, next) => {
+        await pantryController.addItem(req, res, next);
     });
 
     // GET /api/pantry/stats - Statistiche dispensa

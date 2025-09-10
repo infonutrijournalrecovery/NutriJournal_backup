@@ -1,7 +1,8 @@
 const express = require('express');
 const UserController = require('../controllers/userController');
 const AuthMiddleware = require('../middleware/auth');
-const { validate } = require('../utils/validation');
+
+const { validate, userUpdateSchema } = require('../utils/validation');
 const { rateLimiter } = require('../middleware/securityMiddleware');
 const multer = require('multer');
 const path = require('path');
@@ -41,7 +42,7 @@ const auth = AuthMiddleware.verifyToken;
 router.get('/profile', auth, UserController.getProfile);
 
 // PUT /api/users/profile - Aggiorna profilo utente
-router.put('/profile', auth, validate('updateProfile'), UserController.updateProfile);
+router.put('/profile', auth, validate(userUpdateSchema), UserController.updateProfile);
 
 // === OBIETTIVI NUTRIZIONALI ===
 

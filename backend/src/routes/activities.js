@@ -1,5 +1,4 @@
 const express = require('express');
-const router = express.Router();
 const { authMiddleware } = require('../middleware/auth');
 const { handleErrors } = require('../middleware/errorHandler');
 const ActivityController = require('../controllers/activityController');
@@ -10,6 +9,7 @@ const ActivityController = require('../controllers/activityController');
  * @returns {express.Router} Router configurato
  */
 function setupActivitiesRoutes(database) {
+    const router = express.Router();
     const activityController = new ActivityController(database);
 
     // Middleware di autenticazione per tutte le routes
@@ -56,4 +56,4 @@ function setupActivitiesRoutes(database) {
 
 module.exports = setupActivitiesRoutes;
 
-module.exports = router;
+module.exports = setupActivitiesRoutes;

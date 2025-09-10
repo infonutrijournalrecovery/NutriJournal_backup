@@ -58,28 +58,20 @@ class ActivityController {
             if (calories_burned !== undefined && (isNaN(calories_burned) || calories_burned < 0)) {
                 throw new ValidationError('Calorie bruciate deve essere un numero non negativo');
             }
-            if (met_value !== undefined && (isNaN(met_value) || met_value <= 0)) {
-                throw new ValidationError('Valore MET deve essere un numero positivo');
-            }
             if (distance !== undefined && (isNaN(distance) || distance < 0)) {
                 throw new ValidationError('Distanza deve essere un numero non negativo');
             }
 
-            // Validazione date e orari
+            // Validazione data
             const currentDate = new Date().toISOString().split('T')[0];
-            const currentTime = new Date().toISOString().split('T')[1].substring(0, 8);
-
             if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
                 throw new ValidationError('Data non valida (formato richiesto: YYYY-MM-DD)');
-            }
-            if (start_time && !/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/.test(start_time)) {
-                throw new ValidationError('Ora non valida (formato richiesto: HH:MM:SS)');
             }
 
             logger.info('Creazione nuova attività', {
                 userId: req.user.id,
-                activityType: type,
-                activityName: name
+                type,
+                name
             });
 
             // Calcola automaticamente le calorie se non specificate
@@ -88,18 +80,17 @@ class ActivityController {
                 calculatedCalories = this.activityModel.calculateCalories(type, duration);
             }
 
-            const activity = await this.activityModel.create({
-                user_id: req.user.id,
-                type,
-                name,
-                duration_minutes: duration,
-                calories_burned: calculatedCalories,
-                distance_km: distance,
-                notes,
-                date: date || currentDate,
-                start_time: start_time || currentTime,
-                created_at: new Date().toISOString()
-            });
+            const activity = await this.activityModel.create(
+                req.user.id,
+                {
+                    type,
+                    name,
+                    duration_minutes: duration,
+                    calories_burned: calculatedCalories,
+                    distance_km: distance,
+                    date: date || currentDate
+                }
+            );
 
             res.status(201).json({
                 success: true,
@@ -161,15 +152,16 @@ class ActivityController {
                 pagination: { limit, offset }
             });
 
-            const activities = await this.activityModel.findByFilters(
-                filters,
-                parseInt(limit),
-                parseInt(offset),
-                sort_by,
-                sort_order
+            const activities = await this.activityModel.getByUser(
+                req.user.id,
+                {
+                    ...filters,
+                    limit: parseInt(limit),
+                    offset: parseInt(offset)
+                }
             );
 
-            const total = await this.activityModel.countByFilters(filters);
+            const total = await this.activityModel.countByUser(req.user.id, filters);
 
             // Calcola statistiche se richieste per una data specifica
             let stats = null;
@@ -364,22 +356,15 @@ class ActivityController {
     async deleteActivity(req, res, next) {
         try {
             const { activityId } = req.params;
-
-            if (!activityId || !/^\d+$/.test(activityId)) {
-                throw new ValidationError('ID attività non valido');
-            }
-
             logger.info('Richiesta eliminazione attività', {
                 userId: req.user.id,
                 activityId
             });
 
             const activity = await this.activityModel.findById(activityId);
-
             if (!activity) {
                 throw new NotFoundError('Attività non trovata');
             }
-
             if (activity.user_id !== req.user.id) {
                 logger.warn('Tentativo eliminazione non autorizzato', {
                     userId: req.user.id,
@@ -388,9 +373,7 @@ class ActivityController {
                 });
                 throw new UnauthorizedError('Non autorizzato a eliminare questa attività');
             }
-
-            await this.activityModel.delete(activityId);
-
+            await this.activityModel.delete(activityId, req.user.id);
             res.json({
                 success: true,
                 message: 'Attività eliminata con successo',
@@ -398,7 +381,6 @@ class ActivityController {
                     timestamp: new Date().toISOString()
                 }
             });
-
             logger.info('Attività eliminata con successo', {
                 userId: req.user.id,
                 activityId
