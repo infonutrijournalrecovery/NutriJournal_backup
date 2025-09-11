@@ -12,20 +12,18 @@ import {
   IonBackButton,
   IonIcon,
   IonItem,
-  IonLabel,
   IonButton,
   IonList,
   IonGrid,
   IonRow,
   IonCol,
   IonSegment,
-  IonSegmentButton,
-  IonModal,        // \U0001f448 IMPORTA IonModal
-  IonDatetime      // \U0001f448 IMPORTA IonDatetime
+  IonSegmentButton
 } from '@ionic/angular/standalone';
 
 import { DeviceService } from '../shared/services/device.service';
-import { AlertController, ToastController, LoadingController } from '@ionic/angular';
+import { AlertController, ToastController, LoadingController, ModalController } from '@ionic/angular';
+import { DatePickerModalComponent } from '../shared/components/date-picker-modal.component';
 import Chart from 'chart.js/auto';
 
 @Component({
@@ -33,6 +31,7 @@ import Chart from 'chart.js/auto';
   templateUrl: './vals.page.html',
   styleUrls: ['./vals.page.scss'],
   standalone: true,
+  providers: [ModalController],
   imports: [
     CommonModule,
     FormsModule,
@@ -50,11 +49,8 @@ import Chart from 'chart.js/auto';
     IonRow,
     IonCol,
     IonSegment,
-    IonSegmentButton,
-    IonLabel,
-    IonModal,        // \U0001f448 AGGIUNGI QUI
-    IonDatetime      // \U0001f448 AGGIUNGI QUI
-  ]
+    IonSegmentButton
+    ]
 })
 export class ValsPage implements AfterViewInit {
   private deviceService = inject(DeviceService);
@@ -64,7 +60,8 @@ export class ValsPage implements AfterViewInit {
   private loadingController = inject(LoadingController);
 
   @ViewChild('lineCanvas') lineCanvas!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('dateModal') dateModal!: any; // \U0001f448 riferimento al modal
+  // @ViewChild('dateModal') dateModal!: any; // non più necessario
+  private modalController = inject(ModalController);
 
   lineChart: any;
   selectedRange: string = 'settimanale';
@@ -132,15 +129,21 @@ export class ValsPage implements AfterViewInit {
   }
 
   async openDateModal() {
-    await this.dateModal.present();
+    const modal = await this.modalController.create({
+      component: DatePickerModalComponent,
+      componentProps: {
+        date: this.selectedDate,
+        max: new Date().toISOString()
+      }
+    });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data) {
+      this.selectedDate = data;
+    }
   }
 
-  async closeDateModal(confirm = false) {
-    if (confirm) {
-      // Qui potresti fare eventuale logica extra con la data selezionata
-    }
-    await this.dateModal.dismiss();
-  }
+  // closeDateModal non più necessario
 
   formatDate(dateString: string): string {
     const d = new Date(dateString);

@@ -1,14 +1,18 @@
 export interface ApiActivitiesResponse {
   success: boolean;
   message: string;
-  activities: Activity[];
-  errors?: any[];
-  pagination?: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
+  data: {
+    activities: Activity[];
+    pagination?: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+    [key: string]: any;
   };
+  errors?: any[];
+  timestamp?: string;
 }
 // Interfacce per i dati del backend NutriJournal
 

@@ -238,27 +238,7 @@
   </div>
 
   <!-- Date Picker Modal -->
-  <ion-modal #dateModal [isOpen]="showDatePicker" (didDismiss)="showDatePicker = false">
-    <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Seleziona Data</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="closeDatePicker()">Chiudi</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-      <ion-content>
-        <ion-datetime
-          #datetime
-          [value]="selectedDate"
-          presentation="date"
-          [max]="today"
-          (ionChange)="onDateChange($event)">
-        </ion-datetime>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
+  <!-- Date picker modal handled dynamically by ModalController -->
 
   <!-- Meal Type Selector Modal -->
   <ion-modal #mealTypeModal [isOpen]="showMealTypeSelector" (didDismiss)="showMealTypeSelector = false">

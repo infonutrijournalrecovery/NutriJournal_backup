@@ -61,22 +61,8 @@
       class="date-display-btn"
       (click)="openDatePicker()">
       <ion-icon slot="start" name="calendar-outline"></ion-icon>
-      {{ selectedDate | date: 'EEEE, d MMMM y' }}
+      {{ currentDate | date: 'EEEE, d MMMM y' }}
     </ion-button>
-
-    <!-- Modal con IonDatetime -->
-    <ion-modal [isOpen]="isDatePickerOpen" (didDismiss)="closeDatePicker()">
-      <ng-template>
-        <ion-content>
-          <ion-datetime
-            presentation="date"
-            [value]="selectedDate"
-            (ionChange)="onDateSelected($event)">
-          </ion-datetime>
-          <ion-button expand="block" (click)="closeDatePicker()">Chiudi</ion-button>
-        </ion-content>
-      </ng-template>
-    </ion-modal>
 
     <!-- Pulsante Giorno Successivo -->
     <ion-button 
@@ -311,32 +297,54 @@
           <ion-card-header>
             <ion-card-title>
               <ion-icon name="trending-up-outline"></ion-icon>
-              Attività Recenti
+              Attività di oggi
             </ion-card-title>
           </ion-card-header>
           <ion-card-content>
-            <div *ngIf="recentActivities.length === 0" class="desktop-empty-state">
-              <ion-icon name="trending-up-outline" style="color: #ff0000;"></ion-icon>
-              <p>Nessuna attività registrata</p>
-              <ion-button 
-              fill="outline"
-              size="small"
-              class="action-btn activity-btn"
-              (click)="goToActivity()">
-              <ion-icon slot="start" name="fitness-outline"></ion-icon>
-              + Registra Attività
-            </ion-button>
-            </div>
-            
-            <div *ngFor="let activity of recentActivities" class="desktop-activity-item">
-              <div class="activity-info">
-                <h4>{{ activity.type }}</h4>
-                <p>
-                  {{ activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?' }} min •
-                  {{ activity.totalNutrition.calories || '?' }} kcal
-                </p>
+            <div class="desktop-activities-list">
+              <ng-container *ngIf="recentActivities.length > 0">
+                <div *ngFor="let activity of recentActivities" class="desktop-activity-item">
+                  <div class="activity-info">
+                    <h4>{{ activity.name || activity.type }}</h4>
+                    <p>
+                      {{ activity.duration || activity.duration_minutes || '?' }} min •
+                      {{ activity.calories || activity.calories_burned || '?' }} kcal
+                    </p>
+                  </div>
+                </div>
+              </ng-container>
+              <div *ngIf="recentActivities.length === 0" class="desktop-empty-state">
+                <ion-icon name="trending-up-outline" style="color: #ff0000;"></ion-icon>
+                <p>Nessuna attività registrata</p>
+              </div>
+              <div class="desktop-activity-add-btn-wrapper">
+                <ion-button 
+                  fill="solid"
+                  size="small"
+                  class="action-btn activity-btn desktop-activity-add-btn"
+                  style="--border-color: #1976d2; --color: #ffffff; border-color: #1976d2 !important; color: #ffffff !important; font-size: 0.95rem; font-weight: 500; border-radius: 8px; padding: 0 18px; height: 36px;"
+                  (click)="goToActivity()">
+                  <ion-icon slot="start" name="fitness-outline"></ion-icon>
+                  + Registra Attività
+                </ion-button>
               </div>
             </div>
+<style>
+.desktop-activities-list {
+  position: relative;
+  min-height: 120px;
+  padding-bottom: 56px;
+}
+.desktop-activity-add-btn-wrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+</style>
           </ion-card-content>
         </ion-card>
 
@@ -1235,17 +1243,18 @@
               Aggiungi Attività
             </ion-button>
           </div>
-          <ion-item *ngFor="let activity of activitiesToday" class="activity-item">
-            <ion-icon [name]="'fitness-outline'" slot="start"></ion-icon>
-            <ion-label>
-              <h3>{{ activity.type }}</h3>
-              <p>
-                {{ activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?' }} min
-                •
-                {{ activity.totalNutrition?.calories || '?' }} kcal
-              </p>
-            </ion-label>
-          </ion-item>
+          <div *ngIf="activitiesToday.length > 0" class="activities-list">
+            <ng-container *ngFor="let activity of activitiesToday">
+              <div class="activity-row">
+                <ion-icon name="fitness-outline" class="activity-icon"></ion-icon>
+                <div class="activity-info">
+                  <span class="activity-name">{{ activity.name || activity.type }}</span>
+                  <span class="activity-duration">{{ activity.duration || '?' }} min</span>
+                  <span class="activity-kcal">{{ activity.calories || '?' }} kcal</span>
+                </div>
+              </div>
+            </ng-container>
+          </div>
         </ion-card-content>
       </ion-card>
 

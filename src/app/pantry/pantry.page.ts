@@ -2,6 +2,9 @@ import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+// Removed duplicate imports
+// import { addIcons } from 'ionicons';
+// import { checkmarkOutline, calendarOutline, restaurantOutline, addCircleOutline, searchOutline, homeOutline, cameraOutline, timeOutline, createOutline, trashOutline, add, restaurant, leafOutline, nutritionOutline, pizzaOutline, cafeOutline, fastFoodOutline, wineOutline } from 'ionicons/icons';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
@@ -19,20 +22,9 @@ import {
   IonCardContent,
   IonList,
   IonItem,
-  IonItemSliding,
-  IonItemOptions,
-  IonItemOption,
   IonLabel,
   IonIcon,
-  IonThumbnail,
   IonSpinner,
-  IonModal,
-  IonDatetime,
-  IonRadio,
-  IonFab,
-  IonFabButton,
-  IonFabList,
-  IonAvatar,
   IonNote,
   ToastController,
   AlertController,
@@ -60,17 +52,6 @@ import {
   fastFoodOutline,
   wineOutline
 } from 'ionicons/icons';
-/*
-import { 
-  Meal, 
-  MealItem, 
-  MealType, 
-  ProductCategory,
-  QuantityUnit,
-  NutritionInfo,
-  MealSearchResult
-} from '../../shared/interfaces/meal.interface'; */
-
 @Component({
   selector: 'pantry-page',
   templateUrl: './pantry.page.html',
@@ -92,21 +73,10 @@ import {
     IonCardContent,
     IonList,
     IonItem,
-    IonItemSliding,
-    IonItemOptions,
-    IonItemOption,
     IonLabel,
     IonIcon,
-    IonThumbnail,
     IonSpinner,
-    IonModal,
-    IonDatetime,
-    IonRadio,
-    IonFab,
-    IonFabButton,
-    IonFabList,
-    IonAvatar,
-    IonNote
+  IonNote
   ]
 })
 export class PantryPage implements OnInit, OnDestroy {
@@ -118,8 +88,7 @@ export class PantryPage implements OnInit, OnDestroy {
   private loadingController = inject(LoadingController);
   private http = inject(HttpClient);
 
-  @ViewChild('dateModal') dateModal!: IonModal;
-  @ViewChild('mealTypeModal') mealTypeModal!: IonModal;
+  // Removed unused @ViewChild IonModal references
 
   pantryItems: any[] = []; // Lista prodotti dispensa dal backend
 

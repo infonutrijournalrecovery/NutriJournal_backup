@@ -91,7 +91,7 @@
           </div>
 
           <!-- Data di Nascita -->
-          <ion-item class="form-item">
+          <div class="calendar-modal-wrapper">
             <ion-label position="stacked">Data di Nascita *</ion-label>
             <ion-datetime
               name="birthDate"
@@ -103,7 +103,7 @@
               [min]="minDate"
               (ionChange)="markAsChanged()">
             </ion-datetime>
-          </ion-item>
+          </div>
 
         </form>
       </ion-card-content>

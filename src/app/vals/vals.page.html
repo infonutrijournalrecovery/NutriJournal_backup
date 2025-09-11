@@ -46,27 +46,5 @@
   </ion-grid>
 
   <!-- Modal con calendario -->
-  <ion-modal #dateModal>
-    <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>Seleziona data</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="closeDateModal(false)">Chiudi</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-
-      <ion-content>
-        <ion-datetime
-          presentation="date"
-          [(ngModel)]="selectedDate">
-        </ion-datetime>
-
-        <ion-button expand="block" (click)="closeDateModal(true)">
-          Conferma
-        </ion-button>
-      </ion-content>
-    </ng-template>
-  </ion-modal>
+  <!-- Date picker modal handled dynamically by ModalController -->
 </ion-content>

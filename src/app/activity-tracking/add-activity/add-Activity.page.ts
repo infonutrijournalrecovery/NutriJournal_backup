@@ -1,3 +1,5 @@
+import { IonModal } from '@ionic/angular/standalone';
+
 import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
@@ -24,16 +26,27 @@ import {
   IonIcon,
   IonThumbnail,
   IonSpinner,
-  IonModal,
-  IonDatetime,
   IonRadio,
   IonInput,
   ToastController,
   AlertController,
   ModalController,
-  LoadingController,
+  LoadingController
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
+import {
+  Activity, 
+  ActivityItem, 
+  ActivityType, 
+  ProductCategory,
+  QuantityUnit,
+  NutritionInfo,
+  ActivitySearchResult
+} from '../../shared/interfaces/Activity.interface';
+import { ApiService } from '../../shared/services/api.service';
+import { AuthService } from '../../shared/services/auth.service';
+import { EventBusService } from '../../shared/services/event-bus.service';
+import { DatePickerModalComponent } from '../../shared/components/date-picker-modal.component';
+
 import {
   checkmarkOutline,
   calendarOutline,
@@ -55,23 +68,12 @@ import {
   wineOutline
 } from 'ionicons/icons';
 
-import { 
-  Activity, 
-  ActivityItem, 
-  ActivityType, 
-  ProductCategory,
-  QuantityUnit,
-  NutritionInfo,
-  ActivitySearchResult
-} from '../../shared/interfaces/Activity.interface';
-import { ApiService } from '../../shared/services/api.service';
-import { AuthService } from '../../shared/services/auth.service';
-
 @Component({
   selector: 'app-add-Activity',
   templateUrl: './add-Activity.page.html',
   styleUrls: ['./add-Activity.page.scss'],
   standalone: true,
+  providers: [ModalController],
   imports: [
     CommonModule,
     FormsModule,
@@ -94,25 +96,24 @@ import { AuthService } from '../../shared/services/auth.service';
     IonLabel,
     IonIcon,
     IonThumbnail,
-  IonSpinner,
-  IonModal,
-  IonDatetime,
-  IonRadio,
-  IonInput
+    IonSpinner,
+    IonRadio,
+  IonInput,
+  IonModal
   ]
 })
 export class AddActivityPage implements OnInit, OnDestroy {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private toastController = inject(ToastController);
-  private alertController = inject(AlertController);
-  private modalController = inject(ModalController);
   private loadingController = inject(LoadingController);
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
+  private eventBus = inject(EventBusService);
+  private modalController = inject(ModalController);
+    private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private toastController = inject(ToastController);
+  private alertController = inject(AlertController);
 
-  @ViewChild('dateModal') dateModal!: IonModal;
-  @ViewChild('ActivityTypeModal') ActivityTypeModal!: IonModal;
+  // Removed unused @ViewChild IonModal references
 
   // State
   isLoading = false;
@@ -126,7 +127,7 @@ export class AddActivityPage implements OnInit, OnDestroy {
   originalActivity: Activity | null = null;
   
   // UI state
-  showDatePicker = false;
+  //showDatePicker = false;
   showActivityTypeSelector = false;
   
   // Constants
@@ -171,77 +172,51 @@ export class AddActivityPage implements OnInit, OnDestroy {
   // Calorie calcolate
   get calculatedCalories(): number | null {
     if (!this.selectedActivityType || !this.activityDuration || this.activityDuration <= 0) return null;
-  const cpm = this.caloriesPerMinute[this.selectedActivityType] || 5;
+    const cpm = this.caloriesPerMinute[this.selectedActivityType] || 5;
     return Math.round(cpm * this.activityDuration);
   }
-  
+
   // Exposed Math for template
   Math = Math;
 
-  constructor() {
-    addIcons({
-      checkmarkOutline,
-      calendarOutline,
-      restaurantOutline,
-      addCircleOutline,
-      searchOutline,
-      homeOutline,
-      cameraOutline,
-      timeOutline,
-      createOutline,
-      trashOutline,
-      add,
-      restaurant,
-      leafOutline,
-      nutritionOutline,
-      pizzaOutline,
-      cafeOutline,
-      fastFoodOutline,
-      wineOutline
-    });
-  }
+  constructor() {}
 
   async ngOnInit() {
     await this.initializePage();
   }
 
+    /**
+     * Initialize page with route parameters
+     */
+    private async initializePage() {
+      try {
+        this.isLoading = true;
+        // Get route parameters
+        const params = this.route.snapshot.queryParams;
+        const ActivityId = this.route.snapshot.paramMap.get('id');
+        // Set date from params or current date
+        if (params['date']) {
+          this.selectedDate = params['date'];
+        }
+        // Set Activity type from params
+        if (params['type'] && this.ActivityTypes.includes(params['type'])) {
+          this.selectedActivityType = params['type'] as ActivityType;
+        }
+        // If editing existing Activity
+        if (ActivityId) {
+          this.isEditing = true;
+          await this.loadExistingActivity(ActivityId);
+        }
+      } catch (error) {
+        console.error('Error initializing page:', error);
+        await this.showErrorToast('Errore durante il caricamento');
+      } finally {
+        this.isLoading = false;
+      }
+    }
+
   ngOnDestroy() {
     // Cleanup if needed
-  }
-
-  /**
-   * Initialize page with route parameters
-   */
-  private async initializePage() {
-    try {
-      this.isLoading = true;
-      
-      // Get route parameters
-      const params = this.route.snapshot.queryParams;
-      const ActivityId = this.route.snapshot.paramMap.get('id');
-      
-      // Set date from params or current date
-      if (params['date']) {
-        this.selectedDate = params['date'];
-      }
-      
-      // Set Activity type from params
-      if (params['type'] && this.ActivityTypes.includes(params['type'])) {
-        this.selectedActivityType = params['type'] as ActivityType;
-      }
-      
-      // If editing existing Activity
-      if (ActivityId) {
-        this.isEditing = true;
-        await this.loadExistingActivity(ActivityId);
-      }
-      
-    } catch (error) {
-      console.error('Error initializing page:', error);
-      await this.showErrorToast('Errore durante il caricamento');
-    } finally {
-      this.isLoading = false;
-    }
   }
 
   /**
@@ -339,24 +314,30 @@ export class AddActivityPage implements OnInit, OnDestroy {
   /**
    * Open date picker
    */
-  openDatePicker() {
-    this.showDatePicker = true;
+  async openDatePicker() {
+    const modal = await this.modalController.create({
+      component: DatePickerModalComponent,
+      componentProps: {
+        date: this.selectedDate,
+        max: this.today
+      }
+    });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data) {
+      this.selectedDate = data;
+    }
   }
 
   /**
    * Close date picker
    */
-  closeDatePicker() {
-    this.showDatePicker = false;
-  }
+  // closeDatePicker() { }
 
   /**
    * Handle date change
    */
-  onDateChange(event: any) {
-    this.selectedDate = event.detail.value;
-    this.closeDatePicker();
-  }
+  // onDateChange(event: any) { }
 
   /**
    * Open Activity type selector
@@ -384,35 +365,35 @@ export class AddActivityPage implements OnInit, OnDestroy {
    * Track by function for Activity items
    */
   trackByItemId(index: number, item: ActivityItem): string {
-    return item.id || index.toString();
+  return (typeof item.id === 'string' ? item.id : item.id?.toString()) || index.toString();
   }
 
   /**
    * Get total calories
    */
   getTotalCalories(): number {
-    return Math.round(this.ActivityItems.reduce((total, item) => total + item.totalNutrition.calories, 0));
+  return Math.round(this.ActivityItems.reduce((total, item) => total + (item.totalNutrition?.calories || 0), 0));
   }
 
   /**
    * Get total proteins
    */
   getTotalProteins(): number {
-    return Math.round(this.ActivityItems.reduce((total, item) => total + item.totalNutrition.proteins, 0) * 10) / 10;
+  return Math.round(this.ActivityItems.reduce((total, item) => total + (item.totalNutrition?.proteins || 0), 0) * 10) / 10;
   }
 
   /**
    * Get total carbs
    */
   getTotalCarbs(): number {
-    return Math.round(this.ActivityItems.reduce((total, item) => total + item.totalNutrition.carbohydrates, 0) * 10) / 10;
+  return Math.round(this.ActivityItems.reduce((total, item) => total + (item.totalNutrition?.carbohydrates || 0), 0) * 10) / 10;
   }
 
   /**
    * Get total fats
    */
   getTotalFats(): number {
-    return Math.round(this.ActivityItems.reduce((total, item) => total + item.totalNutrition.fats, 0) * 10) / 10;
+  return Math.round(this.ActivityItems.reduce((total, item) => total + (item.totalNutrition?.fats || 0), 0) * 10) / 10;
   }
 
   /**
@@ -427,7 +408,7 @@ export class AddActivityPage implements OnInit, OnDestroy {
           name: 'quantity',
           type: 'number',
           placeholder: 'Quantità',
-          value: item.quantity.toString()
+          value: (item.quantity ?? '').toString()
         }
       ],
       buttons: [
@@ -437,7 +418,7 @@ export class AddActivityPage implements OnInit, OnDestroy {
         },
         {
           text: 'Conferma',
-          handler: (data) => {
+          handler: (data: any) => {
             const quantity = parseFloat(data.quantity);
             if (quantity > 0) {
               this.updateItemQuantity(item, quantity);
@@ -456,9 +437,9 @@ export class AddActivityPage implements OnInit, OnDestroy {
   private updateItemQuantity(item: ActivityItem, newQuantity: number) {
     item.quantity = newQuantity;
     item.totalNutrition = this.calculateNutritionForQuantity(
-      item.nutritionPer100g, 
+  item.nutritionPer100g ?? {calories:0,proteins:0,carbohydrates:0,fats:0},
       newQuantity, 
-      item.unit
+  item.unit ?? 'g'
     );
   }
 
@@ -485,10 +466,10 @@ export class AddActivityPage implements OnInit, OnDestroy {
     const factor = quantityIn100gUnits / 100;
     
     return {
-      calories: nutritionPer100g.calories * factor,
-      proteins: nutritionPer100g.proteins * factor,
-      carbohydrates: nutritionPer100g.carbohydrates * factor,
-      fats: nutritionPer100g.fats * factor,
+  calories: (nutritionPer100g.calories ?? 0) * factor,
+  proteins: (nutritionPer100g.proteins ?? 0) * factor,
+  carbohydrates: (nutritionPer100g.carbohydrates ?? 0) * factor,
+  fats: (nutritionPer100g.fats ?? 0) * factor,
       fiber: nutritionPer100g.fiber ? nutritionPer100g.fiber * factor : undefined,
       sugar: nutritionPer100g.sugar ? nutritionPer100g.sugar * factor : undefined,
       sodium: nutritionPer100g.sodium ? nutritionPer100g.sodium * factor : undefined,
@@ -500,7 +481,7 @@ export class AddActivityPage implements OnInit, OnDestroy {
    * Remove item from Activity
    */
   async removeItem(item: ActivityItem) {
-    const alert = await this.alertController.create({
+  const alert = await this.alertController.create({
       header: 'Rimuovi Prodotto',
       message: `Vuoi rimuovere ${item.productName} dal pasto?`,
       buttons: [
@@ -633,6 +614,8 @@ export class AddActivityPage implements OnInit, OnDestroy {
         calories: this.calculatedCalories
       };
       await this.apiService.createActivity(activityData).toPromise();
+      // Emit event for dashboard update
+      this.eventBus.emitDataUpdated('activity');
       await this.showSuccessToast(
         this.isEditing ? 'Attività aggiornata con successo' : 'Attività salvata con successo'
       );
@@ -649,7 +632,7 @@ export class AddActivityPage implements OnInit, OnDestroy {
    * Show success toast
    */
   private async showSuccessToast(message: string) {
-    const toast = await this.toastController.create({
+  const toast = await this.toastController.create({
       message,
       duration: 3000,
       color: 'success',

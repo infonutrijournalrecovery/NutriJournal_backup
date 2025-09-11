@@ -30,6 +30,9 @@ import { DeviceService } from '../shared/services/device.service';
 import { User, DailyNutrition, Meal } from '../shared/interfaces/types';
 import { Activity } from '../shared/interfaces/Activity.interface';
 import { ApiService } from '../shared/services/api.service';
+import { EventBusService } from '../shared/services/event-bus.service';
+import { ModalController } from '@ionic/angular';
+import { DatePickerModalComponent } from '../shared/components/date-picker-modal.component';
 
 
 @Component({
@@ -43,36 +46,37 @@ import { ApiService } from '../shared/services/api.service';
     ReactiveFormsModule,
     RouterModule,
     // Tutti i componenti Ionic usati nel template
-  IonContent,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonButton,
-  IonIcon,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonItem,
-  IonLabel,
-  IonProgressBar,
-  IonFab,
-  IonFabButton,
-  IonFabList,
-  IonRefresher,
-  IonRefresherContent,
-  IonSegment,
-  IonSegmentButton,
-  IonInput,
-  IonModal,
-  IonDatetime
-  ]
+    IonContent,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonButton,
+    IonIcon,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonItem,
+    IonLabel,
+    IonProgressBar,
+    IonFab,
+    IonFabButton,
+    IonFabList,
+    IonRefresher,
+    IonRefresherContent,
+    IonSegment,
+    IonSegmentButton,
+    IonInput,
+    IonModal,
+    IonDatetime
+  ],
+  providers: [ModalController]
 })
 
 export class DashboardPage implements OnInit, OnDestroy {
-  ionViewWillEnter() {
-    this.loadTodayActivities();
-  }
+  // ionViewWillEnter() {
+  //   this.loadTodayActivities();
+  // }
     activitiesToday: Activity[] = [];
     user: User | null = null;
     todayNutrition: DailyNutrition | null = null;
@@ -88,73 +92,75 @@ export class DashboardPage implements OnInit, OnDestroy {
     deviceLayout: 'mobile' | 'tablet' | 'desktop' = 'mobile';
     private subscriptions = new Subscription();
 
-    selectedDate: string = new Date().toISOString();
-    isDatePickerOpen = false;
 
     /** Torna alla data di oggi */
     goToToday() {
-      this.selectedDate = new Date().toISOString();
-      this.loadActivitiesForSelectedDate();
+      this.currentDate = new Date();
+      this.loadDashboardData();
     }
 
     /** Torna al giorno precedente */
     goToPreviousDay() {
-      const current = new Date(this.selectedDate);
-      current.setDate(current.getDate() - 1);
-      this.selectedDate = current.toISOString();
-      this.loadActivitiesForSelectedDate();
+      const prev = new Date(this.currentDate);
+      prev.setDate(prev.getDate() - 1);
+      this.currentDate = prev;
+      this.loadDashboardData();
     }
 
     /** Vai al giorno successivo */
     goToNextDay() {
-      const current = new Date(this.selectedDate);
-      current.setDate(current.getDate() + 1);
-      this.selectedDate = current.toISOString();
-      this.loadActivitiesForSelectedDate();
+      const next = new Date(this.currentDate);
+      next.setDate(next.getDate() + 1);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      if (next <= today) {
+        this.currentDate = next;
+        this.loadDashboardData();
+      }
     }
 
     /** Controlla se la data selezionata è oggi */
     isToday(): boolean {
       const today = new Date();
-      const current = new Date(this.selectedDate);
       return (
-        today.getDate() === current.getDate() &&
-        today.getMonth() === current.getMonth() &&
-        today.getFullYear() === current.getFullYear()
+        today.getDate() === this.currentDate.getDate() &&
+        today.getMonth() === this.currentDate.getMonth() &&
+        today.getFullYear() === this.currentDate.getFullYear()
       );
     }
 
     async loadActivitiesForSelectedDate() {
       try {
-        const dateStr = this.selectedDate.split('T')[0];
+        // Usa currentDate per il filtro
+        const dateStr = this.currentDate.getFullYear() + '-' + String(this.currentDate.getMonth() + 1).padStart(2, '0') + '-' + String(this.currentDate.getDate()).padStart(2, '0');
         const res = await this.apiService.getActivities(1, 50).toPromise();
-        if (res && res.activities) {
-          this.activitiesToday = (res.activities as unknown as Activity[]).filter((a: Activity) => {
-            const activityDate = (a.date || '').split('T')[0];
-            return activityDate === dateStr;
+        console.log('[DEBUG] Risposta completa getActivities:', res);
+        let activitiesArr = res?.data?.activities || [];
+        if (activitiesArr && Array.isArray(activitiesArr)) {
+          console.log('[DEBUG] Attività trovate:', activitiesArr);
+          this.activitiesToday = (activitiesArr as Activity[]).filter((a: Activity) => {
+            if (!a.date) return false;
+            const d = new Date(a.date);
+            const activityDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            const match = activityDate === dateStr;
+            console.log('[DEBUG] activity.date:', a.date, '| activityDate:', activityDate, '| dateStr:', dateStr, '| match:', match);
+            return match;
           });
+          console.log('[DEBUG] activitiesToday:', this.activitiesToday);
           this.recentActivities = this.activitiesToday.slice(0, 5);
+          this.dailyStats.calories.burned = this.activitiesToday.reduce((sum, a) => sum + (a.calories || 0), 0);
         } else {
           this.activitiesToday = [];
           this.recentActivities = [];
+          this.dailyStats.calories.burned = 0;
         }
       } catch (err) {
         this.activitiesToday = [];
         this.recentActivities = [];
+        this.dailyStats.calories.burned = 0;
       }
     }
 
-    closeDatePicker() {
-      this.isDatePickerOpen = false;
-    }
-
-    onDateSelected(event: any) {
-      if (event?.detail?.value) {
-        this.selectedDate = event.detail.value;
-        this.loadActivitiesForSelectedDate();
-      }
-      this.closeDatePicker();
-    }
 
     mealStats = {
       breakfast: {
@@ -248,46 +254,48 @@ export class DashboardPage implements OnInit, OnDestroy {
       private router: Router,
       private navCtrl: NavController,
       private fb: FormBuilder,
-      private apiService: ApiService
+      private apiService: ApiService,
+      private eventBus: EventBusService,
+      private modalController: ModalController
     ) {
       this.waterForm = this.fb.group({
         waterAmount: [0]
       });
-
       addIcons({personOutline,chevronBackOutline,calendarOutline,chevronForwardOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,barcodeOutline,fastFoodOutline,scaleOutline,flameOutline,wineOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,checkmarkCircle:checkmarkCircleOutline,alertCircle:alertCircleOutline});
+  }
+
+  async openDatePicker() {
+    const modal = await this.modalController.create({
+      component: DatePickerModalComponent,
+      componentProps: {
+        date: this.currentDate,
+        max: new Date()
+      }
+    });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data) {
+      this.currentDate = data;
+      this.loadDashboardData();
     }
+  }
+
 
   ngOnInit() {
     this.initializeDeviceDetection();
     this.loadUserData();
     this.updateNutritionGoals();
     this.loadDashboardData();
-    this.loadTodayActivities();
+    // Aggiornamento dinamico: ascolta eventi globali
+    this.subscriptions.add(
+      this.eventBus.dataUpdated$.subscribe(type => {
+        // Aggiorna sempre tutto per semplicità
+        this.loadDashboardData();
+      })
+    );
   }
 
-  async loadTodayActivities() {
-    try {
-      const today = new Date();
-      const dateStr = today.toISOString().split('T')[0];
-      const res = await this.apiService.getActivities(1, 20).toPromise();
-        if (res && res.activities) {
-          console.log('[DEBUG] Attività ricevute dal backend:', res.activities);
-          // Filtra solo quelle della data odierna (confronto solo YYYY-MM-DD)
-          this.activitiesToday = (res.activities as unknown as Activity[]).filter((a: Activity) => {
-            const activityDate = (a.date || '').split('T')[0];
-            return activityDate === dateStr;
-          });
-          console.log('[DEBUG] Attività filtrate per oggi:', this.activitiesToday);
-          this.recentActivities = this.activitiesToday.slice(0, 5);
-        } else {
-          this.activitiesToday = [];
-          this.recentActivities = [];
-      }
-    } catch (err) {
-      this.activitiesToday = [];
-      this.recentActivities = [];
-    }
-  }
+
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
@@ -329,8 +337,12 @@ export class DashboardPage implements OnInit, OnDestroy {
   // Navigation Methods
   async goToActivity() {
     try {
-      console.log('Navigating to activity/add');
-      await this.navCtrl.navigateForward('/tabs/activity/add');
+      console.log('Navigating to activity/add with date:', this.currentDate.toISOString().split('T')[0]);
+      await this.navCtrl.navigateForward('/tabs/activity/add', {
+        queryParams: {
+          date: this.currentDate.toISOString().split('T')[0]
+        }
+      });
     } catch (error) {
       console.error('Error navigating to activity:', error);
       await this.showToast('Errore durante la navigazione', 'danger');
@@ -413,9 +425,12 @@ export class DashboardPage implements OnInit, OnDestroy {
         this.isLoading = true;
       }
 
+      // Carica dati fittizi solo per le statistiche, NON per le attività
       await new Promise(resolve => setTimeout(resolve, 1000));
-      const dayOffset = Math.floor((new Date().getTime() - this.currentDate.getTime()) / (1000 * 60 * 60 * 24));
-      
+      // dayOffset calcolato rispetto a currentDate
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const dayOffset = Math.floor((today.getTime() - this.currentDate.getTime()) / (1000 * 60 * 60 * 24));
       this.dailyStats.calories.consumed = Math.max(800, 1200 - (dayOffset * 100));
       this.dailyStats.carbs.consumed = Math.max(80, 150 - (dayOffset * 20));
       this.dailyStats.proteins.consumed = Math.max(50, 80 - (dayOffset * 10));
@@ -424,6 +439,9 @@ export class DashboardPage implements OnInit, OnDestroy {
       this.dailyStats.activities = Math.max(0, 2 - Math.floor(dayOffset / 2));
 
       this.updateDailyStatsPercentages();
+
+      // Carica sempre le attività reali per la data selezionata
+      await this.loadActivitiesForSelectedDate();
     } catch (error) {
       console.error('Errore nel caricamento dei dati dashboard:', error);
       await this.showToast('Errore nel caricamento dei dati', 'danger');
@@ -691,21 +709,17 @@ export class DashboardPage implements OnInit, OnDestroy {
     }
   }
 
-  // Metodo per aprire il date picker
-  openDatePicker() {
-    this.isDatePickerOpen = true;
-  }
+
 
   // Metodo per abilitare/disabilitare il pulsante "giorno successivo"
   canGoToNextDay(): boolean {
     const today = new Date();
-    const selected = new Date(this.selectedDate);
     return (
-      selected.getFullYear() < today.getFullYear() ||
-      (selected.getFullYear() === today.getFullYear() &&
-        (selected.getMonth() < today.getMonth() ||
-          (selected.getMonth() === today.getMonth() &&
-            selected.getDate() < today.getDate())))
+      this.currentDate.getFullYear() < today.getFullYear() ||
+      (this.currentDate.getFullYear() === today.getFullYear() &&
+        (this.currentDate.getMonth() < today.getMonth() ||
+          (this.currentDate.getMonth() === today.getMonth() &&
+            this.currentDate.getDate() < today.getDate())))
     );
   }
 }

@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { IonModal } from '@ionic/angular/standalone';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { EventBusService } from '../../shared/services/event-bus.service';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent,
@@ -24,20 +25,24 @@ import {
   IonIcon,
   IonThumbnail,
   IonSpinner,
-  IonModal,
-  IonDatetime,
   IonRadio,
-  IonFab,
-  IonFabButton,
-  IonFabList,
-  IonAvatar,
   IonNote,
   ToastController,
   AlertController,
   ModalController,
   LoadingController
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
+import { DatePickerModalComponent } from '../../shared/components/date-picker-modal.component';
+import {
+  Meal, 
+  MealItem, 
+  MealType, 
+  ProductCategory,
+  QuantityUnit,
+  NutritionInfo,
+  MealSearchResult
+} from '../../shared/interfaces/meal.interface';
+
 import {
   checkmarkOutline,
   calendarOutline,
@@ -59,24 +64,14 @@ import {
   wineOutline
 } from 'ionicons/icons';
 
-import { 
-  Meal, 
-  MealItem, 
-  MealType, 
-  ProductCategory,
-  QuantityUnit,
-  NutritionInfo,
-  MealSearchResult
-} from '../../shared/interfaces/meal.interface';
-
 @Component({
   selector: 'app-add-meal',
   templateUrl: './add-meal.page.html',
   styleUrls: ['./add-meal.page.scss'],
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
+  CommonModule,
+  FormsModule,
     IonContent,
     IonHeader,
     IonToolbar,
@@ -97,17 +92,14 @@ import {
     IonIcon,
     IonThumbnail,
     IonSpinner,
-    IonModal,
-    IonDatetime,
     IonRadio,
-    IonFab,
-    IonFabButton,
-    IonFabList,
-    IonAvatar,
-    IonNote
+  IonNote,
+  IonModal,
+  DatePipe
   ]
 })
 export class AddMealPage implements OnInit, OnDestroy {
+  private eventBus = inject(EventBusService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toastController = inject(ToastController);
@@ -115,8 +107,7 @@ export class AddMealPage implements OnInit, OnDestroy {
   private modalController = inject(ModalController);
   private loadingController = inject(LoadingController);
 
-  @ViewChild('dateModal') dateModal!: IonModal;
-  @ViewChild('mealTypeModal') mealTypeModal!: IonModal;
+  // Removed unused @ViewChild IonModal references
 
   recentProducts: any[] = []; // \u2705 lista dinamica di prodotti recenti
 
@@ -132,7 +123,7 @@ export class AddMealPage implements OnInit, OnDestroy {
   originalMeal: Meal | null = null;
   
   // UI state
-  showDatePicker = false;
+  //showDatePicker = false;
   showMealTypeSelector = false;
   
   // Constants
@@ -142,28 +133,7 @@ export class AddMealPage implements OnInit, OnDestroy {
   // Exposed Math for template
   Math = Math;
 
-  constructor() {
-    addIcons({
-      checkmarkOutline,
-      calendarOutline,
-      restaurantOutline,
-      addCircleOutline,
-      searchOutline,
-      homeOutline,
-      cameraOutline,
-      timeOutline,
-      createOutline,
-      trashOutline,
-      add,
-      restaurant,
-      leafOutline,
-      nutritionOutline,
-      pizzaOutline,
-      cafeOutline,
-      fastFoodOutline,
-      wineOutline
-    });
-  }
+  constructor() {}
 
   async ngOnInit() {
     await this.initializePage();
@@ -302,18 +272,24 @@ export class AddMealPage implements OnInit, OnDestroy {
     this.router.navigate(['/pantry']);
   }
 
-  openDatePicker() {
-    this.showDatePicker = true;
+  async openDatePicker() {
+    const modal = await this.modalController.create({
+      component: DatePickerModalComponent,
+      componentProps: {
+        date: this.selectedDate,
+        max: this.today
+      }
+    });
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data) {
+      this.selectedDate = data;
+    }
   }
 
-  closeDatePicker() {
-    this.showDatePicker = false;
-  }
+  // closeDatePicker() { }
 
-  onDateChange(event: any) {
-    this.selectedDate = event.detail.value;
-    this.closeDatePicker();
-  }
+  // onDateChange(event: any) { }
 
   openMealTypeSelector() {
     this.showMealTypeSelector = true;
@@ -364,7 +340,7 @@ export class AddMealPage implements OnInit, OnDestroy {
         { text: 'Annulla', role: 'cancel' },
         {
           text: 'Conferma',
-          handler: (data) => {
+          handler: (data: any) => {
             const quantity = parseFloat(data.quantity);
             if (quantity > 0) {
               this.updateItemQuantity(item, quantity);
@@ -458,6 +434,7 @@ export class AddMealPage implements OnInit, OnDestroy {
   openQuickAddMenu() {}
 
   async saveMeal() {
+
     if (!this.selectedMealType) {
       await this.showErrorToast('Seleziona il tipo di pasto');
       return;
@@ -486,12 +463,12 @@ export class AddMealPage implements OnInit, OnDestroy {
 
       // TODO: chiamata API per salvare il pasto
 
+      // Emit event for dashboard update
+      this.eventBus.emitDataUpdated('meal');
       await this.showSuccessToast(
         this.isEditing ? 'Pasto aggiornato con successo' : 'Pasto salvato con successo'
       );
-      
       this.router.navigate(['/tabs/dashboard']);
-      
     } catch (error) {
       console.error('Error saving meal:', error);
       await this.showErrorToast('Errore durante il salvataggio');

@@ -1908,13 +1908,13 @@ ion-button{
   //  width: 90%;           /* pi� largo */
     height: 50px;         /* pi� alto */
     font-size: 20px;      /* testo pi� leggibile */
-    --background: #f07000;
+    --background: #28a745;
   }
 
   .action-btn.vals-btn {
     height: 50px;
     font-size: 20px;
-    --background: #cf0020;
+    --background: #28a745;
   
     ion-icon {
       color: #001d35;
@@ -1925,14 +1925,14 @@ ion-button{
     //  width: 90%;           /* pi� largo */
       height: 50px;         /* pi� alto */
       font-size: 16px;      /* testo pi� leggibile */
-      --background: #002085;
+      --background: #28a745;
     }
 
     .action-btn.weight-btn{
       //  width: 90%;           /* pi� largo */
         height: 50px;         /* pi� alto */
         font-size: 16px;      /* testo pi� leggibile */
-        --background: #570085;
+        --background: #28a745;
       }
 
     ion-input {
@@ -1971,4 +1971,37 @@ ion-button{
     --background: transparent;
 
   }
-  
+
+  // Calendario Modal/Wrapper
+.calendar-modal-wrapper {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 1.5rem 1rem 1rem 1rem;
+  max-width: 340px;
+  margin: 2rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+ion-datetime {
+  --background: #f8f8f8;
+  --border-radius: 12px;
+  --box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 1rem auto;
+  font-size: 1.1rem;
+}
+
+ion-modal.custom-calendar-modal {
+  --width: 360px;
+  --height: auto;
+  --border-radius: 20px;
+  --box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  --background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

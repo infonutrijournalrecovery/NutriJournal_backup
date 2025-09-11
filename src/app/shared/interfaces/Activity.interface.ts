@@ -1,41 +1,44 @@
-export interface Activity {
-  id?: string;
-  userId: string;
-  date: string; // ISO date string (YYYY-MM-DD)
-  type: ActivityType;
-  items: ActivityItem[];
-  totalNutrition: NutritionInfo;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface ActivityItem {
-  id?: string;
-  productId: string;
-  productName: string;
-  productBrand?: string;
-  quantity: number;
-  unit: QuantityUnit;
-  nutritionPer100g: NutritionInfo;
-  totalNutrition: NutritionInfo; // Calculated based on quantity
-  category?: ProductCategory;
-  ean?: string;
-  imageUrl?: string;
-}
-
 export interface NutritionInfo {
-  calories: number;
-  proteins: number;
-  carbohydrates: number;
-  fats: number;
+  calories?: number;
+  proteins?: number;
+  carbohydrates?: number;
+  fats?: number;
   fiber?: number;
   sugar?: number;
   sodium?: number;
   saturatedFats?: number;
-  // Micronutrients (optional)
   vitaminC?: number;
   calcium?: number;
   iron?: number;
+}
+export interface Activity {
+  id?: string | number;
+  userId?: string | number;
+  date?: string;
+  type?: ActivityType | string;
+  items?: ActivityItem[];
+  totalNutrition?: NutritionInfo;
+  createdAt?: string;
+  updatedAt?: string;
+  name?: string;
+  duration_minutes?: number;
+  calories_burned?: number;
+  duration?: number;
+  calories?: number;
+}
+
+export interface ActivityItem {
+  id?: string | number;
+  productId?: string | number;
+  productName?: string;
+  productBrand?: string;
+  quantity?: number;
+  unit?: QuantityUnit;
+  nutritionPer100g?: NutritionInfo;
+  totalNutrition?: NutritionInfo;
+  category?: ProductCategory;
+  ean?: string;
+  imageUrl?: string;
 }
 
 export interface PantryItem {

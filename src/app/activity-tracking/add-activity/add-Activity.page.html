@@ -79,7 +79,7 @@
                   <p *ngIf="item.productBrand">{{ item.productBrand }}</p>
                   <p class="quantity-info">
                     {{ item.quantity }} {{ item.unit }} • 
-                    <span class="calories">{{ Math.round(item.totalNutrition.calories) }} kcal</span>
+                    <span class="calories">{{ Math.round(item.totalNutrition?.calories || 0) }} kcal</span>
                   </p>
                 </ion-label>
                 
@@ -139,27 +139,7 @@
     </div>
   
     <!-- Date Picker Modal -->
-    <ion-modal #dateModal [isOpen]="showDatePicker" (didDismiss)="showDatePicker = false">
-      <ng-template>
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>Seleziona Data</ion-title>
-            <ion-buttons slot="end">
-              <ion-button (click)="closeDatePicker()">Chiudi</ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content>
-          <ion-datetime
-            #datetime
-            [value]="selectedDate"
-            presentation="date"
-            [max]="today"
-            (ionChange)="onDateChange($event)">
-          </ion-datetime>
-        </ion-content>
-      </ng-template>
-    </ion-modal>
+  <!-- Date picker modal handled dynamically by ModalController -->
   
     <!-- Activity Type Selector Modal -->
     <ion-modal #ActivityTypeModal [isOpen]="showActivityTypeSelector" (didDismiss)="showActivityTypeSelector = false">
