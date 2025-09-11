@@ -769,10 +769,17 @@
   <div *ngIf="!isDesktop" class="mobile-layout">
     <!-- Header con benvenuto e navigazione temporale -->
     <div class="welcome-header">
+      <div class="user-profile-section">
+        <ion-button 
+          fill="solid" 
+          class="profile-button"
+          (click)="openUserProfile()">
+          <ion-icon name="person-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
       <div class="welcome-content">
-        <h1>{{ getWelcomeMessage() }}</h1>
-        <p *ngIf="user">{{ user.name }}!</p>
-        <p class="welcome-subtitle">Ecco il tuo riepilogo</p>
+        <h1 *ngIf="user">{{ getWelcomeMessage() }} {{ user.name }}!</h1>
+   <!--   <p class="welcome-subtitle">Ecco il tuo riepilogo</p> -->
         
         <!-- Controlli di navigazione temporale mobile -->
         <div class="mobile-date-navigation" style="margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -827,6 +834,170 @@
     <div *ngIf="selectedSegment === 'nutrition'" class="content-section">
       
       <!-- Calorie Card -->
+      <ion-card class="desktop-nutrition-card modern-nutrition" style="--background: #ffffff; background-color: #ffffff !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;">
+        <ion-card-header style="--background: #e8f0fe; background-color: #e8f0fe !important; --color: #001d35; color: #001d35 !important;">
+          <ion-card-title style="--color: #001d35; color: #001d35 !important; font-weight: 600 !important;">
+            <ion-icon name="nutrition-outline"></ion-icon>
+            Stato Nutrizionale
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content style="--background: #ffffff; background-color: #ffffff !important; --color: #1a1c1e; color: #1a1c1e !important;">
+          
+          <!-- Semicircular Progress per Calorie Sovrapposte -->
+          <div class="semicircular-calories-section">
+            <div class="semicircular-progress-container">
+              
+              <!-- SVG con progress bar semicircolari separate -->
+              <div class="separated-progress">
+                <svg class="semicircular-progress-overlay" width="280" height="160" viewBox="0 0 280 160">
+                  
+                  <!-- Background semicircle per calorie consumate (esterno) -->
+                  <path
+                    d="M 20 140 A 120 120 0 0 1 260 140"
+                    fill="transparent"
+                    stroke="#e0e0e0"
+                    stroke-width="16"
+                    stroke-linecap="round"
+                  />
+                  
+                  <!-- Progress semicircle per calorie consumate (esterno) -->
+                  <path
+                    d="M 20 140 A 120 120 0 0 1 260 140"
+                    fill="transparent"
+                    [attr.stroke]="getCircularProgressColor(dailyStats.calories.percentage)"
+                    stroke-width="16"
+                    stroke-linecap="round"
+                    [style.stroke-dasharray]="377.0"
+                    [style.stroke-dashoffset]="consumedCaloriesProgressOffset"
+                    class="progress-semicircle consumed-outer"
+                  />
+                  
+                  <!-- Background semicircle per calorie bruciate (interno) -->
+                  <path
+                    d="M 55 140 A 85 85 0 0 1 225 140"
+                    fill="transparent"
+                    stroke="#f5f5f5"
+                    stroke-width="12"
+                    stroke-linecap="round"
+                  />
+                  
+                  <!-- Progress semicircle per calorie bruciate (interno) -->
+                  <path
+                    d="M 55 140 A 85 85 0 0 1 225 140"
+                    fill="transparent"
+                    stroke="#ff9800"
+                    stroke-width="12"
+                    stroke-linecap="round"
+                    [style.stroke-dasharray]="267.0"
+                    [style.stroke-dashoffset]="burnedCaloriesProgressOffset"
+                    class="progress-semicircle burned-inner"
+                  />
+                  
+                </svg>
+              </div>
+              
+              <!-- Informazioni numeriche posizionate lateralmente -->
+              <div class="calories-data-overlay">
+                
+                <!-- Calorie consumate (lato sinistro) -->
+                <div class="calories-info-box consumed-box">
+                  <div class="calories-label">MANGIATE</div>
+                  <div class="calories-values">
+                    <span class="main-value">{{ dailyStats.calories.consumed }}</span>
+                    <span class="separator">/</span>
+                    <span class="goal-value">{{ dailyStats.calories.adjustedGoal }}</span>
+                  </div>
+                  <div class="calories-unit">kcal</div>
+                </div>
+                
+                <!-- Calorie bruciate (lato destro) -->
+                <div class="calories-info-box burned-box">
+                  <div class="calories-label">BRUCIATE</div>
+                  <div class="calories-values">
+                    <span class="main-value">{{ dailyStats.calories.burned }}</span>
+                  </div>
+                  <div class="calories-unit">kcal</div>
+                </div>
+                
+              </div>
+              
+              <!-- Riepilogo centrale sotto le progress bar -->
+              <div class="calories-summary-bottom">
+                <div class="remaining-calories" [ngClass]="{
+                  'positive': dailyStats.calories.remaining > 0,
+                  'negative': dailyStats.calories.remaining <= 0
+                }">
+                  <ion-icon [name]="dailyStats.calories.remaining > 0 ? 'checkmark-circle' : 'alert-circle'"></ion-icon>
+                  {{ dailyStats.calories.remaining > 0 ? 'Rimangono ' + dailyStats.calories.remaining + ' kcal' : 'Eccesso di ' + getMathAbs(dailyStats.calories.remaining) + ' kcal' }}
+                </div>
+              </div>
+              
+            </div>
+          </div>
+
+          <!-- Macronutrienti -->
+          <div class="macros-section">
+
+            <!-- Proteine -->
+            <div class="macro-item proteins">
+              <div class="macro-header">
+                <ion-icon name="fitness-outline" class="macro-icon protein"></ion-icon>
+                <span class="macro-label">Proteine</span>
+                <span class="macro-values">{{ dailyStats.proteins.consumed }}/{{ dailyStats.proteins.goal }}g</span>
+              </div>
+              <ion-progress-bar 
+                [value]="dailyStats.proteins.percentage / 100"
+                [color]="getProgressColor(dailyStats.proteins.percentage)"
+                class="macro-progress">
+              </ion-progress-bar>
+            </div>
+
+            <!-- Carboidrati -->
+            <div class="macro-item carbs">
+              <div class="macro-header">
+                <ion-icon name="restaurant-outline" class="macro-icon carb"></ion-icon>
+                <span class="macro-label">Carboidrati</span>
+                <span class="macro-values">{{ dailyStats.carbs.consumed }}/{{ dailyStats.carbs.goal }}g</span>
+              </div>
+              <ion-progress-bar 
+                [value]="dailyStats.carbs.percentage / 100"
+                [color]="getProgressColor(dailyStats.carbs.percentage)"
+                class="macro-progress">
+              </ion-progress-bar>
+            </div>
+
+            <!-- Grassi -->
+            <div class="macro-item fats">
+              <div class="macro-header">
+                <ion-icon name="water-outline" class="macro-icon fat"></ion-icon>
+                <span class="macro-label">Grassi</span>
+                <span class="macro-values">{{ dailyStats.fats.consumed }}/{{ dailyStats.fats.goal }}g</span>
+              </div>
+              <ion-progress-bar 
+                [value]="dailyStats.fats.percentage / 100"
+                [color]="getProgressColor(dailyStats.fats.percentage)"
+                class="macro-progress">
+              </ion-progress-bar>
+            </div>
+
+            <!-- Acqua -->
+            <div class="macro-item water">
+              <div class="macro-header">
+                <ion-icon name="fitness-outline" class="macro-icon water"></ion-icon>
+                <span class="macro-label">Acqua</span>
+                <span class="macro-values">{{ dailyStats.water.consumed }}/{{ dailyStats.water.goal }}ml</span>
+              </div>
+              <ion-progress-bar 
+                [value]="dailyStats.water.percentage / 100"
+                [color]="getProgressColor(dailyStats.water.percentage)"
+                class="macro-progress">
+              </ion-progress-bar>
+            </div>
+
+          </div>
+        </ion-card-content>
+      </ion-card>
+<!--
       <ion-card class="nutrition-card calories-card">
         <ion-card-header>
           <ion-card-title>
@@ -852,12 +1023,12 @@
             </div>
           </div>
         </ion-card-content>
-      </ion-card>
+      </ion-card> 
 
-      <!-- Macronutrienti Grid Mobile -->
+      <!-- Macronutrienti Grid Mobile
       <ion-grid class="macros-grid">
-        <ion-row>
-          <!-- Carboidrati -->
+        <ion-row> -->
+          <!-- Carboidrati 
           <ion-col size="12" size-md="4">
             <ion-card class="macro-card carbs">
               <ion-card-content>
@@ -874,9 +1045,9 @@
                 </ion-progress-bar>
               </ion-card-content>
             </ion-card>
-          </ion-col>
+          </ion-col> -->
 
-          <!-- Proteine -->
+          <!-- Proteine 
           <ion-col size="12" size-md="4">
             <ion-card class="macro-card proteins">
               <ion-card-content>
@@ -893,9 +1064,9 @@
                 </ion-progress-bar>
               </ion-card-content>
             </ion-card>
-          </ion-col>
+          </ion-col> -->
 
-          <!-- Grassi -->
+          <!-- Grassi 
           <ion-col size="12" size-md="4">
             <ion-card class="macro-card fats">
               <ion-card-content>
@@ -914,9 +1085,9 @@
             </ion-card>
           </ion-col>
         </ion-row>
-      </ion-grid>
+      </ion-grid> -->
 
-      <!-- Acqua -->
+      <!-- Acqua 
       <ion-card class="water-card">
         <ion-card-content>
           <div class="water-header">
@@ -942,7 +1113,7 @@
           </div>
         </ion-card-content>
       </ion-card>
-
+    -->
       <!-- Gestione Pasti Mobile -->
       <ion-card class="recent-meals-card mobile-meal-management">
         <ion-card-header>
@@ -1204,6 +1375,155 @@
         </ion-card-content>
       </ion-card>
 
+      <ion-card class="desktop-activities-card" style="box-shadow: none; border: none;">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="trending-up-outline"></ion-icon>
+            Attività Recenti
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div *ngIf="recentActivities.length === 0" class="desktop-empty-state">
+            <ion-icon name="trending-up-outline" style="color: #ff0000;"></ion-icon>
+            <p>Nessuna attività registrata</p>
+            <ion-button 
+            fill="outline"
+            size="small"
+            class="action-btn activity-btn"
+            (click)="goToActivity()">
+            <ion-icon slot="start" name="fitness-outline"></ion-icon>
+            + Registra Attività
+          </ion-button>
+          </div>
+          
+          <div *ngFor="let activity of recentActivities" class="desktop-activity-item">
+            <div class="activity-info">
+              <h4>{{ activity.type }}</h4>
+              <p>
+                {{ activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?' }} min •
+                {{ activity.totalNutrition.calories || '?' }} kcal
+              </p>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      <ion-card class="desktop-activities-card" style="box-shadow: none; border: none;">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="trending-up-outline"></ion-icon>
+            Azioni Rapide
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="button-container">
+            <ion-button 
+            fill="solid" 
+            class="action-btn scan-btn"
+            [routerLink]="['/scanner']">
+            <ion-icon slot="start" name="barcode-outline"></ion-icon>
+            Scansiona prodotto
+          </ion-button>
+        
+        <ion-button 
+            fill="solid" 
+            class="action-btn pantry-btn"
+            [routerLink]="['/pantry']">
+            <ion-icon slot="start" name="fast-food-outline"></ion-icon>
+            Dispensa
+        </ion-button>
+
+
+        <ion-button 
+        fill="solid" 
+        class="action-btn vals-btn"
+        [routerLink]="['/vals']">
+        <ion-icon slot="start" name="stats-chart-outline"></ion-icon>
+        I miei valori
+    </ion-button>
+        
+        <!--
+          <ion-button 
+              fill="solid" 
+              class="action-btn water-btn"
+              expand="block">
+                <ion-icon slot="start" name="water-outline"></ion-icon>
+                Bevi acqua
+          </ion-button> -->
+        </div>
+      </ion-card-content>
+
+      <ion-item>
+        <!-- Casella di testo -->
+        <ion-item>
+          <ion-input 
+            type="number" 
+            [formControl]="waterAmount"
+            label="ml">
+          </ion-input>
+        </ion-item>
+      
+        <!-- Pulsante accanto
+        <ion-button (click)="confirmWater()">
+          Conferma
+        </ion-button> -->
+        <ion-button 
+              fill="solid" 
+              class="action-btn water-btn"
+              expand="block"
+              (click)="addWater()">
+                <ion-icon slot="start" name="water-outline"></ion-icon>
+                Bevi acqua
+          </ion-button>
+      </ion-item>
+      <ion-item>
+        <ion-button 
+              fill="solid" 
+              class="bicchiere-btn"
+              expand="block"
+              (click)="waterForm.get('waterAmount')?.setValue(100); confirmWater()">
+                Bicchiere piccolo (100ml)
+          </ion-button>
+          <ion-button 
+              fill="solid" 
+              class="bicchiere-btn"
+              expand="block"
+              (click)="waterForm.get('waterAmount')?.setValue(250); confirmWater()">
+                Bicchiere medio (250ml)
+          </ion-button>
+          <ion-button 
+              fill="solid" 
+              class="bicchiere-btn"
+              expand="block"
+              (click)="waterForm.get('waterAmount')?.setValue(500); confirmWater()">
+                Bottiglietta (500ml)
+          </ion-button>
+      </ion-item>
+      <ion-item>
+        <!-- Casella di testo -->
+        <ion-item>
+          <ion-input 
+            type="number" 
+            [formControl]="waterAmount"
+            label="kg">
+          </ion-input>
+        </ion-item>
+      
+        <!-- Pulsante accanto
+        <ion-button (click)="confirmWater()">
+          Conferma
+        </ion-button> -->
+        <ion-button 
+              fill="solid" 
+              class="action-btn weight-btn"
+              expand="block"
+              (click)="addWater()">
+                <ion-icon slot="start" name="scale-outline"></ion-icon>
+                Aggiungi peso giornaliero
+          </ion-button>
+      </ion-item>
+    </ion-card>
+
+
     </div>
 
     <!-- Vista Attività Mobile -->
@@ -1243,61 +1563,21 @@
               Aggiungi Attività
             </ion-button>
           </div>
-          <div *ngIf="activitiesToday.length > 0" class="activities-list">
-            <ng-container *ngFor="let activity of activitiesToday">
-              <div class="activity-row">
-                <ion-icon name="fitness-outline" class="activity-icon"></ion-icon>
-                <div class="activity-info">
-                  <span class="activity-name">{{ activity.name || activity.type }}</span>
-                  <span class="activity-duration">{{ activity.duration || '?' }} min</span>
-                  <span class="activity-kcal">{{ activity.calories || '?' }} kcal</span>
-                </div>
-              </div>
-            </ng-container>
-          </div>
+          <ion-item *ngFor="let activity of activitiesToday" class="activity-item">
+            <ion-icon [name]="'fitness-outline'" slot="start"></ion-icon>
+            <ion-label>
+              <h3>{{ activity.type }}</h3>
+              <p>
+                {{ activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?' }} min
+                •
+                {{ activity.totalNutrition?.calories || '?' }} kcal
+              </p>
+            </ion-label>
+          </ion-item>
         </ion-card-content>
       </ion-card>
 
     </div>
-
-    <!-- FAB per aggiungere (solo mobile) -->
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="isMobile">
-      <ion-fab-button color="primary">
-        <ion-icon name="add-outline"></ion-icon>
-      </ion-fab-button>
-      <ion-fab-list side="top">
-        <ion-fab-button 
-          color="warning" 
-          (click)="addMeal('breakfast')"
-          title="Aggiungi Colazione">
-          <ion-icon name="cafe-outline"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-button 
-          color="success" 
-          (click)="addMeal('lunch')"
-          title="Aggiungi Pranzo">
-          <ion-icon name="restaurant-outline"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-button 
-          color="tertiary" 
-          (click)="addMeal('dinner')"
-          title="Aggiungi Cena">
-          <ion-icon name="wine-outline"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-button 
-          color="medium" 
-          (click)="addMeal('snack')"
-          title="Aggiungi Spuntino">
-          <ion-icon name="fast-food-outline"></ion-icon>
-        </ion-fab-button>
-        <ion-fab-button 
-          color="secondary" 
-          (click)="openGeneralMealAdd()"
-          title="Aggiungi Pasto Generico">
-          <ion-icon name="nutrition-outline"></ion-icon>
-        </ion-fab-button>
-      </ion-fab-list>
-    </ion-fab>
   </div>
 
 </ion-content>
