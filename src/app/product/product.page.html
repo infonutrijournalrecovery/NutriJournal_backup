@@ -98,8 +98,11 @@
       </ion-item>
       <ion-item>
         <div class="button-group">
-          <ion-button fill="solid" [disabled]="inPantry">
-            Aggiungi in dispensa
+          <div *ngIf="inPantry" class="pantry-status-msg" style="color: var(--ion-color-success); margin-bottom: 0.5em;">
+            Prodotto già presente in dispensa (status: disponibile)
+          </div>
+          <ion-button fill="solid" [disabled]="inPantry" (click)="addToPantry()">
+            {{ inPantry ? 'Già in dispensa' : 'Aggiungi in dispensa' }}
           </ion-button>
           <ion-button fill="solid" (click)="openMealActionSheet()">
             Aggiungi al pasto

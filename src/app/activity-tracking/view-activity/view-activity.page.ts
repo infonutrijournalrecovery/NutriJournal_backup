@@ -50,22 +50,9 @@ import {
     IonButtons,
     IonBackButton,
     IonIcon,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
     IonItem,
     IonLabel,
-    IonInput,
-    IonButton,
     IonList,
-    IonAvatar,
-    IonChip,
-    IonSpinner,
-    IonRadioGroup,
-    IonRadio,
-    IonDatetime,
-    IonNote,
     IonProgressBar
   ]
 })

@@ -3,6 +3,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import {
   IonContent,
   IonHeader,
@@ -114,11 +116,12 @@ export class PantryPage implements OnInit, OnDestroy {
   private alertController = inject(AlertController);
   private modalController = inject(ModalController);
   private loadingController = inject(LoadingController);
+  private http = inject(HttpClient);
 
   @ViewChild('dateModal') dateModal!: IonModal;
   @ViewChild('mealTypeModal') mealTypeModal!: IonModal;
 
-  recentProducts: any[] = []; // \u2705 lista dinamica di prodotti recenti
+  pantryItems: any[] = []; // Lista prodotti dispensa dal backend
 
   // State
   isLoading = false;
@@ -153,59 +156,34 @@ export class PantryPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.initializePage();
+    await this.loadPantryItems();
+  }
 
-    // \u2705 Simulazione prodotti recenti - qui puoi sostituire con chiamata HTTP
-    this.recentProducts = [
-      {
-        name: 'Pasta Barilla',
-        brand: 'Barilla',
-        quantity: '150 g',
-        image: 'assets/img/pasta.png',
-        lastUsed: '2025-09-06T12:30:00'
-      },
-      {
-        name: 'Latte Intero',
-        brand: 'Parmalat',
-        quantity: '1 L',
-        image: 'assets/img/latte.png',
-        lastUsed: '2025-09-05T19:20:00'
-      },
-      {
-        name: 'Latte Intero',
-        brand: 'Parmalat',
-        quantity: '1 L',
-        image: 'assets/img/latte.png',
-        lastUsed: '2025-09-05T19:20:00'
-      },
-      {
-        name: 'Latte Intero',
-        brand: 'Parmalat',
-        quantity: '1 L',
-        image: 'assets/img/latte.png',
-        lastUsed: '2025-09-05T19:20:00'
-      },
-      {
-        name: 'Latte Intero',
-        brand: 'Parmalat',
-        quantity: '1 L',
-        image: 'assets/img/latte.png',
-        lastUsed: '2025-09-05T19:20:00'
-      },
-      {
-        name: 'Latte Intero',
-        brand: 'Parmalat',
-        quantity: '1 L',
-        image: 'assets/img/latte.png',
-        lastUsed: '2025-09-05T19:20:00'
-      },
-      {
-        name: 'Latte Intero',
-        brand: 'Parmalat',
-        quantity: '1 L',
-        image: 'assets/img/latte.png',
-        lastUsed: '2025-09-05T19:20:00'
+  /**
+   * Carica la dispensa dal backend
+   */
+  async loadPantryItems() {
+    this.isLoading = true;
+    try {
+  // Recupera il token JWT da localStorage (o altro storage)
+  const token = localStorage.getItem('nutrijournal_token');
+  const httpHeaders = token ? { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) } : {};
+  const res: any = await this.http.get(`${environment.apiUrl}/pantry`, httpHeaders).toPromise();
+      console.log('DEBUG pantry response:', res); // <-- LOG DI DEBUG
+      if (res && res.data && res.data.items) {
+        this.pantryItems = res.data.items;
+      } else if (Array.isArray(res)) {
+        this.pantryItems = res;
+      } else {
+        this.pantryItems = [];
       }
-    ];
+    } catch (error) {
+      console.error('Errore caricamento dispensa:', error);
+      await this.showErrorToast('Errore durante il caricamento della dispensa');
+      this.pantryItems = [];
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   ngOnDestroy() {
@@ -216,9 +194,12 @@ export class PantryPage implements OnInit, OnDestroy {
    * Gestisce il click su un prodotto recente
    */
   selectProduct(product: any) {
-    console.log('Prodotto selezionato:', product);
-    // TODO: Aggiungi logica per aggiungerlo al pasto o aprire modal dettagli
-    this.showToast(`${product.name} selezionato`);
+    const ean = product.barcode || product.ean;
+    if (ean) {
+      this.router.navigate(['/product', ean]);
+    } else {
+      this.showToast('Barcode non disponibile per questo prodotto');
+    }
   }
 
   /**

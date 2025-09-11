@@ -64,7 +64,21 @@ export interface RecentProduct {
   category?: ProductCategory;
 }
 
-export type ActivityType = 'Colazione' | 'Pranzo' | 'Spuntini' | 'Cena';
+export type ActivityType =
+  | 'Camminata'
+  | 'Corsa'
+  | 'Ciclismo'
+  | 'Nuoto'
+  | 'Palestra'
+  | 'Corpo libero'
+  | 'Sollevamento pesi'
+  | 'Yoga'
+  | 'Stretching'
+  | 'Pilates'
+  | 'Calcio'
+  | 'Basket'
+  | 'Tennis'
+  | 'Pallavolo';
 
 export type QuantityUnit = 'g' | 'ml' | 'porzione' | 'pezzo' | 'tazza' | 'cucchiaio';
 

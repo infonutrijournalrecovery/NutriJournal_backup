@@ -44,6 +44,18 @@ export class ProductService {
   // Verifica se il prodotto è già in dispensa tramite nome e brand
   checkProductInPantry(name: string, brand: string): Observable<{success: boolean, inPantry: boolean}> {
     const params = new URLSearchParams({ name, brand });
-    return this.http.get<{success: boolean, inPantry: boolean}>(`http://localhost:3000/api/pantry/has?${params.toString()}`);
+    return this.http.get<{success: boolean, inPantry: boolean}>(`${environment.apiUrl}/pantry/has?${params.toString()}`);
+  }
+
+  // Verifica se il prodotto è già in dispensa tramite barcode/EAN
+  checkProductInPantryByBarcode(barcode: string): Observable<{success: boolean, inPantry: boolean}> {
+    return this.http.get<{success: boolean, inPantry: boolean}>(`${environment.apiUrl}/pantry/has-product?barcode=${encodeURIComponent(barcode)}`);
+  }
+
+  // Aggiungi prodotto in dispensa tramite barcode/EAN, nome, quantità e unità
+  addProductToPantryByBarcode(barcode: string, name: string, quantity: number = 1, unit: string = 'pz', brand: string = '', category: string = ''): Observable<any> {
+    const body = { barcode, name, quantity, unit, brand, category };
+    console.log('DEBUG POST /api/pantry', body);
+    return this.http.post(`${environment.apiUrl}/pantry`, body);
   }
 }

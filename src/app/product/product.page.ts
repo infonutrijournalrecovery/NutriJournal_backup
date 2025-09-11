@@ -74,21 +74,11 @@ import { DeviceService } from '../shared/services/device.service';
     IonButtons,
     IonBackButton,
     IonIcon,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonItem,
-    IonLabel,
-    IonInput,
-    IonButton,
-    IonList,
-    IonAvatar,
-    IonChip,
-    IonSpinner,
-    IonRadioGroup,
-    IonRadio,
-    IonDatetime,
+  IonItem,
+  IonLabel,
+  IonButton,
+  IonList,
+  IonSpinner,
   ]
 })
 export class ProductPage {
@@ -123,15 +113,16 @@ constructor() {
     if (ean) {
       this.productService.getProductByBarcode(ean).subscribe({
         next: (res) => {
-          // Supporta sia risposta backend custom che OpenFoodFacts
-          // Supporta sia risposta backend custom che OpenFoodFacts
           const data = res?.data;
-          // Se data ha la proprietà 'product', usa quella, altrimenti usa data stesso
           const p = (data && typeof data === 'object' && 'product' in data) ? (data as any).product : data;
+          console.log('DEBUG prodotto ricevuto:', p);
+          const nomeProdotto = p.name_it || p.name || '';
+          if (!nomeProdotto) {
+            this.showToast('Attenzione: il prodotto non ha un nome valido!');
+          }
           if (p) {
-            // Mapping leggibile per template, compatibile con risposta backend
             this.prodotto = {
-              nome: p.name_it || p.name || '',
+              nome: nomeProdotto,
               marca: p.brand || '',
               quantita: p.serving?.size || '',
               nutrienti: p.nutrition_per_100g ? {
@@ -146,7 +137,7 @@ constructor() {
               additivi: Array.isArray(p.additives)
                 ? p.additives
                     .map((codice: string) => {
-                      const code = codice.replace(/^\w+:/, '').toLowerCase();
+                      const code = codice.replace(/^[\w]+:/, '').toLowerCase();
                       return {
                         nome: code.toUpperCase() + (ADDITIVI_MAP[code] ? ' - ' + ADDITIVI_MAP[code] : '')
                       };
@@ -154,7 +145,7 @@ constructor() {
                     .filter((a: { nome: string }) => a.nome && a.nome.trim() !== '')
                 : (typeof p.additives === 'string' ? p.additives.split(',')
                     .map((a: string) => {
-                      const code = a.trim().replace(/^\w+:/, '').toLowerCase();
+                      const code = a.trim().replace(/^[\w]+:/, '').toLowerCase();
                       return {
                         nome: code.toUpperCase() + (ADDITIVI_MAP[code] ? ' - ' + ADDITIVI_MAP[code] : '')
                       };
@@ -162,25 +153,14 @@ constructor() {
                     .filter((a: { nome: string }) => a.nome && a.nome.trim() !== '') : []),
               allergeni: Array.isArray(p.allergens)
                 ? p.allergens
-                    .map((codice: string) => codice.replace(/^\w+:/, ''))
+                    .map((codice: string) => codice.replace(/^[\w]+:/, ''))
                     .filter((a: string) => a && a.trim() !== '')
                 : (typeof p.allergens === 'string' ? p.allergens.split(',')
-                    .map((a: string) => a.trim().replace(/^\w+:/, ''))
+                    .map((a: string) => a.trim().replace(/^[\w]+:/, ''))
                     .filter((a: string) => a && a.trim() !== '') : [])
             };
-            // Dopo aver caricato il prodotto, verifica se è già in dispensa SOLO se nome e marca sono valorizzati
-            if (this.prodotto.nome && this.prodotto.marca) {
-              this.productService.checkProductInPantry(this.prodotto.nome, this.prodotto.marca).subscribe({
-                next: (result) => {
-                  this.inPantry = !!result.inPantry;
-                },
-                error: () => {
-                  this.inPantry = false;
-                }
-              });
-            } else {
-              this.inPantry = false;
-            }
+            // Dopo aver caricato il prodotto, verifica se è già in dispensa tramite barcode (EAN) e status
+            this.checkPantryStatusByBarcode(ean);
           } else {
             this.prodotto = null;
             this.showToast('Prodotto non trovato');
@@ -195,6 +175,90 @@ constructor() {
       this.prodotto = null;
       this.showToast('EAN non valido');
     }
+
+  }
+
+  /**
+   * Controlla se il prodotto è in dispensa e con status 'available'
+   */
+  checkPantryStatusByBarcode(ean: string) {
+    // Chiamata custom: recupera tutti gli item in dispensa con quel barcode
+    // (deve essere implementata lato backend se non esiste)
+    // Qui simuliamo con la chiamata già esistente, ma in futuro puoi fare una GET /api/pantry?barcode=...
+    this.productService.checkProductInPantryByBarcode(ean).subscribe({
+      next: (result: any) => {
+        // Se il backend restituisce info dettagliate, controlla status
+        // Qui assumiamo che result abbia un array di item o un campo status
+        if (result && Array.isArray(result.items)) {
+          // Cerca un item con status 'available'
+          this.inPantry = result.items.some((item: any) => item.status === 'available');
+        } else if (result && typeof result.inPantry !== 'undefined') {
+          // Fallback: vecchia logica booleana
+          this.inPantry = !!result.inPantry;
+        } else {
+          this.inPantry = false;
+        }
+      },
+      error: () => {
+        this.inPantry = false;
+      }
+    });
+  // RIMOSSA GRAFFA IN PIU'
+  }
+
+  /** Aggiungi il prodotto in dispensa tramite barcode/EAN */
+  addToPantry() {
+    const ean = this.route.snapshot.paramMap.get('ean');
+    // Ricava il nome prodotto dal backend prioritizzando name_it, poi name
+    let nome = '';
+    if (this.prodotto) {
+      nome = this.prodotto.nome || this.prodotto.name || '';
+    }
+    const brand = this.prodotto?.marca || this.prodotto?.brand || '';
+    if (!nome || nome.trim() === '') {
+      this.showToast('Errore: il prodotto non ha un nome valido, impossibile aggiungere in dispensa.');
+      return;
+    }
+    if (!brand || brand.trim() === '') {
+      this.showToast('Errore: la marca è obbligatoria per aggiungere in dispensa.');
+      return;
+    }
+    this.productService.checkProductInPantry(nome, brand).subscribe({
+      next: (result) => {
+        if (result.inPantry) {
+          this.showToast('Errore: già presente in dispensa');
+        } else {
+          if (!ean) {
+            this.showToast('EAN non valido');
+            return;
+          }
+          const quantity = 1;
+          const unit = 'pz';
+          // Log per debug
+          console.log('DEBUG: Chiamo addProductToPantryByBarcode con:', {ean, nome, quantity, unit, brand});
+          this.productService.addProductToPantryByBarcode(ean, nome, quantity, unit, brand).subscribe({
+            next: (res) => {
+              if (res && res.success) {
+                this.inPantry = true;
+                this.showToast('Prodotto aggiunto correttamente in dispensa');
+              } else {
+                this.showToast("Errore durante l'aggiunta in dispensa");
+              }
+            },
+            error: (err) => {
+              if (err && err.error && err.error.message) {
+                this.showToast(err.error.message);
+              } else {
+                this.showToast("Errore durante l'aggiunta in dispensa");
+              }
+            }
+          });
+        }
+      },
+      error: () => {
+        this.showToast('Errore durante il controllo dispensa');
+      }
+    });
   }
 
   isUserAllergic(allergene: string): boolean {

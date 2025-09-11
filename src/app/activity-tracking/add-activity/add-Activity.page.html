@@ -45,7 +45,7 @@
                 (click)="openActivityTypeSelector()"
                 class="Activity-type-button"
 >
-                <ion-icon [name]="getActivityTypeIcon()" slot="start"></ion-icon>
+                
                 {{ selectedActivityType || 'Seleziona tipo' }}
               </ion-button>
             </div>
@@ -112,17 +112,25 @@
         </ion-card-header>
         <ion-card-content>
           <div class="add-methods">
-            <ion-input 
-              type="text" 
-              placeholder="Inserisci la durata dell'attività in minuti" 
-              (focus)="openSearchModal()"
-              readonly></ion-input>
-            
-            <ion-button 
-              expand="block" 
-              fill="solid" 
+            <ion-input
+              type="number"
+              min="1"
+              placeholder="Durata in minuti"
+              [(ngModel)]="activityDuration"
+              required
+              inputmode="numeric"
+              name="activityDuration"
+              id="activityDurationInput"
+            ></ion-input>
+            <div *ngIf="selectedActivityType && activityDuration && activityDuration > 0" class="calorie-preview" style="margin: 0.5em 0; color: var(--ion-color-primary);">
+              Calorie stimate: <b>{{ calculatedCalories }}</b> kcal
+            </div>
+            <ion-button
+              expand="block"
+              fill="solid"
               class="add-method-button"
-              (click)="goToScanner()">
+              [disabled]="!selectedActivityType || !activityDuration || activityDuration <= 0"
+              (click)="saveActivity()">
               Conferma
             </ion-button>
           </div>

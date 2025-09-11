@@ -27,9 +27,6 @@ import {
   IonModal,
   IonDatetime,
   IonRadio,
-  IonFab,
-  IonFabButton,
-  IonFabList,
   IonInput,
   ToastController,
   AlertController,
@@ -67,6 +64,8 @@ import {
   NutritionInfo,
   ActivitySearchResult
 } from '../../shared/interfaces/Activity.interface';
+import { ApiService } from '../../shared/services/api.service';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   selector: 'app-add-Activity',
@@ -95,14 +94,11 @@ import {
     IonLabel,
     IonIcon,
     IonThumbnail,
-    IonSpinner,
-    IonModal,
-    IonDatetime,
-    IonRadio,
-    IonFab,
-    IonFabButton,
-    IonFabList,
-    IonInput
+  IonSpinner,
+  IonModal,
+  IonDatetime,
+  IonRadio,
+  IonInput
   ]
 })
 export class AddActivityPage implements OnInit, OnDestroy {
@@ -112,6 +108,8 @@ export class AddActivityPage implements OnInit, OnDestroy {
   private alertController = inject(AlertController);
   private modalController = inject(ModalController);
   private loadingController = inject(LoadingController);
+  private apiService = inject(ApiService);
+  private authService = inject(AuthService);
 
   @ViewChild('dateModal') dateModal!: IonModal;
   @ViewChild('ActivityTypeModal') ActivityTypeModal!: IonModal;
@@ -133,7 +131,49 @@ export class AddActivityPage implements OnInit, OnDestroy {
   
   // Constants
   today = new Date().toISOString();
-  ActivityTypes: ActivityType[] = ['Colazione', 'Pranzo', 'Spuntini', 'Cena', 'Cena', 'Cena', 'Cena', 'Cena', 'Cena', 'Cena', 'Cena'];
+  ActivityTypes: ActivityType[] = [
+    'Camminata',
+    'Corsa',
+    'Ciclismo',
+    'Nuoto',
+    'Palestra',
+    'Corpo libero',
+    'Sollevamento pesi',
+    'Yoga',
+    'Stretching',
+    'Pilates',
+    'Calcio',
+    'Basket',
+    'Tennis',
+    'Pallavolo'
+  ];
+  // Per la durata inserita dall'utente
+  activityDuration: number | null = null;
+
+  // Calorie per minuto per ogni attività (valori medi da fonti attendibili)
+  private caloriesPerMinute: Record<string, number> = {
+    'Corsa': 10,         // 10 kcal/min (corsa moderata 8-10 km/h)
+    'Camminata': 4,      // 4 kcal/min (camminata veloce)
+    'Ciclismo': 8,       // 8 kcal/min (ciclismo moderato)
+    'Nuoto': 9,          // 9 kcal/min (nuoto stile libero moderato)
+    'Palestra': 6,       // 6 kcal/min (allenamento pesi/cardio)
+    'Corpo libero': 5,   // 5 kcal/min (bodyweight)
+    'Sollevamento pesi': 7, // 7 kcal/min (weightlifting)
+    'Yoga': 3,           // 3 kcal/min
+    'Stretching': 2,     // 2 kcal/min
+    'Pilates': 3,        // 3 kcal/min
+    'Calcio': 8,         // 8 kcal/min
+    'Basket': 7,         // 7 kcal/min
+    'Tennis': 6,         // 6 kcal/min
+    'Pallavolo': 5       // 5 kcal/min
+  };
+
+  // Calorie calcolate
+  get calculatedCalories(): number | null {
+    if (!this.selectedActivityType || !this.activityDuration || this.activityDuration <= 0) return null;
+  const cpm = this.caloriesPerMinute[this.selectedActivityType] || 5;
+    return Math.round(cpm * this.activityDuration);
+  }
   
   // Exposed Math for template
   Math = Math;
@@ -257,21 +297,15 @@ export class AddActivityPage implements OnInit, OnDestroy {
    * Get icon for Activity type
    */
   getActivityTypeIcon(type?: ActivityType): string {
-    if (!type) return 'restaurant-outline';
-    
+    if (!type) return 'bicycle-outline';
     switch (type) {
-      case 'Colazione': return 'cafe-outline';
-      case 'Pranzo': return 'restaurant-outline';
-      case 'Spuntini': return 'fast-food-outline';
-      case 'Cena': return 'wine-outline';
-      case 'Cena': return 'wine-outline';
-      case 'Cena': return 'wine-outline';
-      case 'Cena': return 'wine-outline';
-      case 'Cena': return 'wine-outline';
-      case 'Cena': return 'wine-outline';
-      case 'Cena': return 'wine-outline';
-      case 'Cena': return 'wine-outline';
-      default: return 'restaurant-outline';
+      case 'Corsa': return 'walk-outline';
+      case 'Camminata': return 'walk-outline';
+      case 'Ciclismo': return 'bicycle-outline';
+      case 'Nuoto': return 'water-outline';
+      case 'Palestra': return 'barbell-outline';
+      case 'Yoga': return 'accessibility-outline';
+      default: return 'bicycle-outline';
     }
   }
 
@@ -554,44 +588,55 @@ export class AddActivityPage implements OnInit, OnDestroy {
    */
   async saveActivity() {
     if (!this.selectedActivityType) {
-      await this.showErrorToast('Seleziona il tipo di pasto');
+      await this.showErrorToast('Seleziona il tipo di attività');
       return;
     }
-
-    if (this.ActivityItems.length === 0) {
-      await this.showErrorToast('Aggiungi almeno un prodotto');
+    if (!this.activityDuration || this.activityDuration <= 0) {
+      await this.showErrorToast('Inserisci la durata in minuti');
       return;
     }
-
     try {
       this.isSaving = true;
-      
-      const ActivityData: Activity = {
-        userId: 'current-user-id', // TODO: Get from auth service
-        date: this.selectedDate.split('T')[0], // Extract date part
-        type: this.selectedActivityType,
-        items: this.ActivityItems,
-        totalNutrition: {
-          calories: this.getTotalCalories(),
-          proteins: this.getTotalProteins(),
-          carbohydrates: this.getTotalCarbs(),
-          fats: this.getTotalFats()
-        }
+      // Prendi userId dall'utente loggato
+      const user = this.authService.currentUser || { id: null };
+      if (!user.id) {
+        await this.showErrorToast('Utente non autenticato');
+        return;
+      }
+      // Mappa tra nome italiano e chiave backend
+      const activityTypeMap: { [key: string]: string } = {
+        'Camminata': 'walking',
+        'Corsa': 'running',
+        'Ciclismo': 'cycling',
+        'Nuoto': 'swimming',
+        'Palestra': 'gym',
+        'Corpo libero': 'bodyweight',
+        'Sollevamento pesi': 'weightlifting',
+        'Yoga': 'yoga',
+        'Stretching': 'stretching',
+        'Pilates': 'pilates',
+        'Calcio': 'soccer',
+        'Basket': 'basketball',
+        'Tennis': 'tennis',
+        'Pallavolo': 'volleyball',
+        'Ballo': 'dancing',
+        'Escursione': 'hiking',
+        'Giardinaggio': 'gardening'
       };
-
-      // TODO: Implement API call to save Activity
-      // if (this.isEditing && this.originalActivity?.id) {
-      //   await this.ActivityService.updateActivity(this.originalActivity.id, ActivityData);
-      // } else {
-      //   await this.ActivityService.createActivity(ActivityData);
-      // }
-
+      const typeKey = activityTypeMap[this.selectedActivityType as string] || 'other';
+      const activityData: any = {
+        userId: user.id,
+        date: this.selectedDate.split('T')[0],
+        type: typeKey,
+        name: this.selectedActivityType, // Nome italiano per visualizzazione
+        duration: this.activityDuration,
+        calories: this.calculatedCalories
+      };
+      await this.apiService.createActivity(activityData).toPromise();
       await this.showSuccessToast(
-        this.isEditing ? 'Pasto aggiornato con successo' : 'Pasto salvato con successo'
+        this.isEditing ? 'Attività aggiornata con successo' : 'Attività salvata con successo'
       );
-      
       this.router.navigate(['/tabs/dashboard']);
-      
     } catch (error) {
       console.error('Error saving Activity:', error);
       await this.showErrorToast('Errore durante il salvataggio');

@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 import {
   IonContent,
   IonHeader,
@@ -58,21 +60,22 @@ import {
     IonSpinner
   ]
 })
+
 export class ScannerPage implements OnInit, OnDestroy {
   private deviceService = inject(DeviceService);
   private router = inject(Router);
   private toastController = inject(ToastController);
+  private http = inject(HttpClient);
 
   // Device detection
-  isDesktop = false;
-  isMobile = false;
 
   // Scanner states
+  // Search
+  isDesktop = false;
+  isMobile = false;
   isScanning = false;
   isLoading = false;
   showManualInput = false;
-  
-  // Search
   searchCode = '';
 
   constructor() {
@@ -85,6 +88,9 @@ export class ScannerPage implements OnInit, OnDestroy {
       closeOutline 
     });
   }
+
+
+
 
   ngOnInit() {
     this.deviceService.getDeviceChanges().subscribe(deviceInfo => {
@@ -143,6 +149,16 @@ export class ScannerPage implements OnInit, OnDestroy {
 
   private navigateToProduct(code: string) {
     this.router.navigate(['/product', code]);
+  }
+
+  private async showSuccessToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      color: 'success',
+      position: 'top'
+    });
+    await toast.present();
   }
 
   private async showErrorToast(message: string) {

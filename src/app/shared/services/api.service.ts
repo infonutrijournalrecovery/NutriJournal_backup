@@ -4,15 +4,16 @@ import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { 
   ApiResponse, 
+  ApiActivitiesResponse,
   Meal, 
   Product, 
-  Activity, 
   NutritionGoals, 
   Analytics,
   PantryItem,
   ItalianDish,
   User
 } from '../interfaces/types';
+import { Activity } from '../interfaces/Activity.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -114,9 +115,9 @@ export class ApiService {
   /**
    * Ottieni tutte le attività
    */
-  getActivities(page = 1, limit = 20): Observable<ApiResponse<Activity[]>> {
+  getActivities(page = 1, limit = 20): Observable<ApiActivitiesResponse> {
     const headers = this.authService.getAuthHeaders();
-    return this.http.get<ApiResponse<Activity[]>>(`${this.baseUrl}/activities?page=${page}&limit=${limit}`, { headers });
+    return this.http.get<ApiActivitiesResponse>(`${this.baseUrl}/activities?page=${page}&limit=${limit}`, { headers });
   }
 
   /**

@@ -38,25 +38,23 @@
       <ion-card-content>
         <ion-list class="recent-products-list">
           <ion-item 
-            *ngFor="let product of recentProducts" 
+            *ngFor="let item of pantryItems" 
             button 
             detail="true"
-            (click)="goToProduct()">
-
-    
+            (click)="selectProduct(item)">
             <ion-label>
-              <h3>{{ product.name }}</h3>
-              <p>{{ product.brand }} • {{ product.quantity }}</p>
+              <h3>{{ item.product_name || item.name }}</h3>
+              <p>{{ item.brand }} • {{ item.quantity }} {{ item.unit }}</p>
+              <ng-container *ngIf="item.expiry_date">
+                <ion-note color="danger">Scade il: {{ item.expiry_date | date:'dd/MM/yyyy' }}</ion-note>
+              </ng-container>
             </ion-label>
-
-            <ion-button class= "elimina-btn" fill="outline">
+            <ion-button class="elimina-btn" fill="outline">
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>
-    
-            <ion-note slot="end">Mangiato il:
-              {{ product.lastUsed | date:'dd/MM' }}
+            <ion-note slot="end">
+              Aggiunto il: {{ item.created_at | date:'dd/MM/yyyy' }}
             </ion-note>
-    
           </ion-item>
         </ion-list>
       </ion-card-content>

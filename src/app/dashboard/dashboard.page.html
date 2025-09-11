@@ -330,12 +330,12 @@
             
             <div *ngFor="let activity of recentActivities" class="desktop-activity-item">
               <div class="activity-info">
-                <h4>{{ activity.name }}</h4>
-                <p>{{ activity.duration_minutes }} min • {{ activity.calories_burned }} kcal</p>
+                <h4>{{ activity.type }}</h4>
+                <p>
+                  {{ activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?' }} min •
+                  {{ activity.totalNutrition.calories || '?' }} kcal
+                </p>
               </div>
-              <ion-badge [color]="activity.intensity === 'high' ? 'danger' : activity.intensity === 'moderate' ? 'warning' : 'success'">
-                {{ activity.intensity }}
-              </ion-badge>
             </div>
           </ion-card-content>
         </ion-card>
@@ -744,12 +744,12 @@
             
             <div *ngFor="let activity of recentActivities" class="desktop-activity-item">
               <div class="activity-info">
-                <h4>{{ activity.name }}</h4>
-                <p>{{ activity.duration_minutes }} min • {{ activity.calories_burned }} kcal</p>
+                <h4>{{ activity.type }}</h4>
+                <p>
+                  {{ activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?' }} min •
+                  {{ activity.totalNutrition?.calories || '?' }} kcal
+                </p>
               </div>
-              <ion-badge [color]="activity.intensity === 'high' ? 'danger' : activity.intensity === 'moderate' ? 'warning' : 'success'">
-                {{ activity.intensity }}
-              </ion-badge>
             </div>
           </ion-card-content>
         </ion-card>   -->
@@ -1219,15 +1219,15 @@
         </ion-card-content>
       </ion-card>
 
-      <!-- Attività Recenti -->
+      <!-- Attività fisiche svolte oggi -->
       <ion-card class="recent-activities-card">
         <ion-card-header>
-          <ion-card-title>Attività Recenti</ion-card-title>
+          <ion-card-title>Attività fisiche di oggi</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <div *ngIf="recentActivities.length === 0" class="empty-state">
+          <div *ngIf="activitiesToday.length === 0" class="empty-state">
             <ion-icon name="trending-up-outline" class="empty-icon"></ion-icon>
-            <p>Nessuna attività registrata</p>
+            <p>Nessuna attività fisica registrata oggi</p>
             <ion-button 
               fill="outline" 
               size="small"
@@ -1235,24 +1235,16 @@
               Aggiungi Attività
             </ion-button>
           </div>
-          
-          <ion-item 
-            *ngFor="let activity of recentActivities" 
-            class="activity-item">
-            <ion-icon 
-              [name]="'fitness-outline'"
-              slot="start"
-              [color]="activity.intensity === 'high' ? 'danger' : activity.intensity === 'moderate' ? 'warning' : 'success'">
-            </ion-icon>
+          <ion-item *ngFor="let activity of activitiesToday" class="activity-item">
+            <ion-icon [name]="'fitness-outline'" slot="start"></ion-icon>
             <ion-label>
-              <h3>{{ activity.name }}</h3>
-              <p>{{ activity.duration_minutes }} min • {{ activity.calories_burned }} kcal</p>
+              <h3>{{ activity.type }}</h3>
+              <p>
+                {{ activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?' }} min
+                •
+                {{ activity.totalNutrition?.calories || '?' }} kcal
+              </p>
             </ion-label>
-            <ion-badge 
-              slot="end" 
-              [color]="activity.intensity === 'high' ? 'danger' : activity.intensity === 'moderate' ? 'warning' : 'success'">
-              {{ activity.intensity }}
-            </ion-badge>
           </ion-item>
         </ion-card-content>
       </ion-card>
