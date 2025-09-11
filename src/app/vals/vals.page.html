@@ -1,16 +1,9 @@
-<ion-header class="desktop-header">
+<ion-header [translucent]="true">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
     </ion-buttons>
-
-    <div class="header-content">
-      <h1>
-        <ion-icon name="cart-outline"></ion-icon>
-        I miei Valori
-      </h1>
-      <p>Gestisci e tieni traccia delle tue attività e del tuo storico</p>
-    </div>
+    <ion-title>I miei valori</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -28,8 +21,8 @@
         </ion-list>
       </ion-col>
 
-      <ion-col size="12" sizeMd="9">
-        <ion-segment mode="md" color="primary" [(ngModel)]="selectedRange">
+      <ion-col size="12" sizeMd="9" class="segment-custom">
+        <ion-segment mode="md" [(ngModel)]="selectedRange">
           <ion-segment-button value="settimanale">Settimanale</ion-segment-button>
           <ion-segment-button value="mensile">Mensile</ion-segment-button>
           <ion-segment-button value="3mesi">3 Mesi</ion-segment-button>
@@ -37,7 +30,7 @@
 
         <div class="action-buttons">
           <ion-button fill="outline" size="small" (click)="openDateModal()">
-            <ion-icon slot="start" name="calendar-outline"></ion-icon>
+           <!--<ion-icon slot="start" name="calendar-outline"></ion-icon>--> 
             {{ formatDate(selectedDate) }}
           </ion-button>
           <ion-button fill="outline" size="small">
