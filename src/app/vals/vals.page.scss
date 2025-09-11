@@ -15,12 +15,13 @@ ion-header{
   background: #404040 !important;
   --color: #000000;
 }
-ion-toolbar{
-  --background: #404040;
-  --color: #a0a0a0;
+ion-toolbar {
+  --background: #415540 !important;
+  --color: white !important;
 }
+
 ion-content{
-  //--background: #ffffff;
+  --background: #75b972;
 }
 /* HEADER */
 .desktop-header {
@@ -100,31 +101,59 @@ ion-segment-button {
   }
 }
 
-/* LISTA ELEMENTI */
-ion-card {
+ion-segment{
+  //--background: #415540 !important;
+  --color: white !important;
+  --indicator-color: white !important;
+  --indicator-height: 3px !important;
+  --border-radius: 8px !important;
+  --padding: 4px !important;
+  margin: 1rem 0 !important;
+
+}
+.action-buttons{
+  color: white !important;
+  --color: white !important;
+  --background: #415540 !important;
+}
+
+.segment-custom {
+  ion-segment {
+    // --background: #f8f9fa; /* colore di sfondo dell'intero segmento */
+    --indicator-color: transparent; /* rimuove la linea animata di selezione */
+    border-radius: 12px;
+    padding: 4px;
+  }
+
+  ion-segment-button {
+    --color: #ffffff !important; /* colore del testo */
+    --background: transparent !important; /* sfondo quando non selezionato */
+    --indicator-color: #ffffff; /* nessuna linea sotto */
+    border-radius: 8px;
+    font-weight: 9S00;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &.segment-button-checked {
+      --color-checked: #ffffff !important; /* \ COLORE TESTO QUANDO SELEZIONATO */
+      --background-checked: #4155406b; /* \ COLORE SFONDO QUANDO SELEZIONATO */
+      font-weight: 600;
+    }
+  }
+}
+
+
+ion-item{
+  --background: #415540 !important;
+}
+
+.chart-wrapper{
   width: 100%;
+  max-width: 7000px;
+  margin: 1% auto;
+  padding: 1rem;
+  background: #e8ffdf;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  margin: 0.5rem 0;
-}
-
-ion-card-title {
-  font-weight: 600;
-  color: #ff40c0;
-}
-
-ion-card-content p {
-  margin: 0.3rem 0;
-}
-
-ion-button.visualizza-btn {
-  --border-radius: 8px;
-  --background: #0060cc;
-}
-
-ion-button.elimina-btn {
-  --border-radius: 8px;
-  --background: #ff4000;
 }
 
 
