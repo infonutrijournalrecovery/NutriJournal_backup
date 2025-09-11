@@ -67,8 +67,6 @@ import { DatePickerModalComponent } from '../shared/components/date-picker-modal
     IonSegment,
     IonSegmentButton,
     IonInput,
-    IonModal,
-    IonDatetime
   ],
   providers: [ModalController]
 })
