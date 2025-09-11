@@ -1345,12 +1345,54 @@ ion-button{
 }
 
 // Mobile fino a 767px mantiene tutti gli stili esistenti
+/ Mobile fino a 767px mantiene tutti gli stili esistenti
 @media (max-width: 767px) {
   .welcome-header {
     padding: 1.5rem 1rem;
+    background: linear-gradient(135deg, #75b972 0%, #204a1d 100%) !important;
+
+    .user-profile-section {
+      display: flex;         // attiva flexbox
+      justify-content: flex-end; // allinea il contenuto a destra
+      padding: 0rem;       // opzionale, per distanziamento
+      .profile-button{
+        display: flex;         // attiva flexbox
+        justify-content: flex-end; // allinea il contenuto a destra
+        padding: 0rem;       // opzionale, per distanziamento
+        color: #ffffff !important;
+        //--background-color: #ff0000 !important;
+      }
+    }
+    
     
     .welcome-content h1 {
-      font-size: 1.6rem;
+      font-size: 1.3rem;
+      color: #ff0000 !important;
+      display: flex;         // attiva flexbox
+      justify-content: flex-start; // allinea il contenuto a destra
+      padding: 0rem;   
+    }
+  }
+
+  .dashboard-segment{
+    margin-top: 1rem;
+    width: 90%;
+    ion-segment-button {
+      background-color: #75b972 !important;
+      ion-label {
+        font-size: 0.85rem;
+        color: #ffffff !important;
+      }
+      
+      ion-icon {
+        margin-top: 1rem;
+        font-size: 1.2rem;
+        color: #ffffff !important;
+
+      }
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
     }
   }
   
@@ -1369,6 +1411,8 @@ ion-button{
   }
   
   .calories-card {
+    background-color: #75b972 !important;
+
     .stat-display .stat-numbers {
       font-size: 2rem;
     }
@@ -1908,13 +1952,13 @@ ion-button{
   //  width: 90%;           /* pi� largo */
     height: 50px;         /* pi� alto */
     font-size: 20px;      /* testo pi� leggibile */
-    --background: #28a745;
+    --background: #f07000;
   }
 
   .action-btn.vals-btn {
     height: 50px;
     font-size: 20px;
-    --background: #28a745;
+    --background: #cf0020;
   
     ion-icon {
       color: #001d35;
@@ -1925,14 +1969,14 @@ ion-button{
     //  width: 90%;           /* pi� largo */
       height: 50px;         /* pi� alto */
       font-size: 16px;      /* testo pi� leggibile */
-      --background: #28a745;
+      --background: #002085;
     }
 
     .action-btn.weight-btn{
       //  width: 90%;           /* pi� largo */
         height: 50px;         /* pi� alto */
         font-size: 16px;      /* testo pi� leggibile */
-        --background: #28a745;
+        --background: #570085;
       }
 
     ion-input {
@@ -1971,37 +2015,4 @@ ion-button{
     --background: transparent;
 
   }
-
-  // Calendario Modal/Wrapper
-.calendar-modal-wrapper {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
-  padding: 1.5rem 1rem 1rem 1rem;
-  max-width: 340px;
-  margin: 2rem auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-ion-datetime {
-  --background: #f8f8f8;
-  --border-radius: 12px;
-  --box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto 1rem auto;
-  font-size: 1.1rem;
-}
-
-ion-modal.custom-calendar-modal {
-  --width: 360px;
-  --height: auto;
-  --border-radius: 20px;
-  --box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  --background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  
