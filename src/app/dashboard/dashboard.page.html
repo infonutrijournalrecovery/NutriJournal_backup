@@ -1401,7 +1401,7 @@
               <h4>{{ activity.type }}</h4>
               <p>
                 {{ activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?' }} min •
-                {{ activity.totalNutrition.calories || '?' }} kcal
+                {{ activity.totalNutrition?.calories || '?' }} kcal
               </p>
             </div>
           </div>

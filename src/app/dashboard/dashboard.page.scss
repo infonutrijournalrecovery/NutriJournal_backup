@@ -947,28 +947,6 @@ ion-button{
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
   
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 200px;
-    height: 200px;
-    background: rgba(255, 255, 255, 0.12);
-    border-radius: 50%;
-    backdrop-filter: blur(20px);
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -30%;
-    left: -10%;
-    width: 150px;
-    height: 150px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 50%;
-  }
   
   .welcome-content {
     position: relative;
@@ -1345,7 +1323,7 @@ ion-button{
 }
 
 // Mobile fino a 767px mantiene tutti gli stili esistenti
-/ Mobile fino a 767px mantiene tutti gli stili esistenti
+// Mobile fino a 767px mantiene tutti gli stili esistenti
 @media (max-width: 767px) {
   .welcome-header {
     padding: 1.5rem 1rem;
