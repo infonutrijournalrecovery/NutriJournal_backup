@@ -1,2021 +1,375 @@
-@use 'dashboard-variables' as *;
-.desktop-nutrition-card {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  margin: 0 0 2rem 0 !important;
-  box-sizing: border-box !important;
-  ion-card-content {
-    padding: 2rem 2rem 2rem 2rem !important;
-  }
+ion-content{
+  --background: #75b972;
 }
-// Dashboard Styles - Material Design per NutriJournal
-// Responsive design: Mobile + Desktop
-// OVERRIDE FORCATO DEI COLORI IONIC
-
-// Override globale e immediato
-* {
-  color: inherit !important;
+ion-card-header{
+  background: #ffffff;
 }
-
-ion-content {
-  --background: #{$dashboard-bg} !important;
-  background-color: #{$dashboard-bg} !important;
+ion-card-title{
+  color: #000000;
 }
-ion-modal {
-  --width: 380px;
-  --height: 500px;
-  --border-radius: 16px;
-  --backdrop-opacity: 0.4;
-  
-  ion-content {
-    --padding-top: 1rem;
-    --padding-bottom: 1rem;
-    --padding-start: 1rem;
-    --padding-end: 1rem;
-    --color: #ffffff !important;
-    --background: #404040 !important;
-  }
-  
-  ion-datetime {
-    background: #404040 !important;
-    color: #ffffff !important;
-  }
+ion-item{
+  --background: #ffffff;
+  --color: #000000;
+  border-bottom: 10px solid #ffffff;
+  margin-bottom: 0px;
+  margin-top: 5px;
 }
-
-ion-card {
-  --background: #{$dashboard-card-bg} !important;
-  background-color: #{$dashboard-card-bg} !important;
-  background: #{$dashboard-card-bg} !important;
-  --color: #{$dashboard-text-primary} !important;
-  color: #{$dashboard-text-primary} !important;
-  box-shadow: #{$dashboard-card-shadow} !important;
-  border-radius: #{$dashboard-card-radius} !important;
+ion-input{
+  --background: #75b97239;
+  --color: #000000;
+  --border-radius: 8px;
 }
-
-ion-card-header {
-  --background: #{$dashboard-header-bg} !important;
-  background-color: #{$dashboard-header-bg} !important;
-  background: #{$dashboard-header-bg} !important;
-  --color: #{$dashboard-text-header} !important;
-  color: #{$dashboard-text-header} !important;
-  font-weight: 600 !important;
-}
-
-ion-card-title {
-  --color: #{$dashboard-text-header} !important;
-  color: #{$dashboard-text-header} !important;
-  font-weight: 600 !important;
-}
-
-ion-card-content {
-  --background: #{$dashboard-card-bg} !important;
-  background-color: #{$dashboard-card-bg} !important;
-  --color: #{$dashboard-text-primary} !important;
-  color: #{$dashboard-text-primary} !important;
-}
-
-ion-button {
-  --color: #{$dashboard-button-text} !important;
-  color: #{$dashboard-button-text} !important;
-}
-
-// Variabili per il tema Material Design con colori diretti
-:root {
-  --dashboard-primary: #75b972;
-  --dashboard-secondary: #204a1d;
-  --dashboard-gradient: linear-gradient(135deg, #75b972 0%, #204a1d 100%);
-  --card-radius: 16px;
-  --header-height: 180px;
-  --desktop-sidebar-width: 280px;
-  --desktop-content-padding: 2rem;
-  
-  // Material Design Colors - Colori diretti
-  --md-surface: #{$dashboard-card-bg};
-  --md-surface-variant: #{$dashboard-bg};
-  --md-on-surface: #{$dashboard-text-primary};
-  --md-on-surface-variant: #44474a;
-  --md-outline: #e0e3e7;
-  --md-shadow: rgba(0, 0, 0, 0.12);
-  --md-primary-container: #{$dashboard-header-bg};
-  --md-on-primary-container: #001d35;
-}
-
-// Override forcato degli stili Ionic eliminato - unito con definizione principale
-
-ion-card-content {
-  --background: #{$dashboard-card-bg} !important;
-  background: #{$dashboard-card-bg} !important;
-  --color: #{$dashboard-text-primary} !important;
-  color: #{$dashboard-text-primary} !important;
-}
-
-// Content principale con colori diretti
-.dashboard-content {
-  --background: #{$dashboard-bg} !important;
-  background: #{$dashboard-bg} !important;
-  
-  // Layout specifico per dispositivo
-  &.desktop {
-    --background: #f5f7fa !important;
-    background: #f5f7fa !important;
-    padding: 0 !important;
-  }
-  
-  &.tablet {
-    --background: #{$dashboard-bg} !important;
-    background: #{$dashboard-bg} !important;
-  }
-  
-  &.mobile {
-    --background: #{$dashboard-bg} !important;
-    background: #{$dashboard-bg} !important;
-  }
-}
-
-// Override degli stili Ionic di base
-ion-content.dashboard-content {
-  --background: #{$dashboard-bg} !important;
-  background: #{$dashboard-bg} !important;
-  
-  &.desktop {
-    --background: #efefef!important;  // Colore di sfondo del desktop
-    background: #f5f7fa !important;
-  }
-}
-
-// ===========================================
-// LAYOUT DESKTOP
-// ===========================================
-
 .desktop-layout {
-  min-height: 100vh;
-  background: var(--background);
-}
-
-// Header Desktop con colori diretti
-.desktop-welcome-header {
-  background: linear-gradient(135deg, #75b972 0%, #204a1d 100%) !important;
-  color: white !important;
-  padding: 2rem !important;
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  border-radius: 0 0 24px 24px !important;
-  margin-bottom: 2rem !important;
-  position: relative !important;
-  overflow: hidden !important;
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3) !important;
-
-  ion-button{
-    --background: #ffffff !important;
-    color: #204a1d !important;
-    font-weight: 500 !important;
-    height: 45px !important;
-    font-size: 1rem !important;
-    --border-radius: 12px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-  }
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -20%;
-    left: -15%;
-    width: 200px;
-    height: 200px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 50%;
-  }
-  
-  .welcome-content {
-    flex: 1;
-    position: relative;
-    z-index: 2;
-    
-    h1 {
-      font-size: 2.8rem;
-      font-weight: 300;
-      margin: 0 0 0.5rem 0;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      letter-spacing: -0.5px;
-    }
-    
-    .welcome-subtitle {
-      font-size: 1.2rem;
-      opacity: 0.95;
-      margin: 0;
-      font-weight: 300;
-    }
-  }
-  
-  .quick-stats-desktop {
-    display: flex;
-    gap: 2rem;
-    position: relative;
-    z-index: 2;
-    
-    .stat-card {
-      text-align: center;
-      background: rgba(255, 255, 255, 0.2);
-      padding: #{$dashboard-padding-large};
-      border-radius: #{$dashboard-radius-large};
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      min-width: 140px;
-      transition: all 0.3s ease;
-      
-      &:hover {
-        transform: translateY(-4px);
-        background: rgba(255, 255, 255, 0.25);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      }
-      
-      .stat-value {
-        font-size: 2.2rem;
-        font-weight: 600;
-        display: block;
-        margin-bottom: 0.5rem;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-      }
-      
-      .stat-label {
-        font-size: 0.9rem;
-        opacity: 0.9;
-        display: block;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-      
-      .stat-goal {
-        font-size: 0.8rem;
-        opacity: 0.75;
-        margin-top: 0.25rem;
-      }
-    }
-  }
-}
-
-// Grid Layout Desktop
-.desktop-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 var(--desktop-content-padding);
-}
-
-.desktop-left-column,
-.desktop-right-column {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  width: 100%;
-  min-width: 0;
-  flex: 1 1 0;
-  overflow: hidden;
+  padding: 16px;
+  background-color: #f9f9f9;
 }
-.semicircular-progress-container,
-.calories-data-overlay,
-.calories-info-box {
-  min-width: 0 !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
+
+.mobile-layout {
+  background-color: #ffffff;
+  padding: 8px;
+}
+
+// header 
+.desktop-welcome-header, .welcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #415540;
+  padding: 16px;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+}
+
+.welcome-content h1 {
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin: 0;
+  color: #ffffff;
+}
+
+.welcome-subtitle {
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.profile-button {
+  --background: #ffffff;
+  --color: #415540;
+  border-radius: 8px;
+}
+
+// calendario
+.date-navigation-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.nav-btn {
+  --background: #415540;
+  --color: #ffffff;
+  border-radius: 50%;
 }
 
 .date-display-btn {
-  flex: 1;
-  font-weight: 500; 
-  min-height: 40px; 
-  font-size: 1rem;         /*  un po' pi� grande per leggibilit� */
-  min-width: 250px;        /*  \U0001f448 larghezza minima leggibile */
-  justify-content: center;
-  text-transform: none;
-
-  /* Colore testo e sfondo pi� leggibili */
-  --background: #8090f0;    /* \U0001f448 sfondo chiaro ma non bianco puro */
-  --color: #222;            /* \U0001f448 testo pi� scuro per contrasto */
-  --border-radius: 12px;
-  --border-color: #ccc;
-
-  /* Effetto hover per evidenziare */
-  &:hover {
-    --background: #e0e0e0;
-  }
+  font-size: 1rem;
+  font-weight: 500;
+  color: #415540;
 }
 
-
-
-// Quick Actions Desktop con colori diretti
-.desktop-quick-actions {
-  --background: #{$dashboard-card-bg} !important;
-  background: #{$dashboard-card-bg} !important;
-  box-shadow: #{$dashboard-card-shadow} !important;
-  border-radius: #{$dashboard-radius-large} !important;
-  
-  ion-card-header {
-    --background: #{$dashboard-header-bg} !important;
-    background: #{$dashboard-header-bg} !important;
-    --color: #{$dashboard-text-header} !important;
-    color: #{$dashboard-text-header} !important;
-  }
-
-  .desktop-actions-grid {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 1rem !important;
-    
-    .desktop-action-button {
-      height: 70px !important;
-      font-size: 1rem !important;
-      text-transform: none !important;
-      --border-radius: 12px !important;
-      font-weight: 500 !important;
-      position: relative !important;
-      overflow: hidden !important;
-      
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s;
-      }
-      
-      &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        
-        &::before {
-          left: 100%;
-        }
-      }
-      
-      ion-icon {
-        font-size: 1.4rem;
-        margin-right: 0.5rem;
-      }
-    }
-  }
+.today-btn {
+  --border-color: #415540;
+  --color: #415540;
+  font-size: 0.85rem;
 }
 
-ion-button{
-  .nav-btn{
-    --background: #75b972 !important;
-    --color: white !important;
-    font-weight: 500 !important;
-    height: 45px !important;
-    font-size: 1rem !important;
-    --border-radius: 12px !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-  }
-}
-// Nutrition Card Desktop
-.desktop-nutrition-card {
-  background: var(--md-surface) !important;
-  --background: var(--md-surface) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 2px 12px var(--md-shadow), 0 1px 4px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid var(--md-outline) !important;
-  overflow: hidden !important;
-  
-  ion-card-header {
-    background: var(--md-primary-container) !important;
-    --background: var(--md-primary-container) !important;
-    color: var(--md-on-primary-container) !important;
-    --color: var(--md-on-primary-container) !important;
-    padding: #{$dashboard-padding-large} !important;
-    height: 70px;
-    
-    ion-card-title {
-      display: flex !important;
-      align-items: center !important;
-      gap: 0.75rem;
-      font-size: 1.25rem;
-      font-weight: 500;
-      margin: 0;
-      margin-top: 0px;
-      
-      ion-icon {
-        font-size: 1.5rem;
-        color: var(--dashboard-primary);
-      }
-    }
-  }
-  
-  ion-card-content {
-    padding: #{$dashboard-padding-xl};
-  }
-  
-  // ===== NUOVI STILI PER SEZIONE NUTRIZIONALE MODERNA =====
-  &.modern-nutrition {
-    
-    .semicircular-calories-section {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 2rem;
-      
-      .semicircular-progress-container {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        
-        .separated-progress {
-          position: relative;
-          display: flex;
-          justify-content: center;
-          margin-bottom: 1rem;
-          
-          .semicircular-progress-overlay {
-            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
-            
-            .progress-semicircle {
-              transition: stroke-dashoffset 1.5s ease-in-out;
-              
-
-            }
-          }
-        }
-        
-        .calories-data-overlay {
-          position: absolute;
-          top: 30px;
-          left: 0;
-          right: 0;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          padding: 0 30px;
-          pointer-events: none;
-          
-          .calories-info-box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            min-width: 80px;
-            text-align: center;
-            
-            // Responsive adjustments per desktop
-            @media (min-width: 768px) {
-              min-width: 100px;
-              padding: 1rem 1.25rem;
-            }
-            
-            &.consumed-box {
-              border-left: 3px solid #4f46e5;
-              
-              // Spostamento per desktop
-              @media (min-width: 768px) {
-                margin-left: -10px;
-              }
-              
-              .calories-label {
-                color: #4f46e5;
-                font-size: 0.6rem;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                margin-bottom: 0.25rem;
-              }
-              
-              .main-value {
-                color: #4f46e5;
-                font-size: 1.4rem;
-                font-weight: 700;
-              }
-              
-              .separator {
-                color: #a0aec0;
-                font-size: 1rem;
-                margin: 0 0.15rem;
-              }
-              
-              .goal-value {
-                color: #718096;
-                font-size: 1rem;
-                font-weight: 500;
-              }
-            }
-            
-            &.burned-box {
-              border-left: 3px solid #ff9800;
-              
-              // Spostamento per desktop
-              @media (min-width: 768px) {
-                margin-right: -10px;
-              }
-              
-              .calories-label {
-                color: #ff9800;
-                font-size: 0.6rem;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                margin-bottom: 0.25rem;
-              }
-              
-              .main-value {
-                color: #ff9800;
-                font-size: 1.2rem;
-                font-weight: 600;
-              }
-            }
-            
-            .calories-values {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              margin-bottom: 0.25rem;
-            }
-            
-            .calories-unit {
-              font-size: 0.7rem;
-              color: #a0aec0;
-              font-weight: 500;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-            }
-          }
-        }
-        
-        .calories-summary-bottom {
-          margin-top: 0.5rem;
-          text-align: center;
-          
-          .remaining-calories {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            border-radius: 20px;
-            border: 2px solid transparent;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            
-            ion-icon {
-              font-size: 1.1rem;
-            }
-            
-            &.positive {
-              color: #38a169;
-              border-color: rgba(56, 161, 105, 0.3);
-              background: linear-gradient(135deg, rgba(56, 161, 105, 0.1), rgba(56, 161, 105, 0.05));
-              
-              ion-icon {
-                color: #38a169;
-              }
-            }
-            
-            &.negative {
-              color: #e53e3e;
-              border-color: rgba(229, 62, 62, 0.3);
-              background: linear-gradient(135deg, rgba(229, 62, 62, 0.1), rgba(229, 62, 62, 0.05));
-              
-              ion-icon {
-                color: #e53e3e;
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    .macros-section {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      
-      .macro-item {
-        background: #f8fafc;
-        border-radius: 12px;
-        padding: 1rem;
-        border: 1px solid #e2e8f0;
-        transition: all 0.3s ease;
-        
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .macro-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 0.75rem;
-          
-          .macro-icon {
-            font-size: 1.2rem;
-            margin-right: 0.75rem;
-            
-            &.burned { color: #ff8c00; }
-            &.protein { color: #e53e3e; }
-            &.carb { color: #3182ce; }
-            &.fat { color: #38a169; }
-          }
-          
-          .macro-label {
-            flex: 1;
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 0.95rem;
-          }
-          
-          .macro-values {
-            font-weight: 700;
-            color: #4a5568;
-            font-size: 0.9rem;
-          }
-        }
-        
-        .macro-progress {
-          height: 8px;
-          border-radius: 4px;
-          overflow: hidden;
-          
-          --background: #e2e8f0;
-          
-          ion-progress-bar {
-            --progress-background: var(--color);
-          }
-        }
-        
-        &.burned-calories .macro-progress {
-          --progress-background: #ff8c00;
-        }
-      }
-    }
-  }
-}
-  
-  .desktop-calories-display {
-    text-align: center;
-    margin-bottom: 2.5rem;
-    padding: #{$dashboard-padding-xl};
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 12px;
-    border: 1px solid var(--md-outline);
-    
-    .calories-info {
-      font-size: #{$dashboard-font-xl};
-      font-weight: 300;
-      margin-bottom: 1.5rem;
-      color: var(--md-on-surface);
-      
-      .current {
-        font-weight: 700;
-        color: var(--dashboard-primary);
-        text-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
-      }
-      
-      .separator {
-        opacity: 0.6;
-        margin: 0 0.75rem;
-        color: var(--md-on-surface-variant);
-      }
-      
-      .goal {
-        opacity: 0.8;
-        color: var(--md-on-surface-variant);
-      }
-      
-      .unit {
-        font-size: 1.4rem;
-        opacity: 0.8;
-        margin-left: 0.5rem;
-        color: var(--md-on-surface-variant);
-      }
-    }
-    
-    ion-progress-bar {
-      height: 10px;
-      border-radius: 5px;
-      margin-bottom: 1rem;
-      --background: #e9ecef;
-      --progress-background: var(--dashboard-gradient);
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-    
-    .percentage {
-      font-size: 1rem;
-      color: var(--md-on-surface-variant);
-      font-weight: 500;
-    }
-  }
-  
-  .desktop-macros {
-    .macro-item {
-      margin-bottom: 2rem;
-      padding: 1.5rem;
-      background: var(--md-surface-variant);
-      border-radius: 12px;
-      border: 1px solid var(--md-outline);
-      transition: all 0.3s ease;
-      
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        background: var(--md-surface);
-      }
-      
-      .macro-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        
-        .macro-name {
-          font-weight: 600;
-          color: var(--md-on-surface);
-          font-size: 1.1rem;
-        }
-        
-        .macro-value {
-          font-size: 1rem;
-          color: var(--md-on-surface-variant);
-          font-weight: 500;
-        }
-      }
-      
-      ion-progress-bar {
-        height: 8px;
-        border-radius: 4px;
-        --background: #e9ecef;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-      }
-    }
-  }
-
-// Animazione per la progress ring
-@keyframes progressRing {
-  0% {
-    stroke-dashoffset: 534.07;
-  }
-  100% {
-    stroke-dashoffset: var(--progress-offset, 534.07);
-  }
-}
-
-// Animazione per le progress bar semicircolari
-@keyframes progressSemicircle {
-  0% {
-    stroke-dashoffset: 300;
-  }
-  100% {
-    stroke-dashoffset: var(--progress-offset, 300);
-  }
-}
-
-// Animazioni per le progress bar sovrapposte
-@keyframes progressSemicircleConsumed {
-  0% {
-    stroke-dashoffset: 345.58;
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    stroke-dashoffset: var(--consumed-progress-offset, 345.58);
-    opacity: 1;
-  }
-}
-
-@keyframes progressSemicircleBurned {
-  0% {
-    stroke-dashoffset: 267.04;
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    stroke-dashoffset: var(--burned-progress-offset, 267.04);
-    opacity: 1;
-  }
-}
-
-// Desktop Cards
-.desktop-meals-card,
-.desktop-activities-card {
-  background: var(--md-surface);
-  border-radius: var(--card-radius);
-  box-shadow: 0 2px 12px var(--md-shadow), 0 1px 4px rgba(0, 0, 0, 0.08);
-  border: 1px solid var(--md-outline);
-  overflow: hidden;
-  
-  ion-card-header {
-    background: var(--md-surface-variant);
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--md-outline);
-    
-    ion-card-title {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 1.25rem;
-      font-weight: 500;
-      margin: 0;
-      color: var(--md-on-surface);
-      
-      ion-icon {
-        font-size: 1.5rem;
-        color: var(--dashboard-primary);
-      }
-    }
-  }
-  
-  ion-card-content {
-    padding: 1.5rem;
-  }
-  
-  .desktop-empty-state {
-    text-align: center;
-    padding: 3rem 1rem;
-    
-    ion-icon {
-      font-size: 4rem;
-      color: var(--md-outline);
-      margin-bottom: 1.5rem;
-      opacity: 0.6;
-    }
-    
-    h3 {
-      color: var(--md-on-surface);
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
-    
-    p {
-      color: var(--md-on-surface-variant);
-      margin-bottom: 2rem;
-      line-height: 1.5;
-    }
-    
-    ion-button {
-      --background: #0051d0;
-      --border-radius: 12px;
-      height: 45px;
-      font-weight: 500;
-      color: #0051d0;
-    }
-  }
-  
-  .desktop-meal-item,
-  .desktop-activity-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.25rem;
-    border-radius: 12px;
-    background: var(--md-surface-variant);
-    margin-bottom: 1rem;
-    transition: all 0.3s ease;
-    border: 1px solid var(--md-outline);
-    position: relative;
-    overflow: hidden;
-    
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: var(--dashboard-gradient);
-      transform: scaleY(0);
-      transition: transform 0.3s ease;
-    }
-    
-    &:hover {
-      background: var(--md-surface);
-      transform: translateX(8px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-      
-      &::before {
-        transform: scaleY(1);
-      }
-    }
-    
-    .meal-info,
-    .activity-info {
-      flex: 1;
-      
-      h4 {
-        margin: 0 0 0.5rem 0;
-        font-weight: 600;
-        color: var(--md-on-surface);
-        font-size: 1rem;
-      }
-      
-      p {
-        margin: 0;
-        font-size: 0.875rem;
-        color: var(--md-on-surface-variant);
-        line-height: 1.4;
-      }
-    }
-    
-    ion-badge {
-      font-size: 0.75rem;
-      text-transform: capitalize;
-      font-weight: 500;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-    }
-  }
-}
-
-// ===========================================
-// LAYOUT MOBILE (esistente migliorato)
-// ===========================================
-
-.mobile-layout {
-  min-height: 100vh;
-  background: var(--background);
-}
-
-// Header di benvenuto Mobile
-.welcome-header {
-  background: var(--dashboard-gradient);
-  color: white;
-  padding: 2.5rem 1.5rem;
-  margin-bottom: 1rem;
-  border-radius: 0 0 24px 24px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
-  
-  
-  .welcome-content {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    
-    h1 {
-      font-size: 2.2rem;
-      font-weight: 300;
-      margin: 0 0 0.5rem 0;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      letter-spacing: -0.5px;
-    }
-    
-    p {
-      font-size: 1.1rem;
-      margin: 0;
-      opacity: 0.95;
-      font-weight: 300;
-      
-      &.welcome-subtitle {
-        font-size: 1rem;
-        margin-top: 0.5rem;
-        opacity: 0.85;
-      }
-    }
-  }
-}
-
-// Quick Actions Mobile
-.quick-actions-section {
-  padding: 0 1rem;
-  margin-bottom: 2rem;
-  
-  h2 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin: 0 0 1.5rem 0;
-    color: var(--md-on-surface);
-    text-align: center;
-  }
-}
-
-.quick-actions-grid {
-  padding: 0;
-  margin: 0;
+.desktop-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 16px;
 }
 
-.quick-action-card {
-  margin: 0;
-  border-radius: var(--card-radius);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  overflow: hidden;
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    transition: left 0.5s;
-  }
-  
-  &:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.12);
-    
-    &::before {
-      left: 100%;
-    }
-  }
-  
-  &:active {
-    transform: translateY(-2px) scale(0.98);
-  }
-  
-  ion-card-content {
-    text-align: center;
-    padding: 2rem 1rem;
-    color: white;
-    position: relative;
-    z-index: 2;
-    
-    .action-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      display: block;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-    
-    ion-label {
-      font-size: 1rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-      line-height: 1.2;
-    }
-  }
-  
-  // Specific colors for each action
-  &[data-color="warning"] {
-    background: linear-gradient(135deg, #ff9500 0%, #ff7b00 100%);
-  }
-  
-  &[data-color="success"] {
-    background: linear-gradient(135deg, #30d158 0%, #28a745 100%);
-  }
-  
-  &[data-color="secondary"] {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-  
-  &[data-color="primary"] {
-    background: linear-gradient(135deg, #007aff 0%, #0051d0 100%);
-  }
-  
-  &[data-color="tertiary"] {
-    background: linear-gradient(135deg, #5856d6 0%, #7b68ee 100%);
-  }
-}
-
-// Segment Navigation
-.dashboard-segment {
-  margin: 1rem 1rem 1.5rem;
+//  Card Nutrition
+.desktop-nutrition-card {
+  background: #ffffff;
   border-radius: 12px;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
-  ion-segment-button {
-    --indicator-color: var(--dashboard-primary);
-    --color: var(--ion-color-medium);
-    --color-checked: var(--dashboard-primary);
-    
-    ion-label {
-      font-weight: 500;
-      margin: 0.5rem 0;
-    }
-    
-    ion-icon {
-      margin-top: 0.25rem;
-    }
-  }
+  box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+  padding: 10px;
 }
 
-// Content sections
-.content-section {
-  padding: 0 1rem 2rem;
+.semicircular-progress-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-// Calorie Card
-.calories-card {
-  background: var(--dashboard-gradient);
-  color: white;
-  margin: 1rem;
-  border-radius: var(--card-radius);
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4), 0 4px 16px rgba(102, 126, 234, 0.2);
-  overflow: hidden;
-  position: relative;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -30%;
-    width: 150px;
-    height: 150px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    backdrop-filter: blur(20px);
-  }
-  
-  ion-card-header {
-    text-align: center;
-    position: relative;
-    z-index: 2;
-    padding: 1.5rem 1rem 1rem;
-    
-    ion-card-title {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      font-size: 1.4rem;
-      font-weight: 500;
-      
-      .card-icon {
-        font-size: 1.8rem;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      }
-    }
-  }
-  
-  ion-card-content {
-    text-align: center;
-    position: relative;
-    z-index: 2;
-    padding: 1rem 1.5rem 2rem;
-    
-    .stat-display {
-      .stat-numbers {
-        font-size: 2.8rem;
-        font-weight: 300;
-        margin-bottom: 1.5rem;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        
-        .current {
-          font-weight: 700;
-        }
-        
-        .separator {
-          opacity: 0.8;
-          margin: 0 0.75rem;
-        }
-        
-        .goal {
-          opacity: 0.85;
-        }
-        
-        .unit {
-          font-size: 1.4rem;
-          opacity: 0.9;
-          margin-left: 0.5rem;
-        }
-      }
-      
-      .stat-progress {
-        margin: 1.5rem 0;
-        height: 10px;
-        border-radius: 5px;
-        --background: rgba(255, 255, 255, 0.25);
-        --progress-background: rgba(255, 255, 255, 0.9);
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-      
-      .stat-percentage {
-        font-size: 1rem;
-        opacity: 0.95;
-        font-weight: 500;
-      }
-    }
-  }
+.calories-data-overlay {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  margin-top: 16px;
 }
 
-// Grid per i macronutrienti
-.macros-grid {
-  margin: 1rem;
-  margin-bottom: 2rem;
-  padding: 0;
+.calories-info-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f7f7f7;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  min-width: 120px;
+}
+
+.calories-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444444;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.calories-values {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+
+.main-value {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #222222;
+}
+
+.goal-value {
+  font-size: 1rem;
+  color: #888888;
+}
+
+.calories-unit {
+  font-size: 0.75rem;
+  color: #666666;
+}
+
+
+// Calorie
+.remaining-calories {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.remaining-calories.positive {
+  color: #388e3c;
+}
+
+.remaining-calories.negative {
+  color: #d32f2f;
+}
+
+// Nutrienti
+.macros-section {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.macro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.macro-progress {
+  height: 8px;
+  border-radius: 4px;
+}
+
+// Activ
+.desktop-activities-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+}
+
+.desktop-activity-item h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.desktop-empty-state {
+  text-align: center;
+  color: #888888;
+}
+
+// Meal 
+.desktop-meal-management {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+}
+.desktop-meal-management .meal-management-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px; 
+}
+
+.desktop-meal-management .meal-section {
+  border: 1px solid #ffffff;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  background: #f8f8f8; 
+}
+
+.meal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.meal-icon {
+  color: #404040;
+  font-size: 1.2rem;
+}
+
+.meal-name {
+  margin: 0;
+  font-weight: bold;
+  color: #404040;
+}
+
+.meal-calories {
+  font-size: 0.85rem;
+  color: #666666;
+}
+
+.empty-meal {
+  text-align: center;
+  color: #707070;
+  margin-top: 8px;
+}
+
+.add-meal-btn {
+  margin-top: 8px;
+  --background: #415540;
+  --color: #ffffff;
+  border-radius: 8px;
+}
+
+// Buttons 
+.action-btn {
+  --background: #415540;
+  --color: #ffffff;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.bicchiere-btn {
+  margin: 4px 0;
+  --background: #e0e0e0;
+  --color: #000000;
+  border-radius: 6px;
+}
+
+/* Mobile  */
+.dashboard-segment {
+  margin: 16px 0;
+}
+
+.content-section {
+  margin-top: 12px;
 }
 
 .macro-card {
-  margin: 0;
-  border-radius: var(--card-radius);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
-  background: var(--md-surface);
-  border: 1px solid var(--md-outline);
-  overflow: hidden;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  &.carbs {
-    border-left: 4px solid #ff9500;
-    
-    &:hover {
-      border-left: 6px solid #ff9500;
-    }
-  }
-  
-  &.proteins {
-    border-left: 4px solid #30d158;
-    
-    &:hover {
-      border-left: 6px solid #30d158;
-    }
-  }
-  
-  &.fats {
-    border-left: 4px solid #007aff;
-    
-    &:hover {
-      border-left: 6px solid #007aff;
-    }
-  }
-  
-  ion-card-content {
-    padding: 1.5rem;
-    
-    .macro-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-      
-      ion-icon {
-        font-size: 1.5rem;
-        color: var(--md-on-surface-variant);
-        padding: 0.5rem;
-        background: var(--md-surface-variant);
-        border-radius: 8px;
-      }
-      
-      span {
-        font-weight: 600;
-        color: var(--md-on-surface);
-        font-size: 1.1rem;
-      }
-    }
-    
-    .macro-value {
-      font-size: 1rem;
-      color: var(--md-on-surface-variant);
-      margin-bottom: 1rem;
-      font-weight: 500;
-    }
-    
-    ion-progress-bar {
-      height: 6px;
-      border-radius: 3px;
-      --background: var(--md-outline);
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-  }
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
 
-// ===========================================
-// RESPONSIVE BREAKPOINTS
-// ===========================================
-
-// Tablet
-@media (min-width: 768px) and (max-width: 1023px) {
-  .desktop-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-  
-  .desktop-welcome-header {
-    .quick-stats-desktop {
-      gap: 1rem;
-      
-      .stat-card {
-        min-width: 100px;
-        padding: 1rem;
-      }
-    }
-  }
+.water-card {
+  border-radius: 8px;
+  padding: 8px;
+  background: #e3f2fd;
 }
 
-// Large Desktop
-@media (min-width: 1400px) {
-  .desktop-grid {
-    max-width: 1600px;
-    gap: 3rem;
-  }
-  
-  .desktop-welcome-header {
-    padding: 3rem var(--desktop-content-padding);
-  }
+.water-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
 }
 
-// Mobile fino a 767px mantiene tutti gli stili esistenti
-// Mobile fino a 767px mantiene tutti gli stili esistenti
-@media (max-width: 767px) {
-  .welcome-header {
-    padding: 1.5rem 1rem;
-    background: linear-gradient(135deg, #75b972 0%, #204a1d 100%) !important;
-
-    .user-profile-section {
-      display: flex;         // attiva flexbox
-      justify-content: flex-end; // allinea il contenuto a destra
-      padding: 0rem;       // opzionale, per distanziamento
-      .profile-button{
-        display: flex;         // attiva flexbox
-        justify-content: flex-end; // allinea il contenuto a destra
-        padding: 0rem;       // opzionale, per distanziamento
-        color: #ffffff !important;
-        //--background-color: #ff0000 !important;
-      }
-    }
-    
-    
-    .welcome-content h1 {
-      font-size: 1.3rem;
-      color: #ff0000 !important;
-      display: flex;         // attiva flexbox
-      justify-content: flex-start; // allinea il contenuto a destra
-      padding: 0rem;   
-    }
-  }
-
-  .dashboard-segment{
-    margin-top: 1rem;
-    width: 90%;
-    ion-segment-button {
-      background-color: #75b972 !important;
-      ion-label {
-        font-size: 0.85rem;
-        color: #ffffff !important;
-      }
-      
-      ion-icon {
-        margin-top: 1rem;
-        font-size: 1.2rem;
-        color: #ffffff !important;
-
-      }
-      &:hover {
-        background: rgba(0, 0, 0, 0.05);
-      }
-    }
-  }
-  
-  .quick-action-card {
-    ion-card-content {
-      padding: 1rem 0.5rem;
-      
-      .action-icon {
-        font-size: 1.8rem;
-      }
-      
-      ion-label {
-        font-size: 0.8rem;
-      }
-    }
-  }
-  
-  .calories-card {
-    background-color: #75b972 !important;
-
-    .stat-display .stat-numbers {
-      font-size: 2rem;
-    }
-  }
+.empty-state {
+  text-align: center;
+  padding: 16px;
+  color: #999999;
 }
 
-// Dark mode support
-/*
-@media (prefers-color-scheme: dark) {
-  .dashboard-content {
-    --background: #0d1117;
-    
-    &.desktop {
-      --background: #010409;
-    }
-  }
-  
-  .desktop-welcome-header,
-  .welcome-header {
-    background: linear-gradient(135deg, #0d47a1 0%, #1a237e 100%);
-  }
-  
-  .desktop-quick-actions,
-  .desktop-nutrition-card,
-  .desktop-meals-card,
-  .desktop-activities-card,
-  .quick-action-card,
-  .macro-card,
-  .water-card,
-  .recent-meals-card,
-  .recent-activities-card,
-  .activity-summary-card {
-    --background: #161b22;
-    border: 1px solid #30363d;
-  }
-  
-  .desktop-meal-item,
-  .desktop-activity-item,
-  .meal-item,
-  .activity-item {
-    background: #21262d !important;
-    
-    &:hover {
-      background: #30363d !important;
-    }
-  }
-} */
-
-// Accessibilità
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+.activities-list .activity-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-// Focus states per accessibilità
-.desktop-action-button:focus-visible,
-.quick-action-card:focus-visible,
-.desktop-meal-item:focus-visible,
-.desktop-activity-item:focus-visible,
-.meal-item:focus-visible,
-.activity-item:focus-visible {
-  outline: 2px solid var(--ion-color-primary);
-  outline-offset: 2px;
+.activity-icon {
+  margin-right: 8px;
+  color: #404040;
 }
 
-// ===========================================
-// MEAL MANAGEMENT STYLES
-// ===========================================
-
-// Desktop Meal Management
-.desktop-meal-management {
-  background: var(--md-surface);
-  border-radius: var(--card-radius);
-  box-shadow: 0 2px 12px var(--md-shadow), 0 1px 4px rgba(0, 0, 0, 0.08);
-  border: 1px solid var(--md-outline);
-  overflow: hidden;
-  
-  ion-card-header {
-    background: var(--md-primary-container);
-    --background: var(--md-primary-container);
-    color: var(--md-on-primary-container);
-    --color: var(--md-on-primary-container);
-    padding: 1.5rem;
-    
-    ion-card-title {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 1.25rem;
-      font-weight: 500;
-      margin: 0;
-      
-      ion-icon {
-        font-size: 1.5rem;
-        color: var(--dashboard-primary);
-      }
-    }
-  }
-  
-  ion-card-content {
-    padding: 2rem;
-  }
-}
-
-.meal-management-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-  
-  // Responsive: mobile diventa 1 colonna
-  @media (max-width: 767px) {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
-
-.meal-section {
-  background: var(--md-surface-variant);
-  border-radius: 12px;
-  padding: 1.5rem;
-  border: 1px solid var(--md-outline);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--meal-color, var(--dashboard-primary));
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-  }
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    background: var(--md-surface);
-    
-    &::before {
-      transform: scaleX(1);
-    }
-  }
-  
-  // Colori specifici per ogni pasto
-  &.breakfast {
-    --meal-color: #ff9500;
-    
-    .meal-icon {
-      color: #ff9500;
-      background: rgba(255, 149, 0, 0.1);
-    }
-    
-    .add-meal-btn {
-      --background: #ff9500;
-      --background-hover: #e6850e;
-    }
-  }
-  
-  &.lunch {
-    --meal-color: #30d158;
-    
-    .meal-icon {
-      color: #30d158;
-      background: rgba(48, 209, 88, 0.1);
-    }
-    
-    .add-meal-btn {
-      --background: #30d158;
-      --background-hover: #28a745;
-    }
-  }
-  
-  &.snack {
-    --meal-color: #5856d6;
-    
-    .meal-icon {
-      color: #5856d6;
-      background: rgba(88, 86, 214, 0.1);
-    }
-    
-    .add-meal-btn {
-      --background: #5856d6;
-      --background-hover: #4c4acf;
-    }
-  }
-  
-  &.dinner {
-    --meal-color: #007aff;
-    
-    .meal-icon {
-      color: #007aff;
-      background: rgba(0, 122, 255, 0.1);
-    }
-    
-    .add-meal-btn {
-      --background: #007aff;
-      --background-hover: #0056cc;
-    }
-  }
-  
-  .meal-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    
-    .meal-icon {
-      font-size: 1.8rem;
-      padding: 0.75rem;
-      border-radius: 12px;
-      transition: all 0.3s ease;
-    }
-    
-    .meal-info {
-      flex: 1;
-      
-      .meal-name {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--md-on-surface);
-        margin: 0 0 0.25rem 0;
-      }
-      
-      .meal-calories {
-        font-size: 0.875rem;
-        color: var(--md-on-surface-variant);
-        margin: 0;
-      }
-    }
-  }
-  
-  .meal-content {
-    .empty-meal {
-      text-align: center;
-      padding: 2rem 1rem;
-      
-      .empty-icon {
-        font-size: 3rem;
-        color: var(--md-outline);
-        margin-bottom: 1rem;
-        opacity: 0.6;
-      }
-      
-      .empty-text {
-        color: var(--md-on-surface-variant);
-        font-size: 0.9rem;
-        margin-bottom: 1.5rem;
-        line-height: 1.5;
-      }
-      
-      .add-meal-btn {
-        --border-radius: 8px;
-        height: 40px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        text-transform: none;
-        
-        ion-icon {
-          font-size: 1.1rem;
-          margin-right: 0.5rem;
-        }
-      }
-    }
-    
-    .meal-items {
-      .meal-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        background: var(--md-surface);
-        border-radius: 8px;
-        margin-bottom: 0.75rem;
-        border: 1px solid var(--md-outline);
-        transition: all 0.3s ease;
-        
-        &:hover {
-          background: var(--md-primary-container);
-          transform: translateX(4px);
-        }
-        
-        .item-info {
-          flex: 1;
-          
-          .item-name {
-            font-weight: 600;
-            color: var(--md-on-surface);
-            margin: 0 0 0.25rem 0;
-            font-size: 0.95rem;
-          }
-          
-          .item-details {
-            font-size: 0.8rem;
-            color: var(--md-on-surface-variant);
-            margin: 0;
-          }
-        }
-        
-        .item-calories {
-          font-weight: 600;
-          color: var(--meal-color);
-          font-size: 0.9rem;
-        }
-      }
-      
-      .add-more-btn {
-        width: 100%;
-        height: 36px;
-        font-size: 0.8rem;
-        margin-top: 1rem;
-        --background: transparent;
-        --color: var(--meal-color);
-        --border-color: var(--meal-color);
-        --border-radius: 6px;
-        text-transform: none;
-        
-        &:hover {
-          --background: var(--meal-color);
-          --color: white;
-        }
-        
-        ion-icon {
-          font-size: 1rem;
-          margin-right: 0.5rem;
-        }
-      }
-    }
-    
-    // Progress bars per pasto
-    .meal-progress {
-      margin-top: 1rem;
-      
-      .macro-progress-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 0.75rem;
-        
-        .macro-label {
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: var(--md-on-surface-variant);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          min-width: 45px;
-        }
-        
-        ion-progress-bar {
-          flex: 1;
-          height: 6px;
-          border-radius: 3px;
-          --background: var(--md-outline);
-          box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-        
-        .macro-percentage {
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: var(--md-on-surface-variant);
-          min-width: 35px;
-          text-align: right;
-        }
-      }
-    }
-  }
-}
-
-// Mobile Meal Management (stesso layout)
-.mobile-meal-management {
-  .meal-management-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 0 1rem;
-  }
-  
-  .meal-section {
-    padding: 1.25rem;
-    
-    .meal-header {
-      gap: 0.75rem;
-      margin-bottom: 1.25rem;
-      
-      .meal-icon {
-        font-size: 1.6rem;
-        padding: 0.625rem;
-      }
-      
-      .meal-info {
-        .meal-name {
-          font-size: 1rem;
-        }
-        
-        .meal-calories {
-          font-size: 0.8rem;
-        }
-      }
-    }
-    
-    .meal-content {
-      .empty-meal {
-        padding: 1.5rem 1rem;
-        
-        .empty-icon {
-          font-size: 2.5rem;
-        }
-        
-        .empty-text {
-          font-size: 0.85rem;
-        }
-        
-        .add-meal-btn {
-          height: 36px;
-          font-size: 0.85rem;
-        }
-      }
-    }
-  }
-}
-
-// Animazioni per i pasti
-@keyframes mealSlideIn {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.meal-section {
-  animation: mealSlideIn 0.5s ease-out;
-  
-  &.breakfast { animation-delay: 0.1s; }
-  &.lunch { animation-delay: 0.2s; }
-  &.snack { animation-delay: 0.3s; }
-  &.dinner { animation-delay: 0.4s; }
-}
-
-// Stili per la navigazione temporale
-.date-navigation-controls {
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  margin-top: 8px !important;
-  
-  ion-button {
-    --height: 32px !important;
-    height: 32px !important;
-    --width: 32px !important;
-    width: 32px !important;
-    --background: #75b972; // COLORE CALENDARIO NAVIGAZIONE TEMPORALE nav-btn ION
-    
-    &[disabled] {
-      --color: #bdbdbd !important;
-      color: #bdbdbd !important;
-      opacity: 0.5 !important;
-    }
-  }
-  
-    
-  .date-display {
-    --width: 380px;
-    --height: 500px;
-    --border-radius: 16px;
-    flex: 1 !important;
-    text-align: center !important;
-    font-weight: 500 !important;
-    font-size: 0.9rem !important;
-    color: #001d35 !important;
-  }
-}
-
-.mobile-date-navigation {
-  margin-top: 16px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  
-  ion-button {
-    --height: 36px !important;
-    height: 36px !important;
-    --width: 36px !important;
-    width: 36px !important;
-    
-    &[disabled] {
-      --color: rgba(255, 255, 255, 0.5) !important;
-      color: rgba(255, 255, 255, 0.5) !important;
-      opacity: 0.5 !important;
-    }
-  }
-  
-  .mobile-date-display {
-    flex: 1 !important;
-    text-align: center !important;
-    color: #ffffff !important;
-    font-weight: 500 !important;
-    font-size: 1rem !important;
-    padding: 0 8px !important;
-  }
-}
-
-// Transizioni smooth per cambio data
-.nutrition-card, .desktop-nutrition-card {
-  transition: all 0.3s ease-in-out !important;
-}
-
-.date-transition {
-  opacity: 0.6 !important;
-  transform: scale(0.98) !important;
-}
-
-.button-container {
+.button-container{
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  align-items: stretch;
-  gap: 1rem;
-  padding: 1rem 0.5rem;
-}
-.button-container ion-button {
-  flex: 1 1 0;
-  min-width: 0;
-  width: auto;
-  font-size: 1rem;
-  height: 44px;
-  box-sizing: border-box;
-  white-space: normal;
+  justify-content: center;
+  margin-top: 2px;
+  gap: 6rem;
 }
 
-.action-btn.scan-btn{
-//  width: 90%;           /* pi� largo */
-  height: 50px;         /* pi� alto */
-  font-size: 20px;      /* testo pi� leggibile */
-  --background: #28a745;
+.button-container-mobile{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 2px;
+  gap: 0.45rem;
 }
 
-.action-btn.pantry-btn{
-  //  width: 90%;           /* pi� largo */
-    height: 50px;         /* pi� alto */
-    font-size: 20px;      /* testo pi� leggibile */
-    --background: #f07000;
-  }
+.action-btn-mobile {
+  --background: #415540;
+  --color: #ffffff;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
 
-  .action-btn.vals-btn {
-    height: 50px;
-    font-size: 20px;
-    --background: #cf0020;
-  
-    ion-icon {
-      color: #001d35;
-    }
-  }
+.bicchiere-btn-mobile {
+  margin: 4px 0;
+  --background: #e0e0e0;
+  --color: #000000;
+  border-radius: 6px;
+  font-size: 0.7rem;
+}
 
-  .action-btn.water-btn{
-    //  width: 90%;           /* pi� largo */
-      height: 50px;         /* pi� alto */
-      font-size: 16px;      /* testo pi� leggibile */
-      --background: #002085;
-    }
-
-    .action-btn.weight-btn{
-      //  width: 90%;           /* pi� largo */
-        height: 50px;         /* pi� alto */
-        font-size: 16px;      /* testo pi� leggibile */
-        --background: #570085;
-      }
-
-    ion-input {
-      flex: 1;               /* occupa tutto lo spazio disponibile */
-      --padding-start: 10px;
-      --padding-end: 10px;
-      height: 45px;           /* altezza della casella */
-      font-size: 16px;
-      --background: #ffffff;  /* sfondo bianco */
-      --border-radius: 8px;   /* bordi arrotondati */
-      --color: #333;          /* colore testo */
-    }
-
-  .bicchiere-btn{
-    width: 70%;           /* pi� largo */
-    height: 40px;         /* pi� alto */
-    font-size: 13px;      /* testo pi� leggibile */
-    --background: #6070ff;
-  }
-
-  .page-centered {
-    display: flex;
-    justify-content: center;   /* orizzontale */
-    align-items: center;       /* verticale */
-    height: 40px;             /* altezza della viewport */
-    flex-direction: column;    /* se vuoi che elementi multipli siano impilati verticalmente */
-  }
-  
-  .today-btn {
-    width: 100px;           /* larghezza fissa */
-    min-width: 80px;        /* opzionale, per garantire leggibilità */
-    font-size: 0.9rem;      /* dimensione testo */
-    height: 30px;           /* mantiene altezza originale se vuoi */
-    --color: #0051d0 !important;         /* colore testo */
-    color: #0051d0 !important;         /* colore testo */
-    --background: transparent;
-
-  }
-  
+.horizontal-scroll {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; 
+}
