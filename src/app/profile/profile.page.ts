@@ -88,6 +88,11 @@ import { Subscription } from 'rxjs';
   ]
 })
 export class ProfilePage implements OnInit, OnDestroy {
+
+  // Ricarica il profilo ogni volta che la pagina viene visualizzata
+  ionViewWillEnter() {
+    this.loadUserProfile();
+  }
   async takePhoto() {
     await this.showToast('Funzionalità non ancora disponibile', 'warning');
   }

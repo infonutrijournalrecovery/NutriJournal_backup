@@ -22,7 +22,6 @@ import {
   IonSelect,
   IonSelectOption,
   IonDatetime,
-  IonToggle,
   IonIcon,
   IonSpinner,
   IonChip,
@@ -30,7 +29,8 @@ import {
   LoadingController,
   AlertController,
   ActionSheetController,
-  ModalController
+  ModalController,
+  IonModal
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -46,16 +46,15 @@ import {
   trashOutline,
   checkmarkCircleOutline,
   notificationsOutline,
-  moonOutline
-} from 'ionicons/icons';
+  moonOutline, calendarOutline } from 'ionicons/icons';
 
 import { AuthService } from '../../shared/services/auth.service';
 import { ApiService } from '../../shared/services/api.service';
 import { User, UserAllergy, UserAdditiveSensitivity, Allergen, Additive } from '../../shared/interfaces/types';
+import { COMMON_ADDITIVES } from './common-additives';
 
 interface PersonalFormData {
-  firstName: string;
-  lastName: string;
+  fullName: string;
   email: string;
   birthDate: string;
   gender: string;
@@ -64,10 +63,6 @@ interface PersonalFormData {
   activityLevel: string;
   allergies: UserAllergy[];
   additives_sensitivity: UserAdditiveSensitivity[];
-  preferences: {
-    notifications: boolean;
-    darkMode: boolean;
-  };
 }
 
 @Component({
@@ -96,13 +91,14 @@ interface PersonalFormData {
     IonSelect,
     IonSelectOption,
     IonDatetime,
-  // IonToggle rimosso
     IonIcon,
     IonSpinner,
-    IonChip
+    IonChip,
+    IonModal
   ]
 })
 export class EditPersonalPage implements OnInit {
+  showDatePicker = false;
   private authService = inject(AuthService);
   private apiService = inject(ApiService);
   private router = inject(Router);
@@ -114,8 +110,7 @@ export class EditPersonalPage implements OnInit {
 
   // Form data
   formData: PersonalFormData = {
-    firstName: '',
-    lastName: '',
+    fullName: '',
     email: '',
     birthDate: '',
     gender: '',
@@ -123,11 +118,7 @@ export class EditPersonalPage implements OnInit {
     weight: null,
     activityLevel: '',
     allergies: [],
-    additives_sensitivity: [],
-    preferences: {
-      notifications: true,
-      darkMode: false
-    }
+    additives_sensitivity: []
   };
 
   originalData: PersonalFormData | null = null;
@@ -139,6 +130,16 @@ export class EditPersonalPage implements OnInit {
   // Date constraints
   maxDate = new Date().toISOString();
   minDate = new Date(new Date().getFullYear() - 120, 0, 1).toISOString();
+
+  openDatePicker() {
+    this.showDatePicker = true;
+  }
+
+  onDateSelected(event: any) {
+    this.formData.birthDate = event.detail.value; // ISO string
+    this.showDatePicker = false;
+    this.markAsChanged();
+  }
 
   // Available options
   availableAllergens: Allergen[] = [
@@ -156,39 +157,35 @@ export class EditPersonalPage implements OnInit {
     { code: 'sulfites', name: 'Anidride solforosa e solfiti', category: 'additive' }
   ];
 
-  availableAdditives: Additive[] = [
-    { code: 'E621', name: 'Glutammato monosodico (MSG)', category: 'flavor_enhancer' },
-    { code: 'E102', name: 'Tartrazina', category: 'colorant' },
-    { code: 'E110', name: 'Giallo tramonto FCF', category: 'colorant' },
-    { code: 'E124', name: 'Rosso cocciniglia A', category: 'colorant' },
-    { code: 'E129', name: 'Rosso allura AC', category: 'colorant' },
-    { code: 'E951', name: 'Aspartame', category: 'sweetener' },
-    { code: 'E950', name: 'Acesulfame K', category: 'sweetener' },
-    { code: 'E211', name: 'Benzoato di sodio', category: 'preservative' },
-    { code: 'E220', name: 'Anidride solforosa', category: 'preservative' },
-    { code: 'E320', name: 'BHA (butilidrossianisolo)', category: 'antioxidant' }
-  ];
+  availableAdditives: Additive[] = [...COMMON_ADDITIVES];
 
   constructor() {
-    addIcons({
-      personOutline,
-      fitnessOutline,
-      warningOutline,
-      settingsOutline,
-      checkmarkOutline,
-      alertCircleOutline,
-      flaskOutline,
-      addOutline,
-      createOutline,
-      trashOutline,
-      checkmarkCircleOutline,
-      notificationsOutline,
-      moonOutline
-    });
+    addIcons({checkmarkOutline,personOutline,calendarOutline,fitnessOutline,warningOutline,alertCircleOutline,addOutline,createOutline,trashOutline,checkmarkCircleOutline,flaskOutline,settingsOutline,notificationsOutline,moonOutline});
   }
 
   async ngOnInit() {
     await this.loadUserData();
+    // Carica allergeni e additivi dal server (per ID)
+    await this.loadAllergiesFromServer();
+    await this.loadAdditivesFromServer();
+  }
+
+  async loadAllergiesFromServer() {
+    try {
+      const res = await this.apiService.getUserAllergies().toPromise();
+      if (res && res.data) {
+        this.formData.allergies = res.data;
+      }
+    } catch (e) { /* fallback: lascia la lista vuota */ }
+  }
+
+  async loadAdditivesFromServer() {
+    try {
+      const res = await this.apiService.getUserAdditives().toPromise();
+      if (res && res.data) {
+        this.formData.additives_sensitivity = res.data;
+      }
+    } catch (e) { /* fallback: lascia la lista vuota */ }
   }
 
   /**
@@ -202,20 +199,31 @@ export class EditPersonalPage implements OnInit {
         const data = userProfile.data;
         // Type guard: check if data has 'user' property
         const user = (typeof data === 'object' && 'user' in data) ? (data as any).user : data;
+        // Normalizza la data di nascita in formato yyyy-MM-dd
+        let birthDateRaw = user.birthDate || user.birth_date || user.date_of_birth || '';
+        let birthDate = '';
+        if (birthDateRaw) {
+          // Se è già yyyy-MM-dd, usala direttamente
+          if (/^\d{4}-\d{2}-\d{2}$/.test(birthDateRaw)) {
+            birthDate = birthDateRaw;
+          } else {
+            const d = new Date(birthDateRaw);
+            if (!isNaN(d.getTime())) {
+              birthDate = d.toISOString().slice(0, 10);
+            }
+          }
+        }
+        console.log('BIRTHDATE', birthDateRaw, birthDate);
         this.formData = {
-          firstName: user.firstName || '',
-          lastName: user.lastName || '',
+          fullName: user.name || user.fullName || user.firstName || user.lastName ? (user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim()) : '',
           email: user.email || '',
-          birthDate: user.birthDate || user.birth_date || '',
+          birthDate,
           gender: (user.gender && ['male','female','other','prefer_not_to_say'].includes(user.gender) ? user.gender : 'other') as 'male' | 'female' | 'other' | 'prefer_not_to_say',
           height: user.height || null,
           weight: user.weight || null,
           activityLevel: user.activity_level || '',
           allergies: user.allergies || [],
-          additives_sensitivity: user.additives_sensitivity || [],
-          preferences: user.preferences
-            ? { notifications: user.preferences.notifications ?? true, darkMode: user.preferences.darkMode ?? false }
-            : { notifications: true, darkMode: false }
+          additives_sensitivity: user.additives_sensitivity || []
         };
         this.originalData = JSON.parse(JSON.stringify(this.formData));
       }
@@ -250,41 +258,48 @@ export class EditPersonalPage implements OnInit {
       await this.showToast('Nessuna modifica da salvare', 'warning');
       return;
     }
-
     this.isSaving = true;
-
     try {
       const loading = await this.loadingController.create({
         message: 'Salvataggio...',
         duration: 10000
       });
       await loading.present();
+      // Prepara payload solo con i dati anagrafici (NO allergeni/additivi)
+      // Prepara payload solo con i campi accettati dal backend
 
-      // Chiamata reale al backend
-      // Mappo i campi per compatibilità backend
-      const payload: Partial<User> = {
-        ...this.formData,
-        height: this.formData.height === null ? undefined : this.formData.height,
-        weight: this.formData.weight === null ? undefined : this.formData.weight,
-        gender: (this.formData.gender && ['male','female','other','prefer_not_to_say'].includes(this.formData.gender) ? this.formData.gender : 'other') as 'male' | 'female' | 'other' | 'prefer_not_to_say',
-        activity_level: (this.formData.activityLevel as 'light' | 'sedentary' | 'moderate' | 'active' | 'very_active' | undefined),
-        preferences: {
-          ...this.formData.preferences
-        }
+      // Mappa i campi frontend -> backend
+      const payload: any = {
+        name: this.formData.fullName,
+        email: this.formData.email,
+        date_of_birth: this.formData.birthDate,
+        gender: this.formData.gender,
+        height: this.formData.height,
+        weight: this.formData.weight,
+        activity_level: this.formData.activityLevel
       };
-      if ('activityLevel' in payload) {
-        delete (payload as any).activityLevel;
-      }
+      // Conversioni compatibilità backend
+      if (payload.height === null) delete payload.height;
+      if (payload.weight === null) delete payload.weight;
+      if (payload.gender && !['male','female','other','prefer_not_to_say'].includes(payload.gender)) payload.gender = 'other';
       await this.apiService.updateUserProfile(payload).toPromise();
-
       await loading.dismiss();
-      this.originalData = JSON.parse(JSON.stringify(this.formData));
-      await this.showToast('Dati salvati con successo!', 'success');
-      // Naviga e forza refresh profilo
-      this.router.navigate(['/profile'], { state: { refresh: true } });
+      // Aggiorna originalData solo per i dati anagrafici
+      this.originalData = JSON.parse(JSON.stringify({ ...this.formData, allergies: this.formData.allergies, additives_sensitivity: this.formData.additives_sensitivity }));
+  await this.showToast('Dati salvati con successo!', 'success');
+  // Ricarica i dati dal backend per essere sicuri che siano aggiornati
+  await this.loadUserData();
     } catch (error) {
       console.error('Errore salvataggio:', error);
-      await this.showToast('Errore durante il salvataggio', 'danger');
+      let errorMsg = 'Errore durante il salvataggio';
+      const err: any = error;
+      if (err?.error?.errors && Array.isArray(err.error.errors) && err.error.errors.length > 0) {
+        // Mostra il primo errore dettagliato
+        errorMsg = err.error.errors[0].message || err.error.errors[0];
+      } else if (err?.error?.message) {
+        errorMsg = err.error.message;
+      }
+      await this.showToast(errorMsg, 'danger');
     } finally {
       this.isSaving = false;
       try {
@@ -303,150 +318,115 @@ export class EditPersonalPage implements OnInit {
     const availableOptions = this.availableAllergens.filter(allergen => 
       !this.formData.allergies.some(existing => existing.allergen_code === allergen.code)
     );
-
     if (availableOptions.length === 0) {
       await this.showToast('Tutti gli allergeni disponibili sono già stati aggiunti', 'warning');
       return;
     }
-
     const buttons: any[] = availableOptions.map(allergen => ({
       text: allergen.name,
       handler: () => {
         this.showAllergySeveritySelection(allergen);
       }
     }));
-
-    buttons.push({
-      text: 'Annulla',
-      role: 'cancel'
-    });
-
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Seleziona Allergene',
-      buttons
-    });
-
+    buttons.push({ text: 'Annulla', role: 'cancel' });
+    const actionSheet = await this.actionSheetController.create({ header: 'Seleziona Allergene', buttons });
     await actionSheet.present();
   }
 
   async showAllergySeveritySelection(allergen: Allergen) {
-    const alert = await this.alertController.create({
+  const alert = await this.alertController.create({
       header: 'Livello di Severità',
       subHeader: allergen.name,
       message: 'Seleziona il livello di severità per questo allergene',
       inputs: [
-        {
-          name: 'severity',
-          type: 'radio',
-          label: 'Lieve',
-          value: 'mild',
-          checked: true
-        },
-        {
-          name: 'severity',
-          type: 'radio',
-          label: 'Moderata',
-          value: 'moderate'
-        },
-        {
-          name: 'severity',
-          type: 'radio',
-          label: 'Severa',
-          value: 'severe'
-        }
+        { name: 'severity', type: 'radio', label: 'Lieve', value: 'mild', checked: false },
+        { name: 'severity', type: 'radio', label: 'Moderata', value: 'moderate', checked: false },
+        { name: 'severity', type: 'radio', label: 'Severa', value: 'severe', checked: false }
       ],
       buttons: [
-        {
-          text: 'Annulla',
-          role: 'cancel'
-        },
+        { text: 'Annulla', role: 'cancel' },
         {
           text: 'Aggiungi',
-          handler: (data) => {
-            const newAllergy: UserAllergy = {
-              allergen_code: allergen.code,
-              allergen_name: allergen.name,
-              severity: data
-            };
-            this.formData.allergies.push(newAllergy);
-            this.markAsChanged();
+          handler: async (data: any) => {
+            if (data) {
+              try {
+                await this.apiService.addUserAllergy({
+                  allergen_code: allergen.code,
+                  allergen_name: allergen.name,
+                  severity: data
+                }).toPromise();
+                await this.loadAllergiesFromServer();
+                this.markAsChanged();
+                await this.showToast('Allergene aggiunto', 'success');
+              } catch (e) {
+                await this.showToast('Errore aggiunta allergene', 'danger');
+              }
+            }
           }
         }
       ]
     });
-
     await alert.present();
   }
 
   async editAllergy(index: number) {
-    const allergy = this.formData.allergies[index];
-    
+  const allergy = this.formData.allergies[index];
     const alert = await this.alertController.create({
       header: 'Modifica Severità',
       subHeader: allergy.allergen_name,
       inputs: [
-        {
-          name: 'severity',
-          type: 'radio',
-          label: 'Lieve',
-          value: 'mild',
-          checked: allergy.severity === 'mild'
-        },
-        {
-          name: 'severity',
-          type: 'radio',
-          label: 'Moderata',
-          value: 'moderate',
-          checked: allergy.severity === 'moderate'
-        },
-        {
-          name: 'severity',
-          type: 'radio',
-          label: 'Severa',
-          value: 'severe',
-          checked: allergy.severity === 'severe'
-        }
+        { name: 'severity', type: 'radio', label: 'Lieve', value: 'mild', checked: allergy.severity === 'mild' },
+        { name: 'severity', type: 'radio', label: 'Moderata', value: 'moderate', checked: allergy.severity === 'moderate' },
+        { name: 'severity', type: 'radio', label: 'Severa', value: 'severe', checked: allergy.severity === 'severe' }
       ],
       buttons: [
-        {
-          text: 'Annulla',
-          role: 'cancel'
-        },
+        { text: 'Annulla', role: 'cancel' },
         {
           text: 'Salva',
-          handler: (data) => {
-            this.formData.allergies[index].severity = data;
-            this.markAsChanged();
+          handler: async (data) => {
+            if (allergy.id == null) {
+              await this.showToast('Impossibile modificare: allergene senza ID', 'danger');
+              return;
+            }
+            try {
+              await this.apiService.updateUserAllergy(allergy.id, { severity: data }).toPromise();
+              await this.loadAllergiesFromServer();
+              this.markAsChanged();
+              await this.showToast('Severità aggiornata', 'success');
+            } catch (e) {
+              await this.showToast('Errore aggiornamento severità', 'danger');
+            }
           }
         }
       ]
     });
-
     await alert.present();
   }
 
   async removeAllergy(index: number) {
-    const allergy = this.formData.allergies[index];
-    
+  const allergy = this.formData.allergies[index];
     const alert = await this.alertController.create({
       header: 'Rimuovi Allergene',
       message: `Sei sicuro di voler rimuovere "${allergy.allergen_name}" dalla lista degli allergeni?`,
       buttons: [
+        { text: 'Annulla', role: 'cancel' },
         {
-          text: 'Annulla',
-          role: 'cancel'
-        },
-        {
-          text: 'Rimuovi',
-          role: 'destructive',
-          handler: () => {
-            this.formData.allergies.splice(index, 1);
-            this.markAsChanged();
-          }
-        }
+          text: 'Rimuovi', role: 'destructive', handler: async () => {
+            if (allergy.id == null) {
+              await this.showToast('Impossibile rimuovere: allergene senza ID', 'danger');
+              return;
+            }
+            try {
+              await this.apiService.deleteUserAllergy(allergy.id).toPromise();
+              await this.loadAllergiesFromServer();
+              this.markAsChanged();
+              await this.showToast('Allergene rimosso', 'success');
+            } catch (e) {
+              await this.showToast('Errore rimozione allergene', 'danger');
+            }
+          } }
       ]
     });
-
     await alert.present();
   }
 
@@ -457,29 +437,18 @@ export class EditPersonalPage implements OnInit {
     const availableOptions = this.availableAdditives.filter(additive => 
       !this.formData.additives_sensitivity.some(existing => existing.additive_code === additive.code)
     );
-
     if (availableOptions.length === 0) {
       await this.showToast('Tutti gli additivi disponibili sono già stati aggiunti', 'warning');
       return;
     }
-
     const buttons: any[] = availableOptions.map(additive => ({
       text: `${additive.name} (${additive.code})`,
       handler: () => {
         this.showAdditiveSensitivitySelection(additive);
       }
     }));
-
-    buttons.push({
-      text: 'Annulla',
-      role: 'cancel'
-    });
-
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Seleziona Additivo',
-      buttons
-    });
-
+    buttons.push({ text: 'Annulla', role: 'cancel' });
+    const actionSheet = await this.actionSheetController.create({ header: 'Seleziona Additivo', buttons });
     await actionSheet.present();
   }
 
@@ -489,118 +458,92 @@ export class EditPersonalPage implements OnInit {
       subHeader: additive.name,
       message: 'Seleziona il livello di sensibilità per questo additivo',
       inputs: [
-        {
-          name: 'sensitivity',
-          type: 'radio',
-          label: 'Bassa',
-          value: 'low',
-          checked: true
-        },
-        {
-          name: 'sensitivity',
-          type: 'radio',
-          label: 'Media',
-          value: 'medium'
-        },
-        {
-          name: 'sensitivity',
-          type: 'radio',
-          label: 'Alta',
-          value: 'high'
-        }
+        { name: 'sensitivity', type: 'radio', label: 'Bassa', value: 'low', checked: true },
+        { name: 'sensitivity', type: 'radio', label: 'Media', value: 'medium' },
+        { name: 'sensitivity', type: 'radio', label: 'Alta', value: 'high' }
       ],
       buttons: [
-        {
-          text: 'Annulla',
-          role: 'cancel'
-        },
+        { text: 'Annulla', role: 'cancel' },
         {
           text: 'Aggiungi',
-          handler: (data) => {
-            const newAdditive: UserAdditiveSensitivity = {
-              additive_code: additive.code,
-              additive_name: additive.name,
-              sensitivity_level: data
-            };
-            this.formData.additives_sensitivity.push(newAdditive);
-            this.markAsChanged();
+          handler: async (data) => {
+            try {
+              await this.apiService.addUserAdditive({
+                additive_code: additive.code,
+                additive_name: additive.name,
+                sensitivity_level: data
+              }).toPromise();
+              await this.loadAdditivesFromServer();
+              this.markAsChanged();
+              await this.showToast('Additivo aggiunto', 'success');
+            } catch (e) {
+              await this.showToast('Errore aggiunta additivo', 'danger');
+            }
           }
         }
       ]
     });
-
     await alert.present();
   }
 
   async editAdditive(index: number) {
     const additive = this.formData.additives_sensitivity[index];
-    
     const alert = await this.alertController.create({
       header: 'Modifica Sensibilità',
       subHeader: additive.additive_name,
       inputs: [
-        {
-          name: 'sensitivity',
-          type: 'radio',
-          label: 'Bassa',
-          value: 'low',
-          checked: additive.sensitivity_level === 'low'
-        },
-        {
-          name: 'sensitivity',
-          type: 'radio',
-          label: 'Media',
-          value: 'medium',
-          checked: additive.sensitivity_level === 'medium'
-        },
-        {
-          name: 'sensitivity',
-          type: 'radio',
-          label: 'Alta',
-          value: 'high',
-          checked: additive.sensitivity_level === 'high'
-        }
+        { name: 'sensitivity', type: 'radio', label: 'Bassa', value: 'low', checked: additive.sensitivity_level === 'low' },
+        { name: 'sensitivity', type: 'radio', label: 'Media', value: 'medium', checked: additive.sensitivity_level === 'medium' },
+        { name: 'sensitivity', type: 'radio', label: 'Alta', value: 'high', checked: additive.sensitivity_level === 'high' }
       ],
       buttons: [
-        {
-          text: 'Annulla',
-          role: 'cancel'
-        },
+        { text: 'Annulla', role: 'cancel' },
         {
           text: 'Salva',
-          handler: (data) => {
-            this.formData.additives_sensitivity[index].sensitivity_level = data;
-            this.markAsChanged();
+          handler: async (data) => {
+            if (additive.id == null) {
+              await this.showToast('Impossibile modificare: additivo senza ID', 'danger');
+              return;
+            }
+            try {
+              await this.apiService.updateUserAdditive(additive.id, { sensitivity_level: data }).toPromise();
+              await this.loadAdditivesFromServer();
+              this.markAsChanged();
+              await this.showToast('Sensibilità aggiornata', 'success');
+            } catch (e) {
+              await this.showToast('Errore aggiornamento sensibilità', 'danger');
+            }
           }
         }
       ]
     });
-
     await alert.present();
   }
 
   async removeAdditive(index: number) {
     const additive = this.formData.additives_sensitivity[index];
-    
     const alert = await this.alertController.create({
       header: 'Rimuovi Additivo',
       message: `Sei sicuro di voler rimuovere "${additive.additive_name}" dalla lista degli additivi sensibili?`,
       buttons: [
+        { text: 'Annulla', role: 'cancel' },
         {
-          text: 'Annulla',
-          role: 'cancel'
-        },
-        {
-          text: 'Rimuovi',
-          role: 'destructive',
-          handler: () => {
-            this.formData.additives_sensitivity.splice(index, 1);
-            this.markAsChanged();
-          }
-        }
+          text: 'Rimuovi', role: 'destructive', handler: async () => {
+            if (additive.id == null) {
+              await this.showToast('Impossibile rimuovere: additivo senza ID', 'danger');
+              return;
+            }
+            try {
+              await this.apiService.deleteUserAdditive(additive.id).toPromise();
+              await this.loadAdditivesFromServer();
+              this.markAsChanged();
+              await this.showToast('Additivo rimosso', 'success');
+            } catch (e) {
+              await this.showToast('Errore rimozione additivo', 'danger');
+            }
+          } }
       ]
     });
-
     await alert.present();
   }
 

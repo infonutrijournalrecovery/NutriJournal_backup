@@ -1,3 +1,9 @@
+
+
+// ...existing code up to the end of the first ApiService class definition...
+
+// REMOVE everything from the second 'import { Injectable }' down to the duplicate ApiService class definition and its methods.
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -25,6 +31,44 @@ export class ApiService {
     private http: HttpClient,
     private authService: AuthService
   ) {}
+
+  // =================== ALLERGIES & ADDITIVES ===================
+
+  /** Allergeni utente */
+  getUserAllergies(): Observable<ApiResponse<any>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/users/allergies`, { headers });
+  }
+  addUserAllergy(allergy: Partial<any>): Observable<ApiResponse<any>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/users/allergies`, allergy, { headers });
+  }
+  updateUserAllergy(id: number, allergy: Partial<any>): Observable<ApiResponse<any>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/users/allergies/${id}`, allergy, { headers });
+  }
+  deleteUserAllergy(id: number): Observable<ApiResponse<any>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/users/allergies/${id}`, { headers });
+  }
+
+  /** Additivi utente */
+  getUserAdditives(): Observable<ApiResponse<any>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/users/additives`, { headers });
+  }
+  addUserAdditive(additive: Partial<any>): Observable<ApiResponse<any>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/users/additives`, additive, { headers });
+  }
+  updateUserAdditive(id: number, additive: Partial<any>): Observable<ApiResponse<any>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/users/additives/${id}`, additive, { headers });
+  }
+  deleteUserAdditive(id: number): Observable<ApiResponse<any>> {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/users/additives/${id}`, { headers });
+  }
 
   // =================== MEALS ===================
 

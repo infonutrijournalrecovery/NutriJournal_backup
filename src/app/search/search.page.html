@@ -21,40 +21,6 @@
         </h1>
         <p></p>
       </div>
-    </div>
-
-    <!-- Risultati ricerca (desktop) -->
-    <div *ngIf="searchResults.length > 0" class="search-results-section">
-      <ion-card class="results-card">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="list-outline"></ion-icon>
-            Risultati trovati ({{ searchResults.length }})
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="results-list">
-            <div *ngFor="let product of searchResults" class="result-item">
-              <ion-item lines="none">
-                <ion-avatar slot="start">
-                  <img [src]="product.image || 'assets/images/product-placeholder.png'" [alt]="product.name_it || product.name">
-                </ion-avatar>
-                <ion-label>
-                  <h3>{{ product.name_it || product.name }}</h3>
-                  <p *ngIf="product.brand_it || product.brand">{{ product.brand_it || product.brand }}</p>
-                </ion-label>
-                <ion-button fill="outline" slot="end" (click)="openProductDetail(product)">
-                  <ion-icon name="information-circle-outline" slot="icon-only"></ion-icon>
-                </ion-button>
-              </ion-item>
-            </div>
-          </div>
-        </ion-card-content>
-      </ion-card>
-    </div>
-    
-    <!-- Search Section -->
-    <div class="desktop-search-section">
       <ion-card class="search-card">
         <ion-card-header>
           <ion-card-title>
@@ -69,105 +35,82 @@
               <ion-input 
                 [(ngModel)]="searchCode" 
                 placeholder="es. Pizza Margherita"
-                type="text"
-                (keyup.enter)="searchByCode()">
+                type="text">
               </ion-input>
             </ion-item>
-            
-            <ion-button 
-              expand="block" 
-              (click)="searchByCode()"
-              [disabled]="!searchCode || isLoading"
-              class="search-button">
-              <ion-icon name="search-outline" slot="start"></ion-icon>
-              <span *ngIf="!isLoading">Cerca Prodotto</span>
-              <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
-            </ion-button>
-          </div>
-        </ion-card-content>
-      </ion-card>
-    </div>
-
-    <!-- Risultati ricerca (mobile) -->
-    <div *ngIf="searchResults.length > 0" class="search-results-section">
-      <ion-card class="results-card">
-        <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="list-outline"></ion-icon>
-            Risultati trovati ({{ searchResults.length }})
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="results-list">
-            <div *ngFor="let product of searchResults" class="result-item">
-              <ion-item lines="none">
-                <ion-avatar slot="start">
-                  <img [src]="product.image || 'assets/images/product-placeholder.png'" [alt]="product.name">
-                </ion-avatar>
-                <ion-label>
-                  <h3>{{ product.name }}</h3>
-                  <p *ngIf="product.brand">{{ product.brand }}</p>
-                </ion-label>
-                <ion-button fill="outline" slot="end" (click)="openProductDetail(product)">
-                  <ion-icon name="information-circle-outline" slot="icon-only"></ion-icon>
-                </ion-button>
-              </ion-item>
+            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+              <ion-button color="primary" (click)="searchByCode()">
+                <ion-icon name="search-outline" slot="start"></ion-icon>
+                Cerca
+              </ion-button>
             </div>
           </div>
         </ion-card-content>
       </ion-card>
-    </div>
-    
-  </div>
-  
-  <!-- Mobile Layout -->
-  <div *ngIf="isMobile" class="mobile-search-layout">
-    
-    <!-- search Camera View -->
-    <div *ngIf="isScanning" class="camera-search">
-      <div class="search-overlay">
-        <div class="scan-area">
-          <div class="scan-line"></div>
-        </div>
-        <div class="search-instructions">
-          <p>Inquadra il codice a barre del prodotto</p>
-          <ion-button fill="clear" color="light" (click)="stopScanning()">
-            <ion-icon name="close-outline"></ion-icon>
-            Annulla
-          </ion-button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Mobile Controls -->
-    <div *ngIf="!isScanning" class="mobile-controls">
-      <div class="search-header mobile-header">
-        <h1>Cerca Prodotti</h1>
-        <p>Cerca prodotto per nome</p>
-      </div>
 
-      
-      <!-- Manual Input Option -->
-      <div class="manual-input-section">
-        <ion-item>
-          <ion-label position="stacked">Nome prodotto</ion-label>
-          <ion-input 
-            [(ngModel)]="searchCode" 
-            placeholder="es. Pizza Margherita"
-            type="string">
-          </ion-input>
-        </ion-item>
-        
-        <ion-button 
-          expand="block" 
-          (click)="searchByCode()"
-          [disabled]="!searchCode || isLoading"
-          class="manual-search-button">
-          <ion-icon name="search-outline" slot="start"></ion-icon>
-          <span *ngIf="!isLoading">Cerca</span>
-          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
-        </ion-button>
-      </div>
+      <!-- Risultati ricerca (unificato, sotto la barra) -->
+      <div *ngIf="searchResults.length > 0 && (isDesktop || isMobile)" class="search-results-section">
+        <!-- Filtri -->
+        <div class="search-filters" style="margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+          <ion-chip [ngClass]="{'chip-active': selectedFilter === 'all'}" (click)="setFilter('all')">Tutti</ion-chip>
+          <ion-chip [ngClass]="{'chip-active': selectedFilter === 'branded'}" (click)="setFilter('branded')">Confezionati</ion-chip>
+          <ion-chip [ngClass]="{'chip-active': selectedFilter === 'survey'}" (click)="setFilter('survey')">Fatti in casa</ion-chip>
+        </div>
+
+        <!-- Sezione Confezionati -->
+        <ion-card *ngIf="(selectedFilter === 'all' || selectedFilter === 'branded') && brandedResults.length > 0" class="results-card compact-results">
+          <ion-card-header>
+            <ion-card-title>
+              <ion-icon name="cube-outline"></ion-icon>
+              Prodotti confezionati ({{ brandedResults.length }})
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="results-list">
+              <div *ngFor="let product of brandedResults" class="result-item compact-item">
+                <ion-item lines="none" class="result-ion-item" (click)="openProductDetail(product)">
+                  <ion-label class="result-label">
+                    <h3>{{ product.name_it || product.name }}</h3>
+                    <span class="portion-info">
+                      {{ product.serving?.quantity || 100 }}{{ product.serving?.unit || 'g' }}: 
+                      {{ product.nutrition_per_100g.calories != null ? product.nutrition_per_100g.calories + ' kcal' : 'N/A' }}
+                    </span>
+                  </ion-label>
+                </ion-item>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+                        <!-- Sezione Fatti in casa -->
+                        <ion-card *ngIf="(selectedFilter === 'all' || selectedFilter === 'survey') && surveyResults.length > 0" class="results-card compact-results">
+                          <ion-card-header>
+                            <ion-card-title>
+                              <ion-icon name="restaurant-outline"></ion-icon>
+                              Fatti in casa ({{ surveyResults.length }})
+                            </ion-card-title>
+                          </ion-card-header>
+                          <ion-card-content>
+                            <div class="results-list">
+                              <div *ngFor="let product of surveyResults" class="result-item compact-item">
+                                <ion-item lines="none" class="result-ion-item" (click)="openProductDetail(product)">
+                                  <ion-label class="result-label">
+                                    <h3>{{ product.name_it || product.name }}</h3>
+                                    <span class="portion-info">
+                                      {{ product.serving?.quantity || 100 }}{{ product.serving?.unit || 'g' }}: 
+                                      {{ product.nutrition_per_100g.calories != null ? product.nutrition_per_100g.calories + ' kcal' : 'N/A' }}
+                                    </span>
+                                  </ion-label>
+                                </ion-item>
+                              </div>
+                            </div>
+                          </ion-card-content>
+                        </ion-card>
+
+                        <!-- Sezione Foundation -->
+                        <!-- Foundation rimossa -->
+                      </div>
+      <!-- Manual Input Option SOLO MOBILE: questa sezione va rimossa dal desktop layout -->
     </div>
     
   </div>
@@ -175,77 +118,125 @@
 </ion-content>
 
 <!-- Product Details Modal -->
-<ion-modal [isOpen]="showProductModal" (willDismiss)="closeProductModal()">
+<ion-modal [isOpen]="showProductModal" (willDismiss)="closeProductModal()" class="large-product-modal" style="--width: 85vw; --height: 85vh;">
   <ng-template>
     <ion-header>
-      <ion-toolbar>
-        <ion-title>Dettagli Prodotto</ion-title>
+      <ion-toolbar style="background:#75b972; color:#fff;">
+        <ion-title style="font-weight: 600; letter-spacing: 0.5px; color:#fff;">Dettagli Prodotto</ion-title>
         <ion-buttons slot="end">
-          <ion-button (click)="closeProductModal()">
+          <ion-button (click)="closeProductModal()" style="color:#fff;">
             <ion-icon name="close-outline"></ion-icon>
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    
-    <ion-content *ngIf="selectedProduct">
-      
-      <!-- Product Header -->
-      <div class="product-header">
-        <ion-avatar class="product-avatar">
-    <img [src]="selectedProduct.image || 'assets/images/product-placeholder.png'" 
-      [alt]="selectedProduct.name">
-        </ion-avatar>
-        <div class="product-info">
-          <h2>{{ selectedProduct.name_it || selectedProduct.name }}</h2>
-          <p *ngIf="selectedProduct.brand_it || selectedProduct.brand" class="brand">{{ selectedProduct.brand_it || selectedProduct.brand }}</p>
-          <ion-chip class="barcode-chip">
-            <ion-icon name="barcode-outline"></ion-icon>
-            <ion-label>{{ selectedProduct.id }}</ion-label>
-          </ion-chip>
-        </div>
-      </div>
-      
-      <!-- Nutrition Facts -->
-      <ion-card class="nutrition-card">
+
+  <div *ngIf="selectedProduct" class="modal-content-styled" style="background:#fff; min-height:70vh; max-width:800px; margin:auto; width:100%; display: flex; flex-direction: column; justify-content: flex-start;">
+  <ion-card class="modal-product-card" style="background:#fff; border-radius: 24px; box-shadow: 0 4px 24px 0 rgba(117,185,114,0.10); padding: 0 0 16px 0; margin: 16px;">
         <ion-card-header>
-          <ion-card-title>
-            <ion-icon name="nutrition-outline"></ion-icon>
-            Valori Nutrizionali (per 100g)
+          <ion-card-title style="font-size: 1.3em; font-weight: 600; color: var(--ion-color-primary);">
+            {{ selectedProduct.name_it || selectedProduct.name }}
           </ion-card-title>
+          <!-- id rimosso: non mostrare chip con barcode/id -->
+          <p *ngIf="selectedProduct.brand_it || selectedProduct.brand" class="brand" style="margin: 0; color: #666; font-size: 1em;">{{ selectedProduct.brand_it || selectedProduct.brand }}</p>
         </ion-card-header>
         <ion-card-content>
-          <div class="nutrition-grid">
-            <div class="nutrition-item">
-              <span class="label">Energia</span>
-              <span class="value">{{ selectedProduct.nutrition_per_100g.calories }} kcal</span>
-            </div>
-            <div class="nutrition-item">
-              <span class="label">Proteine</span>
-              <span class="value">{{ selectedProduct.nutrition_per_100g.proteins }}g</span>
-            </div>
-            <div class="nutrition-item">
-              <span class="label">Carboidrati</span>
-              <span class="value">{{ selectedProduct.nutrition_per_100g.carbohydrates }}g</span>
-            </div>
-            <div class="nutrition-item">
-              <span class="label">Grassi</span>
-              <span class="value">{{ selectedProduct.nutrition_per_100g.fats }}g</span>
-            </div>
-            <div class="nutrition-item">
-              <span class="label">Zuccheri</span>
-              <span class="value">{{ selectedProduct.nutrition_per_100g.sugars }}g</span>
-            </div>
-            <div class="nutrition-item">
-              <span class="label">Sodio</span>
-              <span class="value">{{ selectedProduct.nutrition_per_100g.sodium }}mg</span>
-            </div>
-          </div>
+          <ion-item class="quantity-input-item" lines="none" style="margin-bottom: 12px; background:#fff;">
+            <ion-label position="stacked" style="font-weight: 500;">Quantità consumata</ion-label>
+            <ion-input type="number" min="1" [(ngModel)]="selectedQuantity"></ion-input>
+            <span class="unit-label" style="margin-left: 8px; color: #888;">{{ selectedProduct.serving?.unit || 'g' }}</span>
+          </ion-item>
+          <ion-list class="nutrition-list" style="margin-bottom: 12px; background:#f8fff6; border-radius: 18px; box-shadow: 0 2px 8px 0 rgba(117,185,114,0.07); padding: 8px 0;">
+            <ion-list-header style="font-weight: 600; color: #75b972; font-size: 1.1em; background:transparent; padding: 12px 16px 4px 16px; border-radius: 18px 18px 0 0;">
+              <ion-icon name="nutrition-outline" style="margin-right: 6px;"></ion-icon>
+              Valori Nutrizionali (per {{ selectedQuantity }}{{ selectedProduct.serving?.unit || 'g' }})
+            </ion-list-header>
+            <ng-container *ngIf="getNutritionalValues(selectedQuantity) as values">
+              <ion-item lines="none" style="background:transparent; padding: 0 16px; min-height: 36px;">
+                <ion-label>Energia</ion-label><div slot="end">{{ values.calories !== undefined ? values.calories : 'N/A' }} kcal</div>
+              </ion-item>
+              <ion-item lines="none" style="background:transparent; padding: 0 16px; min-height: 36px;">
+                <ion-label>Proteine</ion-label><div slot="end">{{ values.proteins !== undefined ? values.proteins : 'N/A' }}g</div>
+              </ion-item>
+              <ion-item lines="none" style="background:transparent; padding: 0 16px; min-height: 36px;">
+                <ion-label>Carboidrati</ion-label><div slot="end">{{ values.carbohydrates !== undefined ? values.carbohydrates : 'N/A' }}g</div>
+              </ion-item>
+              <ion-item lines="none" style="background:transparent; padding: 0 16px; min-height: 36px;">
+                <ion-label>Grassi</ion-label><div slot="end">{{ values.fats !== undefined ? values.fats : 'N/A' }}g</div>
+              </ion-item>
+              <ion-item lines="none" style="background:transparent; padding: 0 16px; min-height: 36px;">
+                <ion-label>Zuccheri</ion-label><div slot="end">{{ values.sugars !== undefined ? values.sugars : 'N/A' }}g</div>
+              </ion-item>
+              <ion-item lines="none" style="background:transparent; padding: 0 16px; min-height: 36px;">
+                <ion-label>Fibre</ion-label><div slot="end">{{ values.fiber !== undefined ? values.fiber : 'N/A' }}g</div>
+              </ion-item>
+              <ion-item lines="none" style="background:transparent; padding: 0 16px; min-height: 36px;">
+                <ion-label>Sodio</ion-label><div slot="end">{{ values.sodium !== undefined ? values.sodium : 'N/A' }}mg</div>
+              </ion-item>
+              <ion-item lines="none" style="background:transparent; padding: 0 16px; min-height: 36px;">
+                <ion-label>Grassi saturi</ion-label><div slot="end">{{ values.saturated_fat !== undefined ? values.saturated_fat : 'N/A' }}g</div>
+              </ion-item>
+            </ng-container>
+            <ng-container *ngIf="!getNutritionalValues(selectedQuantity)">
+              <ion-item lines="none" style="background:#fff;"><ion-label>Nutrienti</ion-label><div slot="end">N/A</div></ion-item>
+            </ng-container>
+          </ion-list>
+          <ion-item-divider style="margin: 12px 0;"></ion-item-divider>
+          <!-- Additives -->
+          <ion-list *ngIf="(selectedProduct?.additives || []).length > 0" class="additives-list">
+            <ion-list-header style="font-weight: 600; color: var(--ion-color-warning);">
+              <ion-icon name="warning-outline" style="margin-right: 6px;"></ion-icon>
+              Additivi
+            </ion-list-header>
+            <ion-item *ngFor="let additive of selectedProduct?.additives || []" lines="none">
+              <ion-chip [color]="getRiskLevelColor(additive.riskLevel)">
+                <ion-icon [name]="getRiskLevelIcon(additive.riskLevel)"></ion-icon>
+                <ion-label>{{ additive.code }}</ion-label>
+              </ion-chip>
+              <div class="additive-info" style="margin-left: 8px;">
+                <strong>{{ additive.name }}</strong>
+                <span class="risk-level" style="margin-left: 6px; font-size: 0.95em;">Rischio: {{ additive.riskLevel === 'low' ? 'Basso' : additive.riskLevel === 'medium' ? 'Medio' : 'Alto' }}</span>
+              </div>
+            </ion-item>
+          </ion-list>
+          <!-- Allergens -->
+          <ion-list *ngIf="(selectedProduct?.allergens || []).length > 0" class="allergens-list">
+            <ion-list-header style="font-weight: 600; color: var(--ion-color-danger);">
+              <ion-icon name="warning-outline" style="margin-right: 6px;"></ion-icon>
+              Allergeni
+            </ion-list-header>
+            <ion-item lines="none">
+              <ion-chip *ngFor="let allergen of selectedProduct?.allergens || []" color="warning" style="margin-right: 6px;">
+                <ion-label>{{ allergen }}</ion-label>
+              </ion-chip>
+            </ion-item>
+          </ion-list>
+          <!-- Ingredients -->
+          <ion-list *ngIf="selectedProduct?.ingredients_it || selectedProduct?.ingredients" class="ingredients-list">
+            <ion-list-header style="font-weight: 600; color: var(--ion-color-primary);">
+              <ion-icon name="list-outline" style="margin-right: 6px;"></ion-icon>
+              Ingredienti
+            </ion-list-header>
+            <ion-item lines="none">
+              <p class="ingredients-text" style="margin: 0; color: #444;">{{ selectedProduct.ingredients_it || selectedProduct.ingredients }}</p>
+            </ion-item>
+          </ion-list>
         </ion-card-content>
       </ion-card>
+      <!-- Action Buttons -->
+  <div class="modal-actions" style="margin-top: 18px; display: flex; flex-direction: column; gap: 10px; background:#fff; position: static;">
+        <ion-button expand="block" (click)="addToMeal()" class="add-meal-button" style="font-weight: 600; background:#75b972; color:#fff;">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Registra Pasto
+        </ion-button>
+        <ion-button expand="block" fill="outline" (click)="closeProductModal()">
+          Chiudi
+        </ion-button>
+      </div>
+  </div>
       
       <!-- Additives -->
-  <ion-card *ngIf="selectedProduct.additives && selectedProduct.additives.length > 0" class="additives-card">
+  <ion-card *ngIf="(selectedProduct?.additives || []).length > 0" class="additives-card">
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="warning-outline"></ion-icon>
@@ -254,7 +245,7 @@
         </ion-card-header>
         <ion-card-content>
           <div class="additives-list">
-            <div *ngFor="let additive of selectedProduct.additives" class="additive-item">
+            <div *ngFor="let additive of selectedProduct?.additives || []" class="additive-item">
               <ion-chip [color]="getRiskLevelColor(additive.riskLevel)">
                 <ion-icon [name]="getRiskLevelIcon(additive.riskLevel)"></ion-icon>
                 <ion-label>{{ additive.code }}</ion-label>
@@ -269,7 +260,7 @@
       </ion-card>
       
       <!-- Allergens -->
-      <ion-card *ngIf="selectedProduct.allergens.length > 0" class="allergens-card">
+  <ion-card *ngIf="(selectedProduct?.allergens || []).length > 0" class="allergens-card">
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="warning-outline"></ion-icon>
@@ -278,7 +269,7 @@
         </ion-card-header>
         <ion-card-content>
           <div class="allergens-list">
-            <ion-chip *ngFor="let allergen of selectedProduct.allergens" color="warning">
+            <ion-chip *ngFor="let allergen of selectedProduct?.allergens || []" color="warning">
               <ion-label>{{ allergen }}</ion-label>
             </ion-chip>
           </div>
@@ -286,7 +277,7 @@
       </ion-card>
       
       <!-- Ingredients -->
-  <ion-card *ngIf="selectedProduct.ingredients_it || selectedProduct.ingredients" class="ingredients-card">
+  <ion-card *ngIf="selectedProduct?.ingredients_it || selectedProduct?.ingredients" class="ingredients-card">
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="list-outline"></ion-icon>
@@ -294,22 +285,10 @@
           </ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <p class="ingredients-text">{{ selectedProduct.ingredients_it || selectedProduct.ingredients }}</p>
+          <p class="ingredients-text">{{ selectedProduct?.ingredients_it || selectedProduct?.ingredients || '' }}</p>
         </ion-card-content>
       </ion-card>
       
-      <!-- Action Buttons -->
-      <div class="modal-actions">
-        <ion-button expand="block" (click)="addToMeal()" class="add-meal-button">
-          <ion-icon name="add-outline" slot="start"></ion-icon>
-          Aggiungi al Pasto
-        </ion-button>
-        
-        <ion-button expand="block" fill="outline" (click)="closeProductModal()">
-          Chiudi
-        </ion-button>
-      </div>
       
-    </ion-content>
   </ng-template>
 </ion-modal>

@@ -37,38 +37,21 @@
       <ion-card-content>
   <form #personalForm="ngForm" (ngSubmit)="$event.preventDefault()">
           
-          <!-- Nome -->
+          <!-- Nome completo -->
           <ion-item class="form-item">
-            <ion-label position="stacked">Nome *</ion-label>
+            <ion-label position="stacked">Nome completo *</ion-label>
             <ion-input
-              name="firstName"
+              name="fullName"
               type="text"
-              [(ngModel)]="formData.firstName"
-              #firstName="ngModel"
+              [(ngModel)]="formData.fullName"
+              #fullName="ngModel"
               required
-              placeholder="Inserisci il tuo nome"
+              placeholder="Inserisci il tuo nome completo"
               (ionInput)="markAsChanged()">
             </ion-input>
           </ion-item>
-          <div *ngIf="firstName.invalid && firstName.touched" class="error-message">
-            Il nome è obbligatorio
-          </div>
-
-          <!-- Cognome -->
-          <ion-item class="form-item">
-            <ion-label position="stacked">Cognome *</ion-label>
-            <ion-input
-              name="lastName"
-              type="text"
-              [(ngModel)]="formData.lastName"
-              #lastName="ngModel"
-              required
-              placeholder="Inserisci il tuo cognome"
-              (ionInput)="markAsChanged()">
-            </ion-input>
-          </ion-item>
-          <div *ngIf="lastName.invalid && lastName.touched" class="error-message">
-            Il cognome è obbligatorio
+          <div *ngIf="fullName.invalid && fullName.touched" class="error-message">
+            Il nome completo è obbligatorio
           </div>
 
           <!-- Email -->
@@ -91,19 +74,38 @@
           </div>
 
           <!-- Data di Nascita -->
-          <div class="calendar-modal-wrapper">
+          <ion-item class="form-item">
             <ion-label position="stacked">Data di Nascita *</ion-label>
-            <ion-datetime
-              name="birthDate"
-              presentation="date"
-              [(ngModel)]="formData.birthDate"
-              #birthDate="ngModel"
-              required
-              [max]="maxDate"
-              [min]="minDate"
-              (ionChange)="markAsChanged()">
-            </ion-datetime>
-          </div>
+            <div style="display: flex; align-items: center; width: 100%;">
+              <ion-input
+                readonly
+                [value]="formData.birthDate | date:'dd/MM/yyyy'" 
+                style="flex: 1;"
+              ></ion-input>
+              <ion-icon 
+                name="calendar-outline" 
+                slot="end" 
+                style="margin-left: 8px; font-size: 1.2em; cursor: pointer;" 
+                (click)="openDatePicker()">
+              </ion-icon>
+            </div>
+
+            <!-- Modal con calendario -->
+            <ion-modal [isOpen]="showDatePicker" (didDismiss)="showDatePicker = false">
+              <ng-template>
+                <ion-datetime
+                  name="birthDate"
+                  presentation="date"
+                  [(ngModel)]="formData.birthDate"
+                  required
+                  [max]="maxDate"
+                  [min]="minDate"
+                  [value]="formData.birthDate || maxDate"   
+                  (ionChange)="onDateSelected($event)">
+                </ion-datetime>
+              </ng-template>
+            </ion-modal>
+          </ion-item>
 
         </form>
       </ion-card-content>
@@ -132,7 +134,6 @@
               <ion-select-option value="male">Maschio</ion-select-option>
               <ion-select-option value="female">Femmina</ion-select-option>
               <ion-select-option value="other">Altro</ion-select-option>
-              <ion-select-option value="prefer_not_to_say">Preferisco non dirlo</ion-select-option>
             </ion-select>
           </ion-item>
 

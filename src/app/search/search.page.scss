@@ -1,43 +1,107 @@
-// search Page Styles - NutriJournal
-// Responsive design for barcode scanning
-
-@use 'search-variables' as *;
-
-// Override variabili CSS con valori SCSS (mantiene grafica identica)
-:root {
-  --search-primary: #{$search-primary};
-  --search-secondary: #{$search-secondary};
-  --search-gradient: #{$search-gradient};
-  --search-success: #{$search-success};
-  --search-warning: #{$search-warning};
-  --search-danger: #{$search-danger};
+// Chip filtri visibili su verde
+.search-filters ion-chip {
+  background: #fff !important;
+  color: #415540 !important;
+  font-weight: 600;
+  border-radius: 16px;
+  border: 1.5px solid #75b972;
+  transition: background 0.2s, color 0.2s;
 }
+.search-filters ion-chip.chip-active {
+  background: #415540 !important;
+  color: #fff !important;
+  border-color: #415540;
+}
+.compact-results {
+  margin-top: 1.5rem;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(65, 85, 64, 0.10);
+  background: #fff;
+  padding-bottom: 0.5rem;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.compact-item {
+  margin: 0.25rem 0.5rem;
+}
+
+.result-ion-item {
+  border-radius: 14px;
+  background: #f8f9fa;
+  box-shadow: 0 1px 4px rgba(65, 85, 64, 0.07);
+  margin: 0;
+  padding: 0.5rem 0.5rem 0.5rem 0.25rem;
+  min-height: 64px;
+  align-items: center;
+}
+
+.result-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(65, 85, 64, 0.10);
+  background: #eaf6ea;
+}
+
+.result-label {
+  margin-left: 0.5rem;
+  h3 {
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin: 0 0 0.1rem 0;
+    color: #415540;
+    letter-spacing: 0.01em;
+  }
+  p {
+    font-size: 0.92rem;
+    color: #75b972;
+    margin: 0;
+    font-weight: 400;
+  }
+}
+
+.result-info-btn {
+  --color: #415540;
+  --background: transparent;
+  font-size: 1.2rem;
+  margin-left: 0.5rem;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.result-info-btn:hover {
+  background: #eaf6ea;
+}
+
 
 // ===========================================
 // DESKTOP LAYOUT
 // ===========================================
 
 
-.desktop-search-layout {
-  min-height: 100vh;
-    background: #75b972;
-}
 ion-toolbar {
   --background: #415540;
   --color: white;
 }
+
+// Desktop layout
+.desktop-search-layout {
+  min-height: 100vh;
+  background: #75b972;
+}
 .desktop-header {
-  background: var(--search-gradient);
-  color: white;
+  background: #75b972;
   padding: 3rem 2rem;
   text-align: center;
   border-radius: 0 0 24px 24px;
   margin-bottom: 2rem;
-  
   .header-content {
     max-width: 800px;
     margin: 0 auto;
-    
     h1 {
       font-size: 2.5rem;
       font-weight: 300;
@@ -47,40 +111,42 @@ ion-toolbar {
       justify-content: center;
       gap: 1rem;
       color: #ffffff;
-      
       ion-icon {
         font-size: 3rem;
       }
     }
-    
     p {
       font-size: 1.2rem;
       margin: 0;
       opacity: 0.9;
       color: #606060;
-
     }
   }
 }
 
 .desktop-search-section {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 1rem 2rem;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto 1.5rem auto;
+  padding: 1.5rem 0 0 0;
   display: flex;
-  justify-content: center; /* \U0001f525 Centra orizzontalmente */
+  justify-content: center;
+}
+
+.search-card {
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
 }
 
 
 .search-card {
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
-  background: #{$search-desktop-bg};
-  
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  background: #f8f9fa;
   ion-card-header {
-    background: #{$search-desktop-bg};
+    background: #f8f9fa;
     border-radius: 16px 16px 0 0;
-    
     ion-card-title {
       display: flex;
       align-items: center;
@@ -89,27 +155,23 @@ ion-toolbar {
       font-size: 1.3rem;
     }
   }
-  
   .search-container {
     ion-item {
       --background: #f0f0f0;
-      --border-radius: #{$search-border-radius-small};
+      --border-radius: 10px;
       margin-bottom: 1.5rem;
       margin-top: 1.5rem;
       height: 100px;
-      
       ion-input {
         font-size: 1.0rem;
         color: #606060;
       }
     }
-    
     .search-button {
       --background: #75b972;
       height: 50px;
       font-size: 1.1rem;
       --border-radius: 12px;
-      
       &:hover {
         --background: #415540;
         --color: white;
@@ -231,27 +293,23 @@ ion-toolbar {
   width: 280px;
   height: 160px;
   border: 2px solid white;
-  border-radius: #{$search-border-radius-small};
+  border-radius: 12px;
   position: relative;
   background: rgba(255, 255, 255, 0.1);
-  
-  // Corner indicators
   &::before,
   &::after {
     content: '';
     position: absolute;
     width: 20px;
     height: 20px;
-    border: 3px solid var(--search-success);
+    border: 3px solid #75b972;
   }
-  
   &::before {
     top: -3px;
     left: -3px;
     border-right: none;
     border-bottom: none;
   }
-  
   &::after {
     bottom: -3px;
     right: -3px;

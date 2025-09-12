@@ -36,13 +36,22 @@ const upload = multer({
 // Middleware di autenticazione
 const auth = AuthMiddleware.verifyToken;
 
+
 // === PROFILO UTENTE ===
-
-// GET /api/users/profile - Ottieni profilo utente
 router.get('/profile', auth, UserController.getProfile);
-
-// PUT /api/users/profile - Aggiorna profilo utente
 router.put('/profile', auth, validate(userUpdateSchema), UserController.updateProfile);
+
+// === ALLERGIE ===
+router.get('/allergies', auth, UserController.getAllergies);
+router.post('/allergies', auth, UserController.addAllergy);
+router.put('/allergies/:id', auth, UserController.updateAllergy);
+router.delete('/allergies/:id', auth, UserController.deleteAllergy);
+
+// === ADDITIVI ===
+router.get('/additives', auth, UserController.getAdditives);
+router.post('/additives', auth, UserController.addAdditive);
+router.put('/additives/:id', auth, UserController.updateAdditive);
+router.delete('/additives/:id', auth, UserController.deleteAdditive);
 
 // === OBIETTIVI NUTRIZIONALI ===
 

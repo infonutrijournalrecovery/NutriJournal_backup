@@ -1,23 +1,21 @@
+
 import axios from 'axios';
-import { NutritionSearchResult, SearchOptions, EdamamResponse } from './types';
+import { NutritionSearchResult, SearchOptions } from './types';
 import { localMealsDatabase } from './localData';
 import { logger } from '../../middleware/logging';
 import { cacheService } from '../cacheService';
 import FuzzySearch from 'fuzzy-search';
 
+
 class NutritionDataService {
     private readonly baseUrl: string;
 
     constructor() {
-        this.baseUrl = 'https://api.edamam.com';
+        this.baseUrl = 'https://api.nal.usda.gov/fdc/v1';
     }
 
-    private get appId(): string {
-        return process.env['EDAMAM_APP_ID'] || '';
-    }
-
-    private get appKey(): string {
-        return process.env['EDAMAM_APP_KEY'] || '';
+    private get apiKey(): string {
+        return process.env['USDA_API_KEY'] || '';
     }
 
     private searchLocalDatabase(query: string): NutritionSearchResult[] {
@@ -28,44 +26,46 @@ class NutritionDataService {
         return searcher.search(query);
     }
 
-    private async searchEdamamFood(query: string, options: SearchOptions = {}): Promise<NutritionSearchResult[]> {
+
+    private async searchUsdaFood(query: string, options: SearchOptions = {}): Promise<NutritionSearchResult[]> {
         try {
-            const response = await axios.get<EdamamResponse>(`${this.baseUrl}/api/food-database/v2/parser`, {
-                params: {
-                    app_id: this.appId,
-                    app_key: this.appKey,
-                    ingr: query,
-                    lang: options.language || 'it',
-                    category: options.category || 'generic-meals'
+            const dataType = options.category === 'Branded' ? ['Branded'] : options.category === 'Survey' ? ['Survey (FNDDS)'] : ['Branded', 'Survey (FNDDS)'];
+            const response = await axios.post(
+                `${this.baseUrl}/foods/search?api_key=${this.apiKey}`,
+                {
+                    query,
+                    dataType,
+                    pageSize: options.limit || 20
                 }
-            });
+            );
 
-            logger.info('Risposta API ricevuta', {
+            logger.info('Risposta API USDA ricevuta', {
                 query,
-                resultsCount: response.data.hints.length
+                resultsCount: response.data.foods.length
             });
 
-            return response.data.hints.map(item => ({
-                id: item.food.foodId,
-                name: item.food.label,
-                description: item.food.category,
+            return response.data.foods.map((item: any) => ({
+                id: item.fdcId,
+                name: item.description,
+                description: item.foodCategory,
+                category: item.dataType,
                 portion_size: {
                     amount: 100,
                     unit: 'g'
                 },
                 nutrition: {
-                    calories: item.food.nutrients.ENERC_KCAL,
-                    proteins: item.food.nutrients.PROCNT,
-                    carbohydrates: item.food.nutrients.CHOCDF,
-                    fats: item.food.nutrients.FAT,
-                    fiber: item.food.nutrients.FIBTG,
-                    sodium: item.food.nutrients.NA
+                    calories: item.foodNutrients?.find((n: any) => n.nutrientName === 'Energy')?.value || 0,
+                    proteins: item.foodNutrients?.find((n: any) => n.nutrientName === 'Protein')?.value || 0,
+                    carbohydrates: item.foodNutrients?.find((n: any) => n.nutrientName === 'Carbohydrate, by difference')?.value || 0,
+                    fats: item.foodNutrients?.find((n: any) => n.nutrientName === 'Total lipid (fat)')?.value || 0,
+                    fiber: item.foodNutrients?.find((n: any) => n.nutrientName === 'Fiber, total dietary')?.value || 0,
+                    sodium: item.foodNutrients?.find((n: any) => n.nutrientName === 'Sodium, Na')?.value || 0
                 },
-                image_url: item.food.image,
-                source: 'edamam'
+                image_url: undefined,
+                source: 'usda'
             }));
         } catch (error) {
-            logger.error('Errore nella ricerca Edamam', {
+            logger.error('Errore nella ricerca USDA', {
                 query,
                 error: error instanceof Error ? error.message : 'Unknown error'
             });
@@ -82,9 +82,8 @@ class NutritionDataService {
             }
 
             // Controlla la cache
-            const cacheKey = `meal_search:${normalizedQuery}:${options.language}`;
+            const cacheKey = `meal_search:${normalizedQuery}:${options.category || 'all'}`;
             const cachedResults = await cacheService.get<NutritionSearchResult[]>(cacheKey);
-            
             if (cachedResults) {
                 logger.info('Risultati recuperati dalla cache', { query: normalizedQuery });
                 return cachedResults;
@@ -92,11 +91,11 @@ class NutritionDataService {
 
             let results: NutritionSearchResult[] = [];
 
-            // Prova prima con l'API esterna
-            if (this.appId && this.appKey) {
+            // Prova prima con l'API USDA
+            if (this.apiKey) {
                 try {
-                    results = await this.searchEdamamFood(normalizedQuery, options);
-                    logger.info('Risultati recuperati da API', {
+                    results = await this.searchUsdaFood(normalizedQuery, options);
+                    logger.info('Risultati recuperati da API USDA', {
                         query: normalizedQuery,
                         count: results.length
                     });
@@ -142,7 +141,6 @@ class NutritionDataService {
             // Controlla la cache
             const cacheKey = `meal_nutrition:${mealId}`;
             const cachedData = await cacheService.get<NutritionSearchResult>(cacheKey);
-            
             if (cachedData) {
                 logger.info('Valori nutrizionali recuperati dalla cache', { mealId });
                 return cachedData;
@@ -158,38 +156,33 @@ class NutritionDataService {
                 }
                 nutrition = localMeal;
             } else {
-                // Altrimenti usa l'API
-                if (!this.appId || !this.appKey) {
+                // Altrimenti usa l'API USDA
+                if (!this.apiKey) {
                     throw new Error('API credentials not configured');
                 }
 
-                const response = await axios.get(`${this.baseUrl}/api/food-database/v2/nutrients`, {
-                    params: {
-                        app_id: this.appId,
-                        app_key: this.appKey,
-                        foodId: mealId
-                    }
-                });
-
+                // Recupera dettagli alimento da USDA
+                const response = await axios.get(`${this.baseUrl}/food/${mealId}?api_key=${this.apiKey}`);
                 const food = response.data;
                 nutrition = {
                     id: mealId,
-                    name: food.label,
-                    description: food.category,
+                    name: food.description,
+                    description: food.foodCategory,
+                    category: food.dataType,
                     portion_size: {
                         amount: 100,
                         unit: 'g'
                     },
                     nutrition: {
-                        calories: food.nutrients.ENERC_KCAL,
-                        proteins: food.nutrients.PROCNT,
-                        carbohydrates: food.nutrients.CHOCDF,
-                        fats: food.nutrients.FAT,
-                        fiber: food.nutrients.FIBTG,
-                        sodium: food.nutrients.NA
+                        calories: food.foodNutrients?.find((n: any) => n.nutrientName === 'Energy')?.value || 0,
+                        proteins: food.foodNutrients?.find((n: any) => n.nutrientName === 'Protein')?.value || 0,
+                        carbohydrates: food.foodNutrients?.find((n: any) => n.nutrientName === 'Carbohydrate, by difference')?.value || 0,
+                        fats: food.foodNutrients?.find((n: any) => n.nutrientName === 'Total lipid (fat)')?.value || 0,
+                        fiber: food.foodNutrients?.find((n: any) => n.nutrientName === 'Fiber, total dietary')?.value || 0,
+                        sodium: food.foodNutrients?.find((n: any) => n.nutrientName === 'Sodium, Na')?.value || 0
                     },
-                    image_url: food.image,
-                    source: 'edamam'
+                    image_url: undefined,
+                    source: 'usda'
                 };
             }
 

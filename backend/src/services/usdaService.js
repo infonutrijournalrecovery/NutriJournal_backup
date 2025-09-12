@@ -9,11 +9,21 @@ class USDAService {
 
     async searchProducts(query, pageSize = 20, pageNumber = 1) {
         try {
-            // Traduciamo in inglese alcuni termini comuni italiani
-            const translatedQuery = query.toLowerCase()
-                .replace('pizza margherita', 'cheese pizza')
-                .replace('pomodoro', 'tomato')
-                .replace('mozzarella', 'mozzarella cheese');
+
+            // Traduzione base (puoi espandere)
+            const translationMap = {
+                'pollo': 'chicken',
+                'al forno': 'roasted',
+                'forno': 'oven',
+                'pizza margherita': 'cheese pizza',
+                'pomodoro': 'tomato',
+                'mozzarella': 'mozzarella cheese'
+            };
+            let translatedQuery = query.toLowerCase();
+            Object.entries(translationMap).forEach(([it, en]) => {
+                translatedQuery = translatedQuery.replace(it, en);
+            });
+
 
             const response = await axios.get(`${this.baseUrl}/foods/search`, {
                 params: {
@@ -63,7 +73,9 @@ class USDAService {
                 return {
                     id: `usda_${food.fdcId}`,
                     name: food.description,
+                    name_it: food.description, // fallback: mostra sempre in italiano (da tradurre in futuro)
                     brand: 'USDA Standard',
+                    brand_it: 'USDA Standard',
                     description: description || '',
                     image: null, // USDA non fornisce immagini
                     serving,
@@ -83,8 +95,24 @@ class USDAService {
                 };
             });
 
+            // Migliora la pertinenza: ordina i risultati in base alla presenza delle parole chiave
+            // 1. Split query in parole chiave (sia ITA che ENG)
+            const keywords = query.toLowerCase().split(/\s+/).filter(Boolean);
+            const engKeywords = translatedQuery.toLowerCase().split(/\s+/).filter(Boolean);
+
+            // Funzione di scoring: +2 per ogni parola chiave ITA trovata, +1 per ogni ENG
+            function getScore(prod) {
+                const text = (prod.name + ' ' + (prod.description || '')).toLowerCase();
+                let score = 0;
+                keywords.forEach(k => { if (text.includes(k)) score += 2; });
+                engKeywords.forEach(k => { if (text.includes(k)) score += 1; });
+                return score;
+            }
+
+            const sortedProducts = [...transformedProducts].sort((a, b) => getScore(b) - getScore(a));
+
             return {
-                products: transformedProducts,
+                products: sortedProducts,
                 pagination: {
                     page: pageNumber,
                     pageSize,
@@ -98,31 +126,31 @@ class USDAService {
                 pageSize,
                 pageNumber
             });
+
+            // Migliora la pertinenza: ordina i risultati in base alla presenza delle parole chiave
+            // 1. Split query in parole chiave (sia ITA che ENG)
+            const keywords = query.toLowerCase().split(/\s+/).filter(Boolean);
+            const engKeywords = translatedQuery.toLowerCase().split(/\s+/).filter(Boolean);
+
+            // Funzione di scoring: +2 per ogni parola chiave ITA trovata, +1 per ogni ENG
+            function getScore(prod) {
+                const text = (prod.name + ' ' + (prod.description || '')).toLowerCase();
+                let score = 0;
+                keywords.forEach(k => { if (text.includes(k)) score += 2; });
+                engKeywords.forEach(k => { if (text.includes(k)) score += 1; });
+                return score;
+            }
+
+            const sortedProducts = [...transformedProducts].sort((a, b) => getScore(b) - getScore(a));
+
             return {
-                products: [],
+                products: sortedProducts,
                 pagination: {
                     page: pageNumber,
                     pageSize,
-                    total: 0
+                    total: response.data.totalHits || transformedProducts.length
                 }
             };
-        }
-    }
-
-    extractNutrition(food) {
-        const getNutrientValue = (nutrients, name) => {
-            const nutrient = nutrients.find(n => n.nutrientName.toLowerCase().includes(name.toLowerCase()));
-            return nutrient ? Math.round(nutrient.value * 10) / 10 : 0;
-        };
-
-        return {
-            calories: getNutrientValue(food.foodNutrients, 'energy'),
-            proteins: getNutrientValue(food.foodNutrients, 'protein'),
-            carbohydrates: getNutrientValue(food.foodNutrients, 'carbohydrate'),
-            fats: getNutrientValue(food.foodNutrients, 'total lipid'),
-            fiber: getNutrientValue(food.foodNutrients, 'fiber'),
-            sodium: getNutrientValue(food.foodNutrients, 'sodium'),
-            sugars: getNutrientValue(food.foodNutrients, 'sugars'),
             saturated_fat: getNutrientValue(food.foodNutrients, 'saturated')
         };
     }

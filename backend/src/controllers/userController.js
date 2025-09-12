@@ -4,6 +4,141 @@ const { ValidationError, NotFoundError } = require('../middleware/errorHandler')
 const { logger } = require('../middleware/logging');
 
 class UserController {
+  // === ALLERGIE ===
+  // GET /api/users/allergies
+  static async getAllergies(req, res, next) {
+    try {
+      const db = req.user.db;
+      db.all(
+        'SELECT id, allergen_code, allergen_name, severity, notes, created_at FROM user_allergies WHERE user_id = ?',
+        [req.user.id],
+        (err, rows) => {
+          if (err) return next(err);
+          res.json({ success: true, data: rows });
+        }
+      );
+    } catch (error) { next(error); }
+  }
+
+  // POST /api/users/allergies
+  static async addAllergy(req, res, next) {
+    try {
+      const { allergen_code, allergen_name, severity, notes } = req.body;
+      if (!allergen_code || !allergen_name) throw new ValidationError('allergen_code e allergen_name richiesti');
+      const db = req.user.db;
+      db.run(
+        'INSERT INTO user_allergies (user_id, allergen_code, allergen_name, severity, notes, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+        [req.user.id, allergen_code, allergen_name, severity || null, notes || null, new Date().toISOString()],
+        function(err) {
+          if (err) return next(err);
+          res.status(201).json({ success: true, data: { id: this.lastID, allergen_code, allergen_name, severity, notes } });
+        }
+      );
+    } catch (error) { next(error); }
+  }
+
+  // PUT /api/users/allergies/:id
+  static async updateAllergy(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { severity, notes } = req.body;
+      const db = req.user.db;
+      db.run(
+        'UPDATE user_allergies SET severity = ?, notes = ? WHERE id = ? AND user_id = ?',
+        [severity || null, notes || null, id, req.user.id],
+        function(err) {
+          if (err) return next(err);
+          if (this.changes === 0) return next(new NotFoundError('Allergia non trovata'));
+          res.json({ success: true, message: 'Allergia aggiornata' });
+        }
+      );
+    } catch (error) { next(error); }
+  }
+
+  // DELETE /api/users/allergies/:id
+  static async deleteAllergy(req, res, next) {
+    try {
+      const { id } = req.params;
+      const db = req.user.db;
+      db.run(
+        'DELETE FROM user_allergies WHERE id = ? AND user_id = ?',
+        [id, req.user.id],
+        function(err) {
+          if (err) return next(err);
+          if (this.changes === 0) return next(new NotFoundError('Allergia non trovata'));
+          res.json({ success: true, message: 'Allergia eliminata' });
+        }
+      );
+    } catch (error) { next(error); }
+  }
+
+  // === ADDITIVI ===
+  // GET /api/users/additives
+  static async getAdditives(req, res, next) {
+    try {
+      const db = req.user.db;
+      db.all(
+        'SELECT id, additive_code, additive_name, sensitivity_level, notes, created_at FROM user_additive_sensitivities WHERE user_id = ?',
+        [req.user.id],
+        (err, rows) => {
+          if (err) return next(err);
+          res.json({ success: true, data: rows });
+        }
+      );
+    } catch (error) { next(error); }
+  }
+
+  // POST /api/users/additives
+  static async addAdditive(req, res, next) {
+    try {
+      const { additive_code, additive_name, sensitivity_level, notes } = req.body;
+      if (!additive_code || !additive_name) throw new ValidationError('additive_code e additive_name richiesti');
+      const db = req.user.db;
+      db.run(
+        'INSERT INTO user_additive_sensitivities (user_id, additive_code, additive_name, sensitivity_level, notes, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+        [req.user.id, additive_code, additive_name, sensitivity_level || null, notes || null, new Date().toISOString()],
+        function(err) {
+          if (err) return next(err);
+          res.status(201).json({ success: true, data: { id: this.lastID, additive_code, additive_name, sensitivity_level, notes } });
+        }
+      );
+    } catch (error) { next(error); }
+  }
+
+  // PUT /api/users/additives/:id
+  static async updateAdditive(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { sensitivity_level, notes } = req.body;
+      const db = req.user.db;
+      db.run(
+        'UPDATE user_additive_sensitivities SET sensitivity_level = ?, notes = ? WHERE id = ? AND user_id = ?',
+        [sensitivity_level || null, notes || null, id, req.user.id],
+        function(err) {
+          if (err) return next(err);
+          if (this.changes === 0) return next(new NotFoundError('Additivo non trovato'));
+          res.json({ success: true, message: 'Additivo aggiornato' });
+        }
+      );
+    } catch (error) { next(error); }
+  }
+
+  // DELETE /api/users/additives/:id
+  static async deleteAdditive(req, res, next) {
+    try {
+      const { id } = req.params;
+      const db = req.user.db;
+      db.run(
+        'DELETE FROM user_additive_sensitivities WHERE id = ? AND user_id = ?',
+        [id, req.user.id],
+        function(err) {
+          if (err) return next(err);
+          if (this.changes === 0) return next(new NotFoundError('Additivo non trovato'));
+          res.json({ success: true, message: 'Additivo eliminato' });
+        }
+      );
+    } catch (error) { next(error); }
+  }
   // Ottieni profilo utente completo
   static async getProfile(req, res, next) {
     try {
@@ -108,37 +243,62 @@ class UserController {
 
   // Aggiorna profilo utente
   static async updateProfile(req, res, next) {
+  // Log payload ricevuto
+  console.log('[DEBUG] Payload updateProfile:', req.body);
     try {
       const allowedFields = [
-        'name', 'avatar_path', 'date_of_birth', 'gender',
+        'name', 'email', 'avatar_path', 'date_of_birth', 'gender',
         'height', 'weight', 'activity_level', 'timezone', 'language'
       ];
+
+      // Mappa i campi dal payload frontend ai nomi backend
+      const fieldMap = {
+        fullName: 'name',
+        email: 'email',
+        birthDate: 'date_of_birth',
+      };
 
       // Validazione e sanitizzazione input
       const updates = {};
       Object.keys(req.body).forEach(key => {
-        if (allowedFields.includes(key) && req.body[key] !== undefined) {
+        let backendKey = fieldMap[key] || key;
+        if (allowedFields.includes(backendKey) && req.body[key] !== undefined) {
           let value = req.body[key];
-          
+          // Gestione stringhe vuote come NULL
+          if (typeof value === 'string' && value.trim() === '') value = null;
           // Validazione tipo di dato
-          switch(key) {
+          switch(backendKey) {
             case 'height':
             case 'weight':
               value = parseFloat(value);
               if (isNaN(value) || value <= 0) {
-                throw new ValidationError(`${key} deve essere un numero positivo`);
+                throw new ValidationError(`${backendKey} deve essere un numero positivo`);
               }
               break;
             case 'date_of_birth':
-              const date = new Date(value);
-              if (isNaN(date.getTime())) {
-                throw new ValidationError('Data di nascita non valida');
+              if (value) {
+                const date = new Date(value);
+                if (isNaN(date.getTime())) {
+                  throw new ValidationError('Data di nascita non valida');
+                }
+                value = date.toISOString().slice(0, 10);
+              } else {
+                value = null;
               }
-              value = date;
+              break;
+            case 'email':
+              // Validazione email base
+              if (typeof value !== 'string' || !value.match(/^\S+@\S+\.\S+$/)) {
+                throw new ValidationError('Email non valida');
+              }
+              break;
+            case 'gender':
+              if (!value || !['male','female','other','prefer_not_to_say'].includes(value)) {
+                value = 'other';
+              }
               break;
           }
-          
-          updates[key] = value;
+          updates[backendKey] = value;
         }
       });
 
@@ -146,7 +306,14 @@ class UserController {
         throw new ValidationError('Nessun campo valido da aggiornare');
       }
 
-      await req.user.update(updates);
+  await req.user.updateProfile(updates);
+  // Log aggiornamento eseguito
+  console.log('[DEBUG] Campi aggiornati:', updates);
+  // Aggiorna req.user con una nuova istanza che abbia il db associato
+  const UserModel = require('../models/User');
+  const db = req.user.db;
+  const freshUser = await UserModel.findById(req.user.id, db);
+  req.user = freshUser;
 
       // Se sono stati aggiornati dati rilevanti per il calcolo degli obiettivi,
       // ricalcola gli obiettivi nutrizionali
@@ -155,12 +322,16 @@ class UserController {
 
       let newGoal = null;
       if (needsRecalculation) {
-        const NutritionController = require('./nutritionController');
-        newGoal = await NutritionController.recalculateGoals(req.user);
-        logger.info('Obiettivi nutrizionali ricalcolati dopo aggiornamento profilo', {
-          userId: req.user.id,
-          updatedFields: Object.keys(updates)
-        });
+        // Usa la funzione corretta dal modello NutritionGoal
+        if (typeof NutritionGoal.recalculateGoals === 'function') {
+          newGoal = await NutritionGoal.recalculateGoals(req.user);
+          logger.info('Obiettivi nutrizionali ricalcolati dopo aggiornamento profilo', {
+            userId: req.user.id,
+            updatedFields: Object.keys(updates)
+          });
+        } else {
+          logger.warn('Funzione NutritionGoal.recalculateGoals non trovata, nessun ricalcolo obiettivi');
+        }
       }
 
       // Filtra i dati sensibili nella risposta
@@ -195,8 +366,16 @@ class UserController {
     } catch (error) {
       logger.error('Errore aggiornamento profilo utente', {
         userId: req.user.id,
-        error: error.message
+        error: error.message,
+        errorName: error.name,
+        errorStack: error.stack,
+        errorDetails: error.details,
+        payloadRicevuto: req.body,
+        updatesTentati: updates
       });
+      if (error.errors) {
+        console.error('[VALIDATION ERRORS]', error.errors);
+      }
       next(error);
     }
   }

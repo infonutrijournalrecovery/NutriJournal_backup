@@ -10,7 +10,7 @@ export interface Product {
   brand: string;
   brand_it?: string;
   image: string;
-  serving: {
+  serving?: {
     size: string;
     quantity: number;
     unit: string;

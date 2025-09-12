@@ -46,6 +46,11 @@ class AuthController {
   static async register(req, res, next) {
     try {
       const { email, password, name, ...profileData } = req.body;
+      // Fix: mappa birth_date a date_of_birth se presente
+      if (profileData.birth_date && !profileData.date_of_birth) {
+        profileData.date_of_birth = profileData.birth_date;
+        delete profileData.birth_date;
+      }
 
       // Validazione input
       if (!email || !password || !name) {

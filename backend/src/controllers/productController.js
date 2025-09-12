@@ -1,6 +1,6 @@
 const Product = require('../models/Product');
 const { ValidationError, NotFoundError, UnauthorizedError } = require('../middleware/errorHandler');
-const openFoodFactsService = require('../services/openFoodFactsService');
+const { nutritionDataService } = require('../services/nutritionDataService/index');
 const translationService = require('../services/translationService');
 const { logger } = require('../middleware/logging');
 const joi = require('joi');
@@ -26,68 +26,61 @@ class ProductController {
    */
   static async searchProducts(req, res, next) {
     try {
-      const { query = '', page = 1, limit = 20 } = req.query;
-      const sanitizedQuery = query.trim();
-
-      // Validazione input
+      const { query = '', limit = 20, category } = req.body && Object.keys(req.body).length ? req.body : req.query;
+      const sanitizedQuery = (query || '').trim();
       if (sanitizedQuery.length < 2) {
         throw new ValidationError('Query di ricerca deve essere di almeno 2 caratteri');
       }
-
-      const sanitizedPage = Math.max(1, parseInt(page) || 1);
       const sanitizedLimit = Math.min(50, Math.max(1, parseInt(limit) || 20));
 
-      logger.info('Ricerca prodotti iniziata', {
+      logger.info('Ricerca prodotti USDA iniziata', {
         query: sanitizedQuery,
-        page: sanitizedPage,
         limit: sanitizedLimit,
         userId: req.user?.id
       });
 
-      const searchResults = await openFoodFactsService.searchProducts(
-        sanitizedQuery,
-        sanitizedPage,
-        sanitizedLimit
-      );
+      let results = await nutritionDataService.searchSimilarMeals(sanitizedQuery, { limit: sanitizedLimit, category });
+      // Mappa 'nutrition' -> 'nutrition_per_100g' per compatibilità frontend
+      results = results.map(prod => {
+        if (prod.nutrition && !prod.nutrition_per_100g) {
+          prod.nutrition_per_100g = prod.nutrition;
+        }
+        return prod;
+      });
 
-      // Traduci i risultati in italiano
-      const translatedResults = await Promise.all(
-        searchResults.products.map(async (product) => {
-          try {
-            return await translationService.translateProduct(product);
-          } catch (error) {
-            logger.warn('Errore traduzione prodotto', {
-              productId: product.id,
-              error: error.message,
-              userId: req.user?.id
-            });
-            return product; // Ritorna prodotto non tradotto in caso di errore
-          }
-        })
-      );
+      // Traduci i campi principali in italiano usando externalApis
+      const externalApis = require('../config/external-apis');
+      const translatedResults = [];
+      for (const prod of results) {
+        try {
+          translatedResults.push(await externalApis.translateProduct(prod));
+        } catch (e) {
+          translatedResults.push(prod);
+        }
+      }
 
       res.json({
         success: true,
         data: {
           products: translatedResults,
           pagination: {
-            page: sanitizedPage,
+            page: 1,
             limit: sanitizedLimit,
-            total: searchResults.total,
-            hasMore: searchResults.total > sanitizedPage * sanitizedLimit
+            total: translatedResults.length,
+            hasMore: false
           },
           query: sanitizedQuery
         }
       });
 
-      logger.info('Ricerca prodotti completata', {
+      logger.info('Ricerca prodotti USDA completata', {
         query: sanitizedQuery,
         resultsCount: translatedResults.length,
         userId: req.user?.id
       });
     } catch (error) {
-      logger.error('Errore ricerca prodotti', {
-        query: req.query.query,
+      logger.error('Errore ricerca prodotti USDA', {
+        query: req.body?.query || req.query?.query,
         error: error.message,
         userId: req.user?.id
       });

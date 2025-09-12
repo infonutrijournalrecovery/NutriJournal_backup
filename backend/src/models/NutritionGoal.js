@@ -2,6 +2,116 @@ const database = require('../config/database');
 const User = require('./User');
 
 class NutritionGoal {
+  /**
+   * Ricalcola e salva un nuovo obiettivo nutrizionale per l'utente
+   * @param {User} user - Oggetto utente
+   * @returns {Promise<NutritionGoal>} Il nuovo obiettivo creato
+   */
+  static recalculateGoals(user) {
+    return new Promise((resolve, reject) => {
+      // Disattiva eventuale obiettivo attivo
+      database.sqliteDb.run(
+        `UPDATE nutrition_goals SET is_active = 0 WHERE user_id = ? AND is_active = 1`,
+        [user.id],
+        function (err) {
+          if (err) {
+            console.error('❌ Errore disattivazione obiettivo attivo:', err);
+            return reject(err);
+          }
+          // Calcola calorie target
+          const goalType = 'maintenance';
+          const target_calories = NutritionGoal.calculateTargetCalories(user, { goal_type: goalType });
+          const now = new Date().toISOString();
+          const goalToCreate = {
+            user_id: user.id,
+            goal_type: goalType,
+            target_weight: user.weight,
+            target_calories,
+            target_carbs_percent: 50,
+            target_protein_percent: 20,
+            target_fat_percent: 30,
+            target_water_liters: 2.0,
+            weekly_weight_change: 0,
+            start_date: now,
+            is_active: 1,
+            created_at: now
+          };
+          const fields = Object.keys(goalToCreate).join(', ');
+          const placeholders = Object.keys(goalToCreate).map(() => '?').join(', ');
+          const values = Object.values(goalToCreate);
+          database.sqliteDb.run(
+            `INSERT INTO nutrition_goals (${fields}) VALUES (${placeholders})`,
+            values,
+            function (err) {
+              if (err) {
+                console.error('❌ Errore inserimento nuovo obiettivo:', err);
+                return reject(err);
+              }
+              // Recupera il nuovo obiettivo
+              NutritionGoal.findById(this.lastID)
+                .then(resolve)
+                .catch(reject);
+            }
+          );
+        }
+      );
+    });
+  }
+  /**
+   * Ricalcola e salva un nuovo obiettivo nutrizionale per l'utente
+   * @param {User} user - Oggetto utente
+   * @returns {Promise<NutritionGoal>} Il nuovo obiettivo creato
+   */
+  static async recalculateGoals(user) {
+    return new Promise((resolve, reject) => {
+      // Disattiva eventuale obiettivo attivo
+      database.sqliteDb.run(
+        `UPDATE nutrition_goals SET is_active = 0 WHERE user_id = ? AND is_active = 1`,
+        [user.id],
+        function (err) {
+          if (err) {
+            console.error('Errore disattivazione obiettivo attivo:', err);
+            return reject(err);
+          }
+          // Calcola calorie target
+          const goalType = 'maintenance';
+          const target_calories = NutritionGoal.calculateTargetCalories(user, { goal_type: goalType });
+          const now = new Date().toISOString();
+          const goalToCreate = {
+            user_id: user.id,
+            goal_type: goalType,
+            target_weight: user.weight,
+            target_calories,
+            target_carbs_percent: 50,
+            target_protein_percent: 20,
+            target_fat_percent: 30,
+            target_water_liters: 2.0,
+            weekly_weight_change: 0,
+            start_date: now,
+            is_active: 1,
+            created_at: now
+          };
+          const fields = Object.keys(goalToCreate).join(', ');
+          const placeholders = Object.keys(goalToCreate).map(() => '?').join(', ');
+          const values = Object.values(goalToCreate);
+          database.sqliteDb.run(
+            `INSERT INTO nutrition_goals (${fields}) VALUES (${placeholders})`,
+            values,
+            function (err) {
+              if (err) {
+                console.error('Errore inserimento nuovo obiettivo:', err);
+                return reject(err);
+              }
+              // Recupera il nuovo obiettivo
+              NutritionGoal.findById(this.lastID)
+                .then(resolve)
+                .catch(reject);
+            }
+          );
+        }
+      );
+    });
+  }
   constructor(data = {}) {
     this.id = data.id;
     this.user_id = data.user_id;
@@ -43,7 +153,7 @@ class NutritionGoal {
   static findById(id) {
     return new Promise((resolve, reject) => {
       database.sqliteDb.get(
-        `SELECT * FROM ${this.tableName} WHERE id = ?`,
+        `SELECT * FROM nutrition_goals WHERE id = ?`,
         [id],
         (err, row) => {
           if (err) {
@@ -61,9 +171,7 @@ class NutritionGoal {
   static findActiveByUser(userId) {
     return new Promise((resolve, reject) => {
       database.sqliteDb.get(
-        `SELECT * FROM ${this.tableName} 
-         WHERE user_id = ? AND is_active = 1 
-         ORDER BY created_at DESC LIMIT 1`,
+        `SELECT * FROM nutrition_goals WHERE user_id = ? AND is_active = 1 ORDER BY created_at DESC LIMIT 1`,
         [userId],
         (err, row) => {
           if (err) {
