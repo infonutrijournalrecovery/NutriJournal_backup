@@ -285,4 +285,32 @@ export class PantryPage implements OnInit, OnDestroy {
     });
     await toast.present();
   }
+
+  async removePantryItem(item: any) {
+    this.isSaving = true;
+    try {
+      const token = localStorage.getItem('nutrijournal_token');
+      const httpHeaders = token
+        ? { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) }
+        : {};
+  
+      // CHIAMATA DELETE: /pantry/:productId
+      await this.http.delete(
+        `${environment.apiUrl}/pantry/${item.id}`, 
+        httpHeaders
+      ).toPromise();
+  
+      // Aggiorno la lista locale
+      this.pantryItems = this.pantryItems.filter(p => p.id !== item.id);
+  
+      await this.showSuccessToast('Prodotto rimosso dalla dispensa');
+    } catch (error) {
+      console.error('Errore durante la rimozione:', error);
+      await this.showErrorToast('Errore durante la rimozione del prodotto');
+    } finally {
+      this.isSaving = false;
+    }
+  }
+  
+
 }

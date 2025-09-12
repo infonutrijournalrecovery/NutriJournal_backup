@@ -40,16 +40,15 @@
           <ion-item 
             *ngFor="let item of pantryItems" 
             button 
-            detail="true"
-            (click)="selectProduct(item)">
-            <ion-label>
+            detail="true">
+            <ion-label (click)="selectProduct(item)">
               <h3>{{ item.product_name || item.name }}</h3>
               <p>{{ item.brand }} • {{ item.quantity }} {{ item.unit }}</p>
               <ng-container *ngIf="item.expiry_date">
                 <ion-note color="danger">Scade il: {{ item.expiry_date | date:'dd/MM/yyyy' }}</ion-note>
               </ng-container>
             </ion-label>
-            <ion-button class="elimina-btn" fill="outline">
+            <ion-button class="elimina-btn" fill="outline" (click)="removePantryItem(item)">
               <ion-icon name="trash-outline"></ion-icon>
             </ion-button>
             <ion-note slot="end">

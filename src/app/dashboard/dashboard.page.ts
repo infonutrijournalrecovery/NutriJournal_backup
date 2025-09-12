@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { NavController, ToastController, LoadingController, ModalController, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonProgressBar, IonFab, IonFabButton, IonFabList, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonInput } from '@ionic/angular/standalone';
+import { NavController, ToastController, LoadingController, ModalController, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonProgressBar, IonFab, IonFabButton, IonFabList, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonInput, IonList } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
   addOutline,
@@ -40,7 +40,7 @@ import { DatePickerModalComponent } from '../shared/components/date-picker-modal
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-  imports: [
+  imports: [IonList, 
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -482,27 +482,40 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   // Data Loading Methods
-  private loadUserData() {
-    this.user = {
-      id: 1,
-      name: 'Demo User',
-      email: 'demo@nutrijournal.com',
-      birth_date: '1990-01-01',
-      gender: 'male',
-      height: 175,
-      weight: 70,
-      activity_level: 'moderate',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      nutritionGoals: {
-        daily_calories: 2000,
-        daily_carbs: 250,
-        daily_proteins: 150,
-        daily_fats: 70,
-        goal_type: 'maintain'
+ async loadUserData(event?: any) {
+    if (!event) {
+      this.isLoading = true;
+    }
+
+    try {
+      const userProfile = await this.apiService.getUserProfile().toPromise();
+      if (userProfile && userProfile.data) {
+        const data = userProfile.data;
+        let user: any = (typeof data === 'object' && 'user' in data) ? (data as any).user : data;
+        // Mappa date e fallback
+        user = {
+          ...user,
+          dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth) : (user.date_of_birth ? new Date(user.date_of_birth) : undefined),
+          createdAt: user.createdAt ? new Date(user.createdAt) : undefined,
+        };
+        // Merge activeGoal as nutritionGoals if presente
+        if (typeof data === 'object' && 'activeGoal' in data && data.activeGoal) {
+          user.nutritionGoals = (data as any).activeGoal;
+        }
+        this.user = user;
       }
-    };
-    this.updateNutritionGoals();
+     if (event) {
+        event.target.complete();
+      }
+    } catch (error) {
+      console.error('Errore caricamento profilo:', error);
+      await this.showToast('Errore nel caricamento del profilo', 'danger');
+      if (event) {
+        event.target.complete();
+      }
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   async loadDashboardData(event?: any) {
@@ -522,9 +535,23 @@ export class DashboardPage implements OnInit, OnDestroy {
         snack: [],
         dinner: []
       };
+      // Reset foods
+      (Object.keys(this.mealStats) as Array<'breakfast' | 'lunch' | 'snack' | 'dinner'>).forEach(type => {
+        this.mealStats[type].foods = [];
+      });
       meals.forEach(meal => {
-        if (this.mealsByType[meal.type]) {
-          this.mealsByType[meal.type].push(meal);
+        const mealType = meal.type as 'breakfast' | 'lunch' | 'snack' | 'dinner';
+        if (this.mealsByType[mealType]) {
+          this.mealsByType[mealType].push(meal);
+          // Inserisci i prodotti (nome) in mealStats[type].foods
+          if (Array.isArray(meal.items)) {
+            meal.items.forEach(item => {
+              // Fallback robusto: accetta display_name, name_it, name se presenti
+              const prod = item.product as any;
+              const name = prod?.display_name || prod?.name_it || prod?.name || 'Prodotto';
+              this.mealStats[mealType].foods.push({ name });
+            });
+          }
         }
       });
 
@@ -541,6 +568,8 @@ export class DashboardPage implements OnInit, OnDestroy {
       console.log('[DEBUG][Dashboard] meals:', meals);
       // eslint-disable-next-line no-console
       console.log('[DEBUG][Dashboard] mealsByType:', this.mealsByType);
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG][Dashboard] mealStats:', this.mealStats);
       // eslint-disable-next-line no-console
       console.log('[DEBUG][Dashboard] dailyStats:', this.dailyStats);
 

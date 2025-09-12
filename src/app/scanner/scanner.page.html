@@ -108,7 +108,6 @@
         <ion-button 
           expand="block" 
           size="large" 
-          (click)="startScanning()"
           class="primary-scan-button">
           <ion-icon name="scan-outline" slot="start"></ion-icon>
           Scansiona Prodotto
@@ -131,7 +130,7 @@
             <ion-input 
               [(ngModel)]="searchCode" 
               placeholder="es. 8076809513726"
-              type="number">
+              type="text">
             </ion-input>
           </ion-item>
           

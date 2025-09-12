@@ -83,7 +83,7 @@
                 *ngIf="!item.imageUrl" 
                 slot="start" 
                 [name]="getCategoryIcon(item.category)"
-                
+
                 size="large">
               </ion-icon>
               
@@ -168,26 +168,6 @@
             <ion-icon name="home-outline" slot="start"></ion-icon>
             Dalla Dispensa
           </ion-button>
-          
-          <!-- Scan Barcode -->
-          <ion-button 
-            expand="block" 
-            fill="solid" 
-            class="add-method-button"
-            (click)="goToScanner()">
-            <ion-icon name="camera-outline" slot="start"></ion-icon>
-            Scansiona prodotto
-          </ion-button>
-          
-          <!-- Recent Products
-          <ion-button 
-            expand="block" 
-            fill="outline" 
-            class="add-method-button"
-            (click)="openRecentModal()">
-            <ion-icon name="time-outline" slot="start"></ion-icon>
-            Prodotti Recenti
-          </ion-button>  -->
         </div>
       </ion-card-content>
     </ion-card>

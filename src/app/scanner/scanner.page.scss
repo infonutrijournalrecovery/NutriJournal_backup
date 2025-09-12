@@ -223,6 +223,12 @@ ion-toolbar {
 }
 
 .manual-input-section {
+    ion-input {
+    font-size: 1.0rem;
+    color: #606060;
+    background: #fafafa;
+    border-radius: 8px;
+  }
   ion-button{
 
   }

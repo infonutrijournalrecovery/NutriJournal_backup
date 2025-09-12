@@ -65,21 +65,13 @@ export const routes: Routes = [
     loadComponent: () => import('./meal-tracking/view-meal/view-meal.page').then((m) => m.ViewMealPage),
     canActivate: [AuthGuard],
   },
-  {
-    path: 'vals',
-    loadComponent: () => import('./vals/vals.page').then((m) => m.ValsPage),
-    canActivate: [AuthGuard],
-  },
+
   {
     path: 'activity/add',
     loadComponent: () => import('./activity-tracking/add-activity/add-Activity.page').then((m) => m.AddActivityPage),
     canActivate: [AuthGuard],
   },
-  {
-    path: 'activity/view',
-    loadComponent: () => import('./activity-tracking/view-activity/view-activity.page').then((m) => m.ViewActivityPage),
-    canActivate: [AuthGuard],
-  },
+
   {
     path: 'pantry',
     loadComponent: () => import('./pantry/pantry.page').then((m) => m.PantryPage),
@@ -95,7 +87,7 @@ export const routes: Routes = [
     loadComponent: () => import('./product/product.page').then((m) => m.ProductPage),
     canActivate: [AuthGuard],
   },
-  // Main app with tabs
+
   {
     path: 'tabs',
     loadComponent: () => import('./tabs/tabs.page').then((m) => m.TabsPage),
