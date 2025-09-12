@@ -74,19 +74,39 @@ class MealController {
         productsCount: products.length
       });
 
-      // Verifica che i prodotti esistano
+      // Verifica che i prodotti esistano, altrimenti crea il prodotto
       for (const product of products) {
         const exists = await Product.exists(product.productId);
         if (!exists) {
-          throw new NotFoundError(`Prodotto ${product.productId} non trovato`);
+          // Prova a creare il prodotto con i dati minimi
+          try {
+            await Product.create({
+              id: product.productId,
+              name: product.name || 'Prodotto sconosciuto',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            });
+            logger.info('Prodotto creato automaticamente', { productId: product.productId });
+          } catch (err) {
+            logger.error('Errore creazione automatica prodotto', { productId: product.productId, error: err.message });
+            throw new NotFoundError(`Prodotto ${product.productId} non trovato e non creabile`);
+          }
         }
       }
 
+      // Mappa tipo pasto italiano -> inglese DB
+      const mealTypeMap = {
+        'Colazione': 'breakfast',
+        'Pranzo': 'lunch',
+        'Cena': 'dinner',
+        'Spuntini': 'snack'
+      };
+      const dbMealType = mealTypeMap[type] || 'snack';
       const meal = await Meal.create({
-        userId,
-        type,
+        user_id: userId,
+        meal_type: dbMealType,
         date,
-        products
+        items: products
       });
 
       res.status(201).json({

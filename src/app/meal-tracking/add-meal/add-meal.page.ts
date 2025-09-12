@@ -1,4 +1,6 @@
-
+import { addIcons } from 'ionicons';
+import {
+} from 'ionicons/icons';
 import { CommonModule, DatePipe } from '@angular/common';
 import { IonModal } from '@ionic/angular/standalone';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
@@ -137,7 +139,8 @@ export class AddMealPage implements OnInit, OnDestroy {
   Math = Math;
 
 
-  constructor() {}
+  constructor() {
+      addIcons({checkmarkOutline,calendarOutline,restaurantOutline,createOutline,trashOutline,addCircleOutline,searchOutline,homeOutline,cameraOutline,timeOutline,restaurant});}
 
   // Returns the icon name for a given meal type
   getMealTypeIcon(type?: string): string {
@@ -330,8 +333,14 @@ export class AddMealPage implements OnInit, OnDestroy {
       this.isSaving = false;
     }
   }
+
   goToSearch() {
-    this.router.navigate(['/search']);
+    this.router.navigate(['/search'], {
+      queryParams: {
+        type: this.selectedMealType,
+        date: this.selectedDate
+      }
+    });
   }
   
   goToPantry() {

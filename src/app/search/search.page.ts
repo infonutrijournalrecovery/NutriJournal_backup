@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../shared/services/api.service';
 import { DeviceService } from '../shared/services/device.service';
 import { ProductService, Product } from '../shared/services/product.service';
@@ -62,7 +62,11 @@ import {
     IonItemDivider
   ]
 })
+
 export class SearchPage implements OnInit, OnDestroy {
+  // Parametri passati tramite query string
+  // selectedMealType già dichiarato sopra per i parametri query, non serve duplicarla
+  selectedMealDate?: string;
   selectedQuantity: number = 100;
   selectedMealType: string = '';
   searchCode = '';
@@ -84,6 +88,7 @@ export class SearchPage implements OnInit, OnDestroy {
   private productService = inject(ProductService);
   private apiService = inject(ApiService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
   private loadingController = inject(LoadingController);
@@ -197,21 +202,18 @@ export class SearchPage implements OnInit, OnDestroy {
 
   async addToMeal() {
     if (!this.selectedProduct) return;
-    const alert = await this.alertController.create({
-      header: 'Aggiungi al Pasto',
-      message: `Vuoi aggiungere "${this.selectedProduct.name}" a un pasto?`,
-      buttons: [
-        { text: 'Colazione', handler: () => this.addProductToMeal('breakfast') },
-        { text: 'Pranzo', handler: () => this.addProductToMeal('lunch') },
-        { text: 'Spuntino', handler: () => this.addProductToMeal('snack') },
-        { text: 'Cena', handler: () => this.addProductToMeal('dinner') },
-        { text: 'Annulla', role: 'cancel' }
-      ]
-    });
-    await alert.present();
+    // Preleva i parametri dalla query string (tipo pasto e data)
+    const params = this.route.snapshot.queryParams;
+    const mealType = params['type'] || '';
+    const mealDate = params['date'] || '';
+    if (!mealType) {
+      await this.showErrorToast('Tipo di pasto non specificato.');
+      return;
+    }
+    await this.addProductToMeal(mealType, mealDate);
   }
 
-  private async addProductToMeal(mealType: string) {
+  private async addProductToMeal(mealType: string, mealDate?: string) {
     if (!this.selectedProduct) return;
     const product = this.selectedProduct;
     const quantity = this.selectedQuantity;
@@ -220,25 +222,22 @@ export class SearchPage implements OnInit, OnDestroy {
       await this.showErrorToast('Dati nutrizionali non disponibili');
       return;
     }
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
-    const meal: Partial<any> = {
-      name: this.getMealTypeName(mealType),
+    let consumedAt: string;
+    if (mealDate) {
+      // Se la data è passata come parametro, usala
+      consumedAt = new Date(mealDate).toISOString();
+    } else {
+      // Altrimenti usa la data attuale
+      consumedAt = new Date().toISOString();
+    }
+    const meal: any = {
       type: mealType,
-      consumed_at: today.toISOString(),
-      total_calories: nutrition.calories,
-      total_proteins: nutrition.proteins,
-      total_carbs: nutrition.carbohydrates,
-      total_fats: nutrition.fats,
-      items: [
+      date: consumedAt,
+      products: [
         {
-          product_id: product.id,
+          productId: product.id,
           quantity: quantity,
-          unit: product.serving?.unit || 'g',
-          calories: nutrition.calories,
-          proteins: nutrition.proteins,
-          carbs: nutrition.carbohydrates,
-          fats: nutrition.fats
+          unit: product.serving?.unit || 'g'
         }
       ]
     };

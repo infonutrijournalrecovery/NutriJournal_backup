@@ -147,18 +147,19 @@ class Meal {
   // Trova pasto per ID con items
   static async findById(id, includeItems = true) {
     try {
-      const meal = await this.db(this.tableName)
-        .where('id', id)
-        .first();
-      
+      const db = this.db;
+      const table = this.tableName;
+      const meal = await new Promise((resolve, reject) => {
+        db.get(`SELECT * FROM ${table} WHERE id = ?`, [id], (err, row) => {
+          if (err) reject(err);
+          else resolve(row);
+        });
+      });
       if (!meal) return null;
-
       const mealInstance = new Meal(meal);
-      
       if (includeItems) {
         await mealInstance.loadItems();
       }
-      
       return mealInstance;
     } catch (error) {
       console.error('❌ Errore ricerca pasto per ID:', error);
@@ -222,53 +223,105 @@ class Meal {
 
   // Crea nuovo pasto
   static async create(mealData) {
-    const trx = await this.db.transaction();
-    
-    try {
-      // Validazione dati base
-      if (!mealData.user_id || !mealData.date) {
-        throw new Error('User ID e data sono obbligatori');
-      }
+    const db = this.db;
+    return await new Promise((resolve, reject) => {
+      db.serialize(async () => {
+        try {
+          db.run('BEGIN TRANSACTION');
 
-      // Prepara dati pasto
-      const mealToCreate = {
-        user_id: mealData.user_id,
-        meal_type: mealData.meal_type || 'snack',
-        meal_name: mealData.meal_name,
-        date: mealData.date,
-        time: mealData.time || new Date().toISOString().split('T')[1].substring(0, 8),
-        location: mealData.location,
-        notes: mealData.notes,
-        total_calories: 0,
-        total_proteins: 0,
-        total_carbs: 0,
-        total_fats: 0,
-        total_fiber: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+          // Validazione dati base
+          if (!mealData.user_id || !mealData.date) {
+            throw new Error('User ID e data sono obbligatori');
+          }
 
-      // Inserisci pasto
-      const [mealId] = await trx(this.tableName).insert(mealToCreate);
-      
-      // Aggiungi items se forniti
-      if (mealData.items && mealData.items.length > 0) {
-        for (const item of mealData.items) {
-          await this.addItemToMeal(trx, mealId, item);
+          // Prepara dati pasto
+          const mealToCreate = {
+            user_id: mealData.user_id,
+            meal_type: mealData.meal_type || 'snack',
+            meal_name: mealData.meal_name,
+            date: mealData.date,
+            time: mealData.time || new Date().toISOString().split('T')[1].substring(0, 8),
+            location: mealData.location,
+            notes: mealData.notes,
+            total_calories: 0,
+            total_proteins: 0,
+            total_carbs: 0,
+            total_fats: 0,
+            total_fiber: 0,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
+
+          db.run(
+            `INSERT INTO ${this.tableName} (user_id, meal_type, meal_name, date, time, location, notes, total_calories, total_proteins, total_carbs, total_fats, total_fiber, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              mealToCreate.user_id,
+              mealToCreate.meal_type,
+              mealToCreate.meal_name,
+              mealToCreate.date,
+              mealToCreate.time,
+              mealToCreate.location,
+              mealToCreate.notes,
+              mealToCreate.total_calories,
+              mealToCreate.total_proteins,
+              mealToCreate.total_carbs,
+              mealToCreate.total_fats,
+              mealToCreate.total_fiber,
+              mealToCreate.created_at,
+              mealToCreate.updated_at
+            ],
+            function(err) {
+              if (err) {
+                db.run('ROLLBACK');
+                console.error('❌ Errore inserimento pasto:', err);
+                return reject(err);
+              }
+              const mealId = this.lastID;
+
+              // Aggiungi items se forniti
+              if (mealData.items && mealData.items.length > 0) {
+                let errorOccurred = false;
+                let completed = 0;
+                for (const item of mealData.items) {
+                  db.run(
+                    `INSERT INTO meal_items (meal_id, product_id, quantity, unit, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+                    [
+                      mealId,
+                      item.product_id,
+                      item.quantity,
+                      item.unit,
+                      mealToCreate.created_at,
+                      mealToCreate.updated_at
+                    ],
+                    function(err) {
+                      if (err && !errorOccurred) {
+                        errorOccurred = true;
+                        db.run('ROLLBACK');
+                        console.error('❌ Errore inserimento meal_item:', err);
+                        return reject(err);
+                      }
+                      completed++;
+                      if (completed === mealData.items.length && !errorOccurred) {
+                        db.run('COMMIT');
+                        resolve(Meal.findById(mealId));
+                      }
+                    }
+                  );
+                }
+              } else {
+                db.run('COMMIT');
+                resolve(Meal.findById(mealId));
+              }
+            }
+          );
+        } catch (error) {
+          db.run('ROLLBACK');
+          console.error('❌ Errore creazione pasto:', error);
+          reject(error);
         }
-        
-        // Ricalcola totali
-        await this.recalculateMealTotals(trx, mealId);
-      }
-
-      await trx.commit();
-      
-      return await this.findById(mealId);
-    } catch (error) {
-      await trx.rollback();
-      console.error('❌ Errore creazione pasto:', error);
-      throw error;
-    }
+      });
+    });
   }
 
   // Aggiorna pasto

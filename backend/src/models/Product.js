@@ -1,6 +1,23 @@
 const database = require('../config/database');
 
 class Product {
+  /**
+   * Verifica se esiste un prodotto con l'id specificato
+   * @param {number|string} productId
+   * @returns {Promise<boolean>}
+   */
+  static async exists(productId) {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        'SELECT id FROM products WHERE id = ? LIMIT 1',
+        [productId],
+        (err, row) => {
+          if (err) reject(err);
+          else resolve(!!row);
+        }
+      );
+    });
+  }
   constructor(data = {}) {
     this.id = data.id;
     this.barcode = data.barcode;
@@ -321,8 +338,18 @@ class Product {
         updated_at: new Date().toISOString(),
       };
 
-      const [productId] = await this.db(this.tableName).insert(productToCreate);
-      return await this.findById(productId);
+      // Inserimento manuale compatibile con sqlite3
+      await new Promise((resolve, reject) => {
+        database.sqliteDb.run(
+          `INSERT INTO products (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)`,
+          [productToCreate.id, productToCreate.name, productToCreate.created_at, productToCreate.updated_at],
+          function(err) {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
+      });
+      return await this.findById(productToCreate.id);
     } catch (error) {
       console.error('❌ Errore creazione prodotto:', error);
       throw error;
