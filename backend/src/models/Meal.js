@@ -3,6 +3,29 @@ const Product = require('./Product');
 const { logger } = require('../middleware/logging');
 
 class Meal {
+  // Trova pasti per data (e tipo opzionale) per utente
+  static async findByDate(userId, date, type = null, includeItems = true) {
+    try {
+      const sql = `SELECT * FROM ${this.tableName} WHERE user_id = ? AND date = ?${type ? ' AND meal_type = ?' : ''} ORDER BY time ASC, created_at ASC`;
+      const params = type ? [userId, date, type] : [userId, date];
+      const meals = await new Promise((resolve, reject) => {
+        this.db.all(sql, params, (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        });
+      });
+      const mealInstances = meals.map(meal => new Meal(meal));
+      if (includeItems) {
+        for (const meal of mealInstances) {
+          await meal.loadItems();
+        }
+      }
+      return mealInstances;
+    } catch (error) {
+      console.error('❌ Errore ricerca pasti per data:', error);
+      throw new Error('Errore ricerca pasti per data');
+    }
+  }
   // Tipi di pasto validi
   static get MEAL_TYPES() {
     return {

@@ -1,8 +1,17 @@
+@use 'dashboard-variables' as *;
+.desktop-nutrition-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 0 2rem 0 !important;
+  box-sizing: border-box !important;
+  ion-card-content {
+    padding: 2rem 2rem 2rem 2rem !important;
+  }
+}
 // Dashboard Styles - Material Design per NutriJournal
 // Responsive design: Mobile + Desktop
 // OVERRIDE FORCATO DEI COLORI IONIC
-
-@use 'dashboard-variables' as *;
 
 // Override globale e immediato
 * {
@@ -263,6 +272,17 @@ ion-content.dashboard-content {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  width: 100%;
+  min-width: 0;
+  flex: 1 1 0;
+  overflow: hidden;
+}
+.semicircular-progress-container,
+.calories-data-overlay,
+.calories-info-box {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
 }
 
 .date-display-btn {
@@ -421,13 +441,7 @@ ion-button{
             .progress-semicircle {
               transition: stroke-dashoffset 1.5s ease-in-out;
               
-              &.consumed-outer {
-                animation: progressSemicircleConsumed 2s ease-out;
-              }
-              
-              &.burned-inner {
-                animation: progressSemicircleBurned 2.5s ease-out;
-              }
+
             }
           }
         }
@@ -1913,10 +1927,21 @@ ion-button{
 }
 
 .button-container {
-  display: flex;           /* usa il flexbox 
-  flex-direction: column;  i bottoni uno sotto l'altro */
-  align-items: center;     /* centra i bottoni orizzontalmente */
-  gap: 140px;               /* spazio tra i bottoni */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 1rem 0.5rem;
+}
+.button-container ion-button {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  font-size: 1rem;
+  height: 44px;
+  box-sizing: border-box;
+  white-space: normal;
 }
 
 .action-btn.scan-btn{

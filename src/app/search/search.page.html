@@ -22,6 +22,36 @@
         <p></p>
       </div>
     </div>
+
+    <!-- Risultati ricerca (desktop) -->
+    <div *ngIf="searchResults.length > 0" class="search-results-section">
+      <ion-card class="results-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="list-outline"></ion-icon>
+            Risultati trovati ({{ searchResults.length }})
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="results-list">
+            <div *ngFor="let product of searchResults" class="result-item">
+              <ion-item lines="none">
+                <ion-avatar slot="start">
+                  <img [src]="product.image || 'assets/images/product-placeholder.png'" [alt]="product.name_it || product.name">
+                </ion-avatar>
+                <ion-label>
+                  <h3>{{ product.name_it || product.name }}</h3>
+                  <p *ngIf="product.brand_it || product.brand">{{ product.brand_it || product.brand }}</p>
+                </ion-label>
+                <ion-button fill="outline" slot="end" (click)="openProductDetail(product)">
+                  <ion-icon name="information-circle-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+              </ion-item>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
     
     <!-- Search Section -->
     <div class="desktop-search-section">
@@ -53,6 +83,36 @@
               <span *ngIf="!isLoading">Cerca Prodotto</span>
               <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
             </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Risultati ricerca (mobile) -->
+    <div *ngIf="searchResults.length > 0" class="search-results-section">
+      <ion-card class="results-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="list-outline"></ion-icon>
+            Risultati trovati ({{ searchResults.length }})
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="results-list">
+            <div *ngFor="let product of searchResults" class="result-item">
+              <ion-item lines="none">
+                <ion-avatar slot="start">
+                  <img [src]="product.image || 'assets/images/product-placeholder.png'" [alt]="product.name">
+                </ion-avatar>
+                <ion-label>
+                  <h3>{{ product.name }}</h3>
+                  <p *ngIf="product.brand">{{ product.brand }}</p>
+                </ion-label>
+                <ion-button fill="outline" slot="end" (click)="openProductDetail(product)">
+                  <ion-icon name="information-circle-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+              </ion-item>
+            </div>
           </div>
         </ion-card-content>
       </ion-card>
@@ -133,15 +193,15 @@
       <!-- Product Header -->
       <div class="product-header">
         <ion-avatar class="product-avatar">
-          <img [src]="selectedProduct.imageUrl || 'assets/images/product-placeholder.png'" 
-               [alt]="selectedProduct.name">
+    <img [src]="selectedProduct.image || 'assets/images/product-placeholder.png'" 
+      [alt]="selectedProduct.name">
         </ion-avatar>
         <div class="product-info">
-          <h2>{{ selectedProduct.name }}</h2>
-          <p *ngIf="selectedProduct.brand" class="brand">{{ selectedProduct.brand }}</p>
+          <h2>{{ selectedProduct.name_it || selectedProduct.name }}</h2>
+          <p *ngIf="selectedProduct.brand_it || selectedProduct.brand" class="brand">{{ selectedProduct.brand_it || selectedProduct.brand }}</p>
           <ion-chip class="barcode-chip">
             <ion-icon name="barcode-outline"></ion-icon>
-            <ion-label>{{ selectedProduct.code }}</ion-label>
+            <ion-label>{{ selectedProduct.id }}</ion-label>
           </ion-chip>
         </div>
       </div>
@@ -158,34 +218,34 @@
           <div class="nutrition-grid">
             <div class="nutrition-item">
               <span class="label">Energia</span>
-              <span class="value">{{ selectedProduct.nutrition.energy }} kcal</span>
+              <span class="value">{{ selectedProduct.nutrition_per_100g.calories }} kcal</span>
             </div>
             <div class="nutrition-item">
               <span class="label">Proteine</span>
-              <span class="value">{{ selectedProduct.nutrition.proteins }}g</span>
+              <span class="value">{{ selectedProduct.nutrition_per_100g.proteins }}g</span>
             </div>
             <div class="nutrition-item">
               <span class="label">Carboidrati</span>
-              <span class="value">{{ selectedProduct.nutrition.carbohydrates }}g</span>
+              <span class="value">{{ selectedProduct.nutrition_per_100g.carbohydrates }}g</span>
             </div>
             <div class="nutrition-item">
               <span class="label">Grassi</span>
-              <span class="value">{{ selectedProduct.nutrition.fats }}g</span>
+              <span class="value">{{ selectedProduct.nutrition_per_100g.fats }}g</span>
             </div>
             <div class="nutrition-item">
               <span class="label">Zuccheri</span>
-              <span class="value">{{ selectedProduct.nutrition.sugars }}g</span>
+              <span class="value">{{ selectedProduct.nutrition_per_100g.sugars }}g</span>
             </div>
             <div class="nutrition-item">
-              <span class="label">Sale</span>
-              <span class="value">{{ selectedProduct.nutrition.salt }}g</span>
+              <span class="label">Sodio</span>
+              <span class="value">{{ selectedProduct.nutrition_per_100g.sodium }}mg</span>
             </div>
           </div>
         </ion-card-content>
       </ion-card>
       
       <!-- Additives -->
-      <ion-card *ngIf="selectedProduct.additives.length > 0" class="additives-card">
+  <ion-card *ngIf="selectedProduct.additives && selectedProduct.additives.length > 0" class="additives-card">
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="warning-outline"></ion-icon>
@@ -226,7 +286,7 @@
       </ion-card>
       
       <!-- Ingredients -->
-      <ion-card *ngIf="selectedProduct.ingredients" class="ingredients-card">
+  <ion-card *ngIf="selectedProduct.ingredients_it || selectedProduct.ingredients" class="ingredients-card">
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="list-outline"></ion-icon>
@@ -234,7 +294,7 @@
           </ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <p class="ingredients-text">{{ selectedProduct.ingredients }}</p>
+          <p class="ingredients-text">{{ selectedProduct.ingredients_it || selectedProduct.ingredients }}</p>
         </ion-card-content>
       </ion-card>
       

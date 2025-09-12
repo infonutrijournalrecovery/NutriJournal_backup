@@ -6,18 +6,16 @@ import { warningOutline, trashOutline } from 'ionicons/icons';
 import {
   IonContent,
   IonHeader,
-  IonTitle,
   IonToolbar,
   IonButtons,
   IonBackButton,
+  IonTitle,
   IonButton,
-  IonList,
+  IonIcon,
   IonItem,
   IonLabel,
-  IonNote,
-  IonProgressBar,
-  IonIcon
-} from '@ionic/angular/standalone';
+  IonList,
+  IonNote, IonProgressBar } from '@ionic/angular/standalone';
 import { AlertController, ToastController, LoadingController, ActionSheetController, ModalController } from '@ionic/angular';
 
 @Component({
@@ -25,22 +23,21 @@ import { AlertController, ToastController, LoadingController, ActionSheetControl
   templateUrl: './view-meal.page.html',
   styleUrls: ['./view-meal.page.scss'],
   standalone: true,
-  imports: [
+  imports: [IonProgressBar, 
     CommonModule,
     FormsModule,
-  IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
-  IonButtons,
-  IonBackButton,
-  IonButton,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonNote,
-  IonProgressBar,
-  IonIcon
+    IonContent,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonButton,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonNote
   ]
 })
 export class ViewMealPage {
@@ -74,6 +71,10 @@ export class ViewMealPage {
   meals: string[] = ['Colazione', 'Pranzo', 'Cena', 'Spuntino'];
   selectedMeal: string | null = null;
   selectedDate: string = new Date().toISOString().split('T')[0];
+
+
+
+  constructor() {}
 
   ngOnInit() {
     // prodotto di esempio
@@ -143,4 +144,3 @@ export class ViewMealPage {
     return this.dispensa.some(item => item.nome === this.prodotto.nome);
   }
 }
-

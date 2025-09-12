@@ -6,7 +6,9 @@ import { environment } from '../../../environments/environment';
 export interface Product {
   id: string;
   name: string;
+  name_it?: string;
   brand: string;
+  brand_it?: string;
   image: string;
   serving: {
     size: string;
@@ -25,6 +27,7 @@ export interface Product {
     sugars: number;
   };
   ingredients: string;
+  ingredients_it?: string;
   allergens: string[];
   additives?: any[];
 }
@@ -39,6 +42,13 @@ export class ProductService {
   getProductByBarcode(barcode: string): Observable<{success: boolean, data: Product}> {
     // Nota: il token di autenticazione viene aggiunto dall'interceptor, se configurato
     return this.http.get<{success: boolean, data: Product}>(`${this.apiUrl}/barcode/${barcode}`);
+  }
+
+  // Cerca prodotti per nome tramite backend (USDA/OpenFoodFacts)
+  searchProductsByName(query: string, page: number = 1, limit: number = 20): Observable<{success: boolean, data: {products: Product[], pagination: any}}>{
+    return this.http.get<{success: boolean, data: {products: Product[], pagination: any}}>(
+      `${this.apiUrl}/search?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`
+    );
   }
 
   // Verifica se il prodotto è già in dispensa tramite nome e brand

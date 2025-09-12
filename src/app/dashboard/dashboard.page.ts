@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { NavController, ToastController, LoadingController, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonProgressBar, IonFab, IonFabButton, IonFabList, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonInput, IonModal, IonDatetime } from '@ionic/angular/standalone';
+import { NavController, ToastController, LoadingController, ModalController, IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonButton, IonIcon, IonGrid, IonRow, IonCol, IonItem, IonLabel, IonProgressBar, IonFab, IonFabButton, IonFabList, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonInput } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
   addOutline,
@@ -31,7 +31,7 @@ import { User, DailyNutrition, Meal } from '../shared/interfaces/types';
 import { Activity } from '../shared/interfaces/Activity.interface';
 import { ApiService } from '../shared/services/api.service';
 import { EventBusService } from '../shared/services/event-bus.service';
-import { ModalController } from '@ionic/angular';
+
 import { DatePickerModalComponent } from '../shared/components/date-picker-modal.component';
 
 
@@ -45,33 +45,63 @@ import { DatePickerModalComponent } from '../shared/components/date-picker-modal
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    // Tutti i componenti Ionic usati nel template
-    IonContent,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonButton,
-    IonIcon,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonItem,
-    IonLabel,
-    IonProgressBar,
-    IonFab,
-    IonFabButton,
-    IonFabList,
-    IonRefresher,
-    IonRefresherContent,
-    IonSegment,
-    IonSegmentButton,
-    IonInput,
+  IonContent,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonButton,
+  IonIcon,
+  IonItem,
+  IonLabel,
+  IonProgressBar,
+  IonSegment,
+  IonSegmentButton,
+  IonInput,
+  IonGrid,
+  IonRow,
+  IonCol,
   ],
-  providers: [ModalController]
+  providers: []
 })
 
 export class DashboardPage implements OnInit, OnDestroy {
+
+  /** Restituisce la label italiana per il tipo di attività */
+  getActivityLabel(type: string): string {
+    const map: { [key: string]: string } = {
+      // Italiano
+      'Camminata': 'Camminata',
+      'Corsa': 'Corsa',
+      'Ciclismo': 'Ciclismo',
+      'Nuoto': 'Nuoto',
+      'Palestra': 'Palestra',
+      'Corpo libero': 'Corpo libero',
+      'Sollevamento pesi': 'Sollevamento pesi',
+      'Calcio': 'Calcio',
+      'Basket': 'Basket',
+      'Pallavolo': 'Pallavolo',
+      // Inglese comuni
+      'Walking': 'Camminata',
+      'Run': 'Corsa',
+      'Running': 'Corsa',
+      'Cycling': 'Ciclismo',
+      'Swim': 'Nuoto',
+      'Swimming': 'Nuoto',
+      'Gym': 'Palestra',
+      'Bodyweight': 'Corpo libero',
+      'Weightlifting': 'Sollevamento pesi',
+      'Yoga': 'Yoga',
+      'Stretching': 'Stretching',
+      'Pilates': 'Pilates',
+      'Football': 'Calcio',
+      'Soccer': 'Calcio',
+      'Basketball': 'Basket',
+      'Tennis': 'Tennis',
+      'Volleyball': 'Pallavolo',
+    };
+    return map[type] || (type ? type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() : 'Attività');
+  }
   // ionViewWillEnter() {
   //   this.loadTodayActivities();
   // }
@@ -81,7 +111,11 @@ export class DashboardPage implements OnInit, OnDestroy {
     recentMeals: Meal[] = [];
     recentActivities: Activity[] = [];
     isLoading = false;
-    selectedSegment = 'nutrition';
+    selectedSegment: 'nutrition' | 'activity' = 'nutrition';
+
+    isActivitySegment(): boolean {
+      return this.selectedSegment === 'activity';
+    }
     waterForm: FormGroup;
     currentDate = new Date();
     isDesktop = false;
@@ -141,8 +175,10 @@ export class DashboardPage implements OnInit, OnDestroy {
             const d = new Date(a.date);
             const activityDate = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
             const match = activityDate === dateStr;
-            console.log('[DEBUG] activity.date:', a.date, '| activityDate:', activityDate, '| dateStr:', dateStr, '| match:', match);
-            return match;
+            if (!match) return false;
+            // Log dettagliato per debug dati corrotti
+            console.log('[DEBUG][ACTIVITY]', a);
+            return true;
           });
           console.log('[DEBUG] activitiesToday:', this.activitiesToday);
           this.recentActivities = this.activitiesToday.slice(0, 5);
@@ -191,26 +227,29 @@ export class DashboardPage implements OnInit, OnDestroy {
       }
     };
 
+    /**
+     * Placeholder azzerato: i valori reali vengono caricati dinamicamente.
+     */
     dailyStats = {
       calories: { 
-        consumed: 1847, 
-        burned: 247, 
-        goal: 2200, 
-        adjustedGoal: 2447,
+        consumed: 0, 
+        burned: 0, 
+        goal: 0, 
+        adjustedGoal: 0,
         percentage: 0,
         remaining: 0
       },
-      carbs: { consumed: 203, goal: 275, percentage: 0 },
-      proteins: { consumed: 87, goal: 110, percentage: 0 },
-      fats: { consumed: 51, goal: 73, percentage: 0 },
-      water: { consumed: 1250, goal: 2000, percentage: 0 },
-      activities: 3,
+      carbs: { consumed: 0, goal: 0, percentage: 0 },
+      proteins: { consumed: 0, goal: 0, percentage: 0 },
+      fats: { consumed: 0, goal: 0, percentage: 0 },
+      water: { consumed: 0, goal: 0, percentage: 0 },
+      activities: 0,
       userProfile: {
-        age: 30,
-        weight: 70,
-        height: 175,
+        age: 0,
+        weight: 0,
+        height: 0,
         gender: 'male' as 'male' | 'female',
-        activityLevel: 'moderately_active' as 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extremely_active',
+        activityLevel: 'sedentary' as 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active' | 'extremely_active',
         goal: 'maintain' as 'lose_weight' | 'maintain' | 'gain_weight' | 'gain_muscle'
       }
     };
@@ -266,14 +305,15 @@ export class DashboardPage implements OnInit, OnDestroy {
     const modal = await this.modalController.create({
       component: DatePickerModalComponent,
       componentProps: {
-        date: this.currentDate,
-        max: new Date()
-      }
+        date: this.currentDate.toISOString(),
+        max: new Date().toISOString()
+      },
+      cssClass: 'date-picker-modal'
     });
     await modal.present();
-    const { data } = await modal.onDidDismiss();
+    const { data } = await modal.onWillDismiss();
     if (data) {
-      this.currentDate = data;
+      this.currentDate = new Date(data);
       this.loadDashboardData();
     }
   }
@@ -387,10 +427,58 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   private updateNutritionGoals() {
-    // Funzione aggiornata: implementa qui la logica corretta per il calcolo dei goal nutrizionali
-    // ...existing code...
+    if (!this.user) return;
+    // 1. Calcolo BMR (Harris-Benedict)
+    const gender = this.user.gender || 'male';
+    const weight = this.user.weight ?? 70;
+    const height = this.user.height ?? 170;
+    const birth_date = this.user.birth_date ?? '1990-01-01';
+    const activity_level = this.user.activity_level ?? 'sedentary';
+    const nutritionGoals = this.user.nutritionGoals;
+    const age = this.getAgeFromBirthDate(birth_date);
+    let bmr = 0;
+    if (gender === 'male') {
+      bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+    } else {
+      bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+    }
+    // 2. Fattore attività
+    const activity = activity_level as keyof typeof this.activityFactors;
+    const activityFactor = this.activityFactors[activity] || 1.2;
+    let tdee = bmr * activityFactor;
+    // 3. Modifica per obiettivo
+    const userGoal = (nutritionGoals?.goal_type || 'maintain') as keyof typeof this.macroDistributions;
+    let calorieGoal = tdee;
+    if (userGoal === 'lose_weight') calorieGoal -= 400;
+    if (userGoal === 'gain_weight' || userGoal === 'gain_muscle') calorieGoal += 300;
+    calorieGoal = Math.round(calorieGoal);
+    // 4. Macro distribuzione
+    const macro = this.macroDistributions[userGoal] || this.macroDistributions['maintain'];
+    const proteins = Math.round((calorieGoal * macro.proteins) / 4);
+    const carbs = Math.round((calorieGoal * macro.carbs) / 4);
+    const fats = Math.round((calorieGoal * macro.fats) / 9);
+    // 5. Aggiorna dailyStats
+    this.dailyStats.calories.goal = calorieGoal;
+    this.dailyStats.calories.adjustedGoal = calorieGoal + (this.dailyStats.calories.burned || 0);
+    this.dailyStats.carbs.goal = carbs;
+    this.dailyStats.proteins.goal = proteins;
+    this.dailyStats.fats.goal = fats;
+    // Acqua: 35ml per kg peso
+    this.dailyStats.water.goal = Math.round(weight * 35);
     this.updateMealGoals();
     this.updateNutritionPercentages();
+  }
+
+  private getAgeFromBirthDate(birthDate?: string): number {
+    if (!birthDate) return 30;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age;
   }
 
   // Data Loading Methods
@@ -423,26 +511,46 @@ export class DashboardPage implements OnInit, OnDestroy {
         this.isLoading = true;
       }
 
-      // Carica dati fittizi solo per le statistiche, NON per le attività
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // dayOffset calcolato rispetto a currentDate
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      const dayOffset = Math.floor((today.getTime() - this.currentDate.getTime()) / (1000 * 60 * 60 * 24));
-      this.dailyStats.calories.consumed = Math.max(800, 1200 - (dayOffset * 100));
-      this.dailyStats.carbs.consumed = Math.max(80, 150 - (dayOffset * 20));
-      this.dailyStats.proteins.consumed = Math.max(50, 80 - (dayOffset * 10));
-      this.dailyStats.fats.consumed = Math.max(30, 45 - (dayOffset * 5));
-      this.dailyStats.water.consumed = Math.max(500, 1250 - (dayOffset * 150));
-      this.dailyStats.activities = Math.max(0, 2 - Math.floor(dayOffset / 2));
+      // Carica i pasti reali dal backend per la data selezionata
+      const dateStr = this.currentDate.toISOString().split('T')[0];
+      const mealsRes = await this.apiService.getMealsByDate(dateStr).toPromise();
+      const meals = mealsRes?.data || [];
+      // Raggruppa i pasti per tipo
+      this.mealsByType = {
+        breakfast: [],
+        lunch: [],
+        snack: [],
+        dinner: []
+      };
+      meals.forEach(meal => {
+        if (this.mealsByType[meal.type]) {
+          this.mealsByType[meal.type].push(meal);
+        }
+      });
+
+      // Aggiorna le statistiche nutrizionali (esempio base)
+      this.dailyStats.calories.consumed = meals.reduce((sum, m) => sum + (m.total_calories || 0), 0);
+      this.dailyStats.carbs.consumed = meals.reduce((sum, m) => sum + (m.total_carbs || 0), 0);
+      this.dailyStats.proteins.consumed = meals.reduce((sum, m) => sum + (m.total_proteins || 0), 0);
+      this.dailyStats.fats.consumed = meals.reduce((sum, m) => sum + (m.total_fats || 0), 0);
 
       this.updateDailyStatsPercentages();
+
+      // DEBUG LOG
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG][Dashboard] meals:', meals);
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG][Dashboard] mealsByType:', this.mealsByType);
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG][Dashboard] dailyStats:', this.dailyStats);
 
       // Carica sempre le attività reali per la data selezionata
       await this.loadActivitiesForSelectedDate();
     } catch (error) {
       console.error('Errore nel caricamento dei dati dashboard:', error);
       await this.showToast('Errore nel caricamento dei dati', 'danger');
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG][Dashboard] error:', error);
     } finally {
       this.isLoading = false;
       if (event) {
@@ -450,6 +558,13 @@ export class DashboardPage implements OnInit, OnDestroy {
       }
     }
   }
+  // Struttura per i pasti raggruppati per tipo
+  mealsByType: { [key: string]: any[] } = {
+    breakfast: [],
+    lunch: [],
+    snack: [],
+    dinner: []
+  };
 
   // Helper Methods
   getMealIcon(mealType: string): string {
@@ -647,22 +762,21 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   private updateDailyStatsPercentages() {
-    this.dailyStats.calories.percentage = Math.min(
-      (this.dailyStats.calories.consumed / this.dailyStats.calories.goal) * 100, 
-      100
-    );
-    this.dailyStats.carbs.percentage = Math.min(
-      (this.dailyStats.carbs.consumed / this.dailyStats.carbs.goal) * 100, 
-      100
-    );
-    this.dailyStats.proteins.percentage = Math.min(
-      (this.dailyStats.proteins.consumed / this.dailyStats.proteins.goal) * 100, 
-      100
-    );
-    this.dailyStats.fats.percentage = Math.min(
-      (this.dailyStats.fats.consumed / this.dailyStats.fats.goal) * 100, 
-      100
-    );
+    // Calorie
+    const calGoal = Math.max(this.dailyStats.calories.goal, 1);
+    this.dailyStats.calories.percentage = Math.min((this.dailyStats.calories.consumed / calGoal) * 100, 100);
+    // Carboidrati
+    const carbGoal = Math.max(this.dailyStats.carbs.goal, 1);
+    this.dailyStats.carbs.percentage = Math.min((this.dailyStats.carbs.consumed / carbGoal) * 100, 100);
+    // Proteine
+    const protGoal = Math.max(this.dailyStats.proteins.goal, 1);
+    this.dailyStats.proteins.percentage = Math.min((this.dailyStats.proteins.consumed / protGoal) * 100, 100);
+    // Grassi
+    const fatGoal = Math.max(this.dailyStats.fats.goal, 1);
+    this.dailyStats.fats.percentage = Math.min((this.dailyStats.fats.consumed / fatGoal) * 100, 100);
+    // Acqua
+    const waterGoal = Math.max(this.dailyStats.water.goal, 1);
+    this.dailyStats.water.percentage = Math.min((this.dailyStats.water.consumed / waterGoal) * 100, 100);
   }
 
   // Stats Methods
@@ -690,8 +804,8 @@ export class DashboardPage implements OnInit, OnDestroy {
     return Math.abs(value);
   }
 
-  getMealStats(mealType: 'breakfast' | 'lunch' | 'snack' | 'dinner') {
-    return this.mealStats[mealType];
+  getMealStats(mealType: 'breakfast' | 'lunch' | 'snack' | 'dinner' | string) {
+    return this.mealStats[mealType as 'breakfast' | 'lunch' | 'snack' | 'dinner'];
   }
 
   async openGeneralMealAdd() {

@@ -27,13 +27,15 @@ class MealController {
     try {
       const { date } = req.params;
       const userId = req.user.id;
+      const type = req.query.type || null;
 
       logger.info('Richiesta pasti del giorno', {
         userId,
-        date
+        date,
+        type
       });
 
-      const meals = await Meal.findByDate(userId, date);
+      const meals = await Meal.findByDate(userId, date, type);
 
       res.json({
         success: true,
@@ -43,12 +45,14 @@ class MealController {
       logger.info('Pasti del giorno recuperati', {
         userId,
         date,
+        type,
         mealsCount: meals.length
       });
     } catch (error) {
       logger.error('Errore recupero pasti del giorno', {
         userId: req.user.id,
         date: req.params.date,
+        type: req.query.type,
         error: error.message
       });
       next(error);

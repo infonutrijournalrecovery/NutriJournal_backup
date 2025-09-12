@@ -1,8 +1,10 @@
+
 import { CommonModule, DatePipe } from '@angular/common';
 import { IonModal } from '@ionic/angular/standalone';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { EventBusService } from '../../shared/services/event-bus.service';
+import { ApiService } from '../../shared/services/api.service';
 import { FormsModule } from '@angular/forms';
 import {
   IonContent,
@@ -99,6 +101,7 @@ import {
   ]
 })
 export class AddMealPage implements OnInit, OnDestroy {
+  private apiService = inject(ApiService);
   private eventBus = inject(EventBusService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -109,7 +112,7 @@ export class AddMealPage implements OnInit, OnDestroy {
 
   // Removed unused @ViewChild IonModal references
 
-  recentProducts: any[] = []; // \u2705 lista dinamica di prodotti recenti
+  recentProducts: any[] = []; // lista dinamica di prodotti recenti
 
   // State
   isLoading = false;
@@ -133,28 +136,60 @@ export class AddMealPage implements OnInit, OnDestroy {
   // Exposed Math for template
   Math = Math;
 
+
   constructor() {}
+
+  // Returns the icon name for a given meal type
+  getMealTypeIcon(type?: string): string {
+    switch ((type || this.selectedMealType)?.toLowerCase()) {
+      case 'colazione':
+      case 'breakfast':
+        return 'cafe-outline';
+      case 'pranzo':
+      case 'lunch':
+        return 'restaurant-outline';
+      case 'spuntini':
+      case 'snack':
+        return 'pizza-outline';
+      case 'cena':
+      case 'dinner':
+        return 'moon-outline';
+      default:
+        return 'fast-food-outline';
+    }
+  }
+
+  // Returns the icon name for a given product category
+  getCategoryIcon(category?: string): string {
+    switch ((category || '').toLowerCase()) {
+      case 'frutta':
+      case 'fruit':
+        return 'leaf-outline';
+      case 'verdura':
+      case 'vegetable':
+        return 'nutrition-outline';
+      case 'carne':
+      case 'meat':
+        return 'fast-food-outline';
+      case 'pesce':
+      case 'fish':
+        return 'fish-outline';
+      case 'bevande':
+      case 'beverage':
+        return 'wine-outline';
+      default:
+        return 'restaurant-outline';
+    }
+  }
+
+  // Navigates to the scanner page
+  goToScanner() {
+    this.router.navigate(['/scanner']);
+  }
 
   async ngOnInit() {
     await this.initializePage();
-
-    // \u2705 Simulazione prodotti recenti - qui puoi sostituire con chiamata HTTP
-    this.recentProducts = [
-      {
-        name: 'Pasta Barilla',
-        brand: 'Barilla',
-        quantity: '150 g',
-        image: 'assets/img/pasta.png',
-        lastUsed: '2025-09-06T12:30:00'
-      },
-      {
-        name: 'Latte Intero',
-        brand: 'Parmalat',
-        quantity: '1 L',
-        image: 'assets/img/latte.png',
-        lastUsed: '2025-09-05T19:20:00'
-      }
-    ];
+    await this.loadRecentProducts();
   }
 
   ngOnDestroy() {
@@ -176,23 +211,20 @@ export class AddMealPage implements OnInit, OnDestroy {
   private async initializePage() {
     try {
       this.isLoading = true;
-      
       const params = this.route.snapshot.queryParams;
       const mealId = this.route.snapshot.paramMap.get('id');
-      
       if (params['date']) {
         this.selectedDate = params['date'];
       }
-      
       if (params['type'] && this.mealTypes.includes(params['type'])) {
         this.selectedMealType = params['type'] as MealType;
       }
-      
       if (mealId) {
         this.isEditing = true;
         await this.loadExistingMeal(mealId);
+      } else if (this.selectedDate && this.selectedMealType) {
+        await this.loadMealForDateAndType(this.selectedDate, this.selectedMealType);
       }
-      
     } catch (error) {
       console.error('Error initializing page:', error);
       await this.showErrorToast('Errore durante il caricamento');
@@ -200,6 +232,34 @@ export class AddMealPage implements OnInit, OnDestroy {
       this.isLoading = false;
     }
   }
+
+  private async loadMealForDateAndType(date: string, type: string) {
+    // Carica i prodotti già consumati per data e tipo pasto
+    try {
+      const res = await this.apiService.getMealsByDate(date, type.toLowerCase()).toPromise();
+      if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        const meal = res.data[0]; // la API ora restituisce solo i pasti di quel tipo
+        if (meal && Array.isArray(meal.items)) {
+          this.mealItems = meal.items.map(item => ({
+            productId: String((item as any).product_id ?? (item as any).productId ?? ''),
+            quantity: item.quantity,
+            unit: item.unit,
+            nutritionPer100g: {},
+            totalNutrition: {
+              calories: item.calories,
+              proteins: item.proteins,
+              carbohydrates: item.carbs,
+              fats: item.fats
+            }
+          })) as any;
+        }
+      }
+    } catch (e) {
+      // Silenzia errori se non ci sono pasti
+    }
+  }
+
+
 
   private async loadExistingMeal(mealId: string) {
     try {
@@ -219,7 +279,6 @@ export class AddMealPage implements OnInit, OnDestroy {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
     if (date.toDateString() === today.toDateString()) {
       return 'Oggi';
     } else if (date.toDateString() === yesterday.toDateString()) {
@@ -233,37 +292,44 @@ export class AddMealPage implements OnInit, OnDestroy {
     }
   }
 
-  getMealTypeIcon(type?: MealType): string {
-    if (!type) return 'restaurant-outline';
-    
-    switch (type) {
-      case 'Colazione': return 'cafe-outline';
-      case 'Pranzo': return 'restaurant-outline';
-      case 'Spuntini': return 'fast-food-outline';
-      case 'Cena': return 'wine-outline';
-      default: return 'restaurant-outline';
+  async saveMeal() {
+    if (!this.selectedMealType) {
+      await this.showErrorToast('Seleziona il tipo di pasto');
+      return;
+    }
+    if (this.mealItems.length === 0) {
+      await this.showErrorToast('Aggiungi almeno un prodotto');
+      return;
+    }
+    try {
+      this.isSaving = true;
+      // Mappa i campi secondo l'interfaccia MealItem dell'API
+      const mealData = {
+        type: this.selectedMealType.toLowerCase() as 'breakfast' | 'lunch' | 'dinner' | 'snack',
+        consumed_at: this.selectedDate.split('T')[0],
+        items: this.mealItems.map(item => ({
+          product_id: item.productId,
+          quantity: item.quantity,
+          unit: item.unit,
+          calories: item.totalNutrition?.calories ?? 0,
+          proteins: item.totalNutrition?.proteins ?? 0,
+          carbs: item.totalNutrition?.carbohydrates ?? 0,
+          fats: item.totalNutrition?.fats ?? 0
+        }))
+      };
+      await this.apiService.createMeal(mealData as any).toPromise();
+      this.eventBus.emitDataUpdated('meal');
+      await this.showSuccessToast(
+        this.isEditing ? 'Pasto aggiornato con successo' : 'Pasto salvato con successo'
+      );
+      this.router.navigate(['/tabs/dashboard']);
+    } catch (error) {
+      console.error('Error saving meal:', error);
+      await this.showErrorToast('Errore durante il salvataggio');
+    } finally {
+      this.isSaving = false;
     }
   }
-
-  getCategoryIcon(category?: ProductCategory): string {
-    if (!category) return 'nutrition-outline';
-    
-    switch (category) {
-      case 'Verdura': 
-      case 'Frutta': return 'leaf-outline';
-      case 'Dolci': return 'ice-cream-outline';
-      case 'Bibite': return 'wine-outline';
-      case 'Carne': 
-      case 'Pesce': return 'restaurant-outline';
-      case 'Latticini': return 'nutrition-outline';
-      default: return 'nutrition-outline';
-    }
-  }
-
-  goToScanner() {
-    this.router.navigate(['/scanner']);
-  }
-
   goToSearch() {
     this.router.navigate(['/search']);
   }
@@ -324,33 +390,41 @@ export class AddMealPage implements OnInit, OnDestroy {
     return Math.round(this.mealItems.reduce((total, item) => total + item.totalNutrition.fats, 0) * 10) / 10;
   }
 
+
   async editItemQuantity(item: MealItem) {
     const alert = await this.alertController.create({
-      header: 'Modifica Quantit�',
+      header: 'Modifica Quantità',
       subHeader: item.productName,
-      inputs: [
-        {
-          name: 'quantity',
-          type: 'number',
-          placeholder: 'Quantit�',
-          value: item.quantity.toString()
-        }
-      ],
-      buttons: [
-        { text: 'Annulla', role: 'cancel' },
-        {
-          text: 'Conferma',
-          handler: (data: any) => {
-            const quantity = parseFloat(data.quantity);
-            if (quantity > 0) {
-              this.updateItemQuantity(item, quantity);
-            }
-          }
-        }
-      ]
+      // ...altri parametri dell'alert...
     });
-
     await alert.present();
+  }
+
+  // Carica prodotti recenti dai pasti della data odierna
+  private async loadRecentProducts() {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const res = await this.apiService.getMealsByDate(today).toPromise();
+      if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        const products: any[] = [];
+        res.data.forEach(meal => {
+          if (Array.isArray(meal.items)) {
+            meal.items.forEach(item => {
+              if (!products.find(p => p.product_id === item.product_id)) {
+                products.push({
+                  ...item.product,
+                  quantity: item.quantity,
+                  lastUsed: meal.consumed_at
+                });
+              }
+            });
+          }
+        });
+        this.recentProducts = products;
+      }
+    } catch (e) {
+      // Silenzia errori se non ci sono pasti
+    }
   }
 
   private updateItemQuantity(item: MealItem, newQuantity: number) {
@@ -433,49 +507,6 @@ export class AddMealPage implements OnInit, OnDestroy {
 
   openQuickAddMenu() {}
 
-  async saveMeal() {
-
-    if (!this.selectedMealType) {
-      await this.showErrorToast('Seleziona il tipo di pasto');
-      return;
-    }
-
-    if (this.mealItems.length === 0) {
-      await this.showErrorToast('Aggiungi almeno un prodotto');
-      return;
-    }
-
-    try {
-      this.isSaving = true;
-      
-      const mealData: Meal = {
-        userId: 'current-user-id',
-        date: this.selectedDate.split('T')[0],
-        type: this.selectedMealType,
-        items: this.mealItems,
-        totalNutrition: {
-          calories: this.getTotalCalories(),
-          proteins: this.getTotalProteins(),
-          carbohydrates: this.getTotalCarbs(),
-          fats: this.getTotalFats()
-        }
-      };
-
-      // TODO: chiamata API per salvare il pasto
-
-      // Emit event for dashboard update
-      this.eventBus.emitDataUpdated('meal');
-      await this.showSuccessToast(
-        this.isEditing ? 'Pasto aggiornato con successo' : 'Pasto salvato con successo'
-      );
-      this.router.navigate(['/tabs/dashboard']);
-    } catch (error) {
-      console.error('Error saving meal:', error);
-      await this.showErrorToast('Errore durante il salvataggio');
-    } finally {
-      this.isSaving = false;
-    }
-  }
 
   private async showSuccessToast(message: string) {
     const toast = await this.toastController.create({

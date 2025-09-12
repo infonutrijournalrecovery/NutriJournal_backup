@@ -31,13 +31,16 @@ export class ApiService {
   /**
    * Ottieni tutti i pasti dell'utente
    */
-  getMeals(page = 1, limit = 20, dateFrom?: string, dateTo?: string): Observable<ApiResponse<Meal[]>> {
+
+  /**
+   * Ottieni tutti i pasti per una data specifica, opzionalmente filtrando per tipo pasto
+   * @param date string (YYYY-MM-DD)
+   * @param type string ('breakfast' | 'lunch' | 'dinner' | 'snack') opzionale
+   */
+  getMealsByDate(date: string, type?: string): Observable<ApiResponse<Meal[]>> {
     const headers = this.authService.getAuthHeaders();
-    let url = `${this.baseUrl}/meals?page=${page}&limit=${limit}`;
-    
-    if (dateFrom) url += `&date_from=${dateFrom}`;
-    if (dateTo) url += `&date_to=${dateTo}`;
-    
+    let url = `${this.baseUrl}/meals/${date}`;
+    if (type) url += `?type=${type}`;
     return this.http.get<ApiResponse<Meal[]>>(url, { headers });
   }
 

@@ -8,7 +8,7 @@ const router = express.Router();
 // GET /api/meals/single/:mealId - Ottiene un pasto specifico 
 router.get('/single/:mealId', AuthMiddleware.verifyToken, validate(MealController.validations.getMeal), MealController.getMeal);
 
-// GET /api/meals/:date - Ottiene tutti i pasti per una data
+// GET /api/meals/:date[?type=...] - Ottiene tutti i pasti per una data (e tipo opzionale)
 router.get('/:date', AuthMiddleware.verifyToken, validate(MealController.validations.dayMeals), MealController.getDayMeals);
 
 // POST /api/meals - Crea un nuovo pasto
