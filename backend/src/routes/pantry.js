@@ -40,8 +40,14 @@ module.exports = function createPantryRouter(sqliteDb) {
 
     // DELETE /api/pantry/products/:productId - Rimuovi prodotto dalla dispensa
     router.delete('/products/:productId', auth, async (req, res, next) => {
-        await pantryController.removeFromPantry(req, res, next);
+        try {
+            await pantryController.removeFromPantry(req, res, next);
+        } catch (error) {
+            next(error);
+        }
     });
+    
+    
 
     // POST /api/pantry - Aggiungi elemento alla dispensa
     router.post('/', auth, validate(addPantryItemSchema), async (req, res, next) => {

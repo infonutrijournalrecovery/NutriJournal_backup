@@ -106,7 +106,7 @@ class PantryController {
     /**
      * Rimuove un prodotto dalla dispensa dell'utente
      */
-    static async removeFromPantry(req, res, next) {
+    async removeFromPantry(req, res, next) {
         try {
             const { productId } = req.params;
             const userId = req.user.id;
@@ -115,6 +115,7 @@ class PantryController {
                 throw new ValidationError('ID prodotto richiesto');
             }
 
+            // Rimuove il prodotto dal model
             await this.pantryModel.removeProduct(userId, productId);
 
             res.json({

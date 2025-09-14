@@ -482,7 +482,17 @@ class Pantry {
 
         return availability;
     }
-
+    async removeProduct(userId, productId) {
+        const sql = `
+            DELETE FROM pantry_items
+            WHERE id = ? AND user_id = ?
+        `;
+        const result = await this.runQuery(sql, [productId, userId]);
+        if (result.changes === 0) {
+            throw new Error('Prodotto non trovato o non autorizzato');
+        }
+        return result;
+    }
     // Statistiche dispensa
     async getPantryStats(userId) {
         const stats = await this.getQuery(`

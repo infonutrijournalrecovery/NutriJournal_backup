@@ -305,9 +305,10 @@ export class PantryPage implements OnInit, OnDestroy {
 
       // CHIAMATA DELETE: /pantry/:id
       await this.http.delete(
-        `${environment.apiUrl}/pantry/${item.id}`,
+        `${environment.apiUrl}/pantry/products/${item.id}`,
         httpHeaders
       ).toPromise();
+      
 
       // Aggiorno la lista locale
       this.pantryItems = this.pantryItems.filter(p => p.id !== item.id);
