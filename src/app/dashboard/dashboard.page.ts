@@ -174,7 +174,7 @@ export class DashboardPage implements OnInit, OnDestroy {
           });
           console.log('[DEBUG] activitiesToday:', this.activitiesToday);
           this.recentActivities = this.activitiesToday.slice(0, 5);
-          this.dailyStats.calories.burned = this.activitiesToday.reduce((sum, a) => sum + (a.calories || 0), 0);
+          this.dailyStats.calories.burned = this.activitiesToday.reduce((sum, a) => sum + (a.calories_burned || 0), 0);
         } else {
           this.activitiesToday = [];
           this.recentActivities = [];
@@ -519,73 +519,98 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   async loadDashboardData(event?: any) {
-    // Carica acqua dal backend
+    const dateStr = this.currentDate.toISOString().split('T')[0];
+  
+    // Carica acqua
     try {
-      const dateStr = this.currentDate.toISOString().split('T')[0];
       const waterRes: any = await this.apiService.getWater(dateStr).toPromise();
       this.dailyStats.water.consumed = (waterRes && typeof waterRes.amount === 'number') ? waterRes.amount : 0;
-    } catch (err) {
+    } catch {
       this.dailyStats.water.consumed = 0;
     }
+  
+    if (!event) this.isLoading = true;
+  
     try {
-      if (!event) {
-        this.isLoading = true;
-      }
-
-  // Carica i pasti raggruppati per tipo dal backend
-  const dateStr = this.currentDate.toISOString().split('T')[0];
-  const mealsRes = await this.apiService.getMealsByDateGrouped(dateStr).toPromise();
-  // DEBUG: logga la risposta grezza dal backend
-  // eslint-disable-next-line no-console
-  console.log('[DEBUG][Dashboard] Risposta grezza getMealsByDateGrouped:', mealsRes);
-  const mealsByType: { [key: string]: any[] } = mealsRes?.data?.mealsByType || { breakfast: [], lunch: [], snack: [], dinner: [] };
-      // Reset e popola foods/statistiche per ogni tipo di pasto (forza sostituzione array)
+      // Carica i pasti raggruppati per tipo
+      const mealsRes: any = await this.apiService.getMealsByDateGrouped(dateStr).toPromise();
+      console.log('[DEBUG][Dashboard] Risposta grezza getMealsByDateGrouped:', mealsRes);
+  
+      const mealsByType: { [key: string]: any[] } = mealsRes?.data?.mealsByType || {
+        breakfast: [],
+        lunch: [],
+        snack: [],
+        dinner: []
+      };
+  
+      // DEBUG: stampa ogni pasto e i suoi items
+      Object.keys(mealsByType).forEach(type => {
+        mealsByType[type].forEach(meal => {
+          console.log(`[DEBUG][Dashboard] tipo ${type} pasto ${meal.id}: items`, meal.items);
+        });
+      });
+  
+      // Popola mealStats in modo **immutabile**
       (['breakfast','lunch','snack','dinner'] as const).forEach(type => {
-        this.mealStats[type].calories.consumed = 0;
-        this.mealStats[type].carbs.consumed = 0;
-        this.mealStats[type].proteins.consumed = 0;
-        this.mealStats[type].fats.consumed = 0;
         const meals: any[] = mealsByType[type] || [];
-        const foods: any[] = [];
-        meals.forEach((meal: any) => {
-          if (Array.isArray(meal.items)) {
-            meal.items.forEach((item: any) => {
-              const prod = item.product as any;
+        const foods: { name: string }[] = [];
+        let calories = 0, carbs = 0, proteins = 0, fats = 0;
+  
+        meals.forEach((meal: { items?: any[], id?: any }) => {
+          if (Array.isArray(meal.items) && meal.items.length > 0) {
+            meal.items.forEach((item: { product?: any, quantity?: number }) => {
+              const prod = item.product;
               const name = prod?.display_name || prod?.name_it || prod?.name || 'Prodotto';
               foods.push({ name });
+  
+              const qty = item.quantity || 100; // default 100g
+              calories += (prod?.calories || 0) * (qty / 100);
+              carbs += (prod?.carbs || 0) * (qty / 100);
+              proteins += (prod?.proteins || 0) * (qty / 100);
+              fats += (prod?.fats || 0) * (qty / 100);
             });
           }
         });
-        this.mealStats[type].foods = foods; // Sostituzione reference per trigger Angular
+  
+        // Aggiorna mealStats immutabilmente
+        this.mealStats = {
+          ...this.mealStats,
+          [type]: {
+            foods,
+            calories: { consumed: calories },
+            carbs: { consumed: carbs },
+            proteins: { consumed: proteins },
+            fats: { consumed: fats }
+          }
+        };
       });
-
-  // Aggiorna le statistiche nutrizionali sommando tutti i pasti di tutti i tipi
-  const allMeals: any[] = ([] as any[]).concat(...Object.values(mealsByType));
-  this.dailyStats.calories.consumed = allMeals.reduce((sum, m) => sum + (m.total_calories || 0), 0);
-  this.dailyStats.carbs.consumed = allMeals.reduce((sum, m) => sum + (m.total_carbs || 0), 0);
-  this.dailyStats.proteins.consumed = allMeals.reduce((sum, m) => sum + (m.total_proteins || 0), 0);
-  this.dailyStats.fats.consumed = allMeals.reduce((sum, m) => sum + (m.total_fats || 0), 0);
-
+  
+      // Aggiorna statistiche giornaliere totali
+      const allMeals: any[] = ([] as any[]).concat(...Object.values(mealsByType));
+      this.dailyStats.calories.consumed = allMeals.reduce((sum, m) => sum + (m.total_calories || 0), 0);
+      this.dailyStats.carbs.consumed = allMeals.reduce((sum, m) => sum + (m.total_carbs || 0), 0);
+      this.dailyStats.proteins.consumed = allMeals.reduce((sum, m) => sum + (m.total_proteins || 0), 0);
+      this.dailyStats.fats.consumed = allMeals.reduce((sum, m) => sum + (m.total_fats || 0), 0);
+  
       this.updateDailyStatsPercentages();
-
-  // DEBUG LOG
-  // eslint-disable-next-line no-console
-  console.log('[DEBUG][Dashboard] Risposta pasti dal backend:', this.mealsByType);
-
-      // Carica sempre le attività reali per la data selezionata
+  
+      console.log('[DEBUG][Dashboard] mealStats popolato:', this.mealStats);
+  
+      // Carica attivit� della giornata
       await this.loadActivitiesForSelectedDate();
     } catch (error) {
       console.error('Errore nel caricamento dei dati dashboard:', error);
       await this.showToast('Errore nel caricamento dei dati', 'danger');
-      // eslint-disable-next-line no-console
-      console.log('[DEBUG][Dashboard] error:', error);
     } finally {
       this.isLoading = false;
-      if (event) {
-        event.target.complete();
-      }
+      if (event) event.target.complete();
     }
   }
+  
+  
+  
+  
+  
   // Struttura per i pasti raggruppati per tipo
   mealsByType: { [key: string]: any[] } = {
     breakfast: [],
