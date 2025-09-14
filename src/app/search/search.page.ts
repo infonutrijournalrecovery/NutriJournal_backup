@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../shared/services/api.service';
 import { DeviceService } from '../shared/services/device.service';
-import { ProductService, Product } from '../shared/services/product.service';
+import { ProductService, Product, normalizeProduct } from '../shared/services/product.service';
 import { AlertController, ToastController, LoadingController } from '@ionic/angular/standalone';
 
 import {
@@ -151,7 +151,8 @@ export class SearchPage implements OnInit, OnDestroy {
     try {
       const res = await this.productService.searchProductsByName(query).toPromise();
       if (res && res.success && res.data.products.length > 0) {
-        this.searchResults = res.data.products;
+        // Normalizza tutti i prodotti ricevuti
+        this.searchResults = res.data.products.map(normalizeProduct);
         this.brandedResults = this.searchResults.filter(p => (p as any).category === 'Branded');
         this.surveyResults = this.searchResults.filter(p => (p as any).category === 'Survey (FNDDS)');
         this.foundationResults = this.searchResults.filter(p => (p as any).category === 'Foundation');
@@ -236,6 +237,7 @@ export class SearchPage implements OnInit, OnDestroy {
       products: [
         {
           productId: product.id,
+          name: product.name,
           quantity: quantity,
           unit: product.serving?.unit || 'g'
         }

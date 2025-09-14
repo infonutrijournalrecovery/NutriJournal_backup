@@ -56,8 +56,8 @@
               (click)="openMealTypeSelector()"
               class="meal-type-button"
               >
-              <ion-icon [name]="getMealTypeIcon()" slot="start"></ion-icon>
-              {{ selectedMealType || 'Seleziona tipo' }}
+              <ion-icon [name]="getMealTypeIcon(selectedMealType || undefined)" slot="start"></ion-icon>
+              {{ getMealTypeLabel(selectedMealType) }}
             </ion-button>
           </div>
         </div>
@@ -77,7 +77,7 @@
           <ion-item-sliding *ngFor="let item of mealItems; trackBy: trackByItemId">
             <ion-item>
               <ion-thumbnail slot="start" *ngIf="item.imageUrl">
-                <img [src]="item.imageUrl" [alt]="item.productName">
+                <img [src]="item.imageUrl" [alt]="item.name">
               </ion-thumbnail>
               <ion-icon 
                 *ngIf="!item.imageUrl" 
@@ -88,7 +88,7 @@
               </ion-icon>
               
               <ion-label>
-                <h3>{{ item.productName }}</h3>
+                <h3>{{ item.name }}</h3>
                 <p *ngIf="item.productBrand">{{ item.productBrand }}</p>
                 <p class="quantity-info">
                   {{ item.quantity }} {{ item.unit }} • 
@@ -233,17 +233,19 @@
       </ion-header>
       <ion-content>
         <ion-list>
-          <ion-item 
-            *ngFor="let type of mealTypes" 
-            button 
-            (click)="selectMealType(type)">
-            <ion-icon [name]="getMealTypeIcon(type)" slot="start"></ion-icon>
-            <ion-label>{{ type }}</ion-label>
-            <ion-radio 
-              slot="end" 
-              [value]="type">
-            </ion-radio>
-          </ion-item>
+          <ion-radio-group [(ngModel)]="selectedMealType">
+            <ion-item 
+              *ngFor="let type of mealTypes" 
+              button 
+              (click)="selectMealType(type.value)">
+              <ion-icon [name]="getMealTypeIcon(type.value)" slot="start"></ion-icon>
+              <ion-label>{{ type.label }}</ion-label>
+              <ion-radio 
+                slot="end" 
+                [value]="type.value">
+              </ion-radio>
+            </ion-item>
+          </ion-radio-group>
         </ion-list>
       </ion-content>
     </ng-template>

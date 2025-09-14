@@ -25,6 +25,36 @@ import { Activity } from '../interfaces/Activity.interface';
   providedIn: 'root'
 })
 export class ApiService {
+  /** Recupera pasti per data, raggruppati per tipo */
+  getMealsByDateGrouped(date: string) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/meals/by-type/${date}`, { headers });
+  }
+  // =================== WATER & WEIGHT ===================
+
+  /** Salva acqua giornaliera */
+  saveWater(date: string, amount: number) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/water`, { date, amount }, { headers });
+  }
+
+  /** Recupera acqua giornaliera */
+  getWater(date: string) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/water?date=${date}`, { headers });
+  }
+
+  /** Salva peso giornaliero */
+  saveWeight(date: string, weight: number) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/weight`, { date, weight }, { headers });
+  }
+
+  /** Recupera peso giornaliero */
+  getWeight(date: string) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}/weight?date=${date}`, { headers });
+  }
   private baseUrl = 'http://localhost:3000/api';
 
   constructor(

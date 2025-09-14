@@ -215,14 +215,18 @@ class NutriJournalServer {
       });
     });
 
+
     // API Routes (tutte implementate)
     this.app.use('/api/auth', authRoutes);
     this.app.use('/api/users', userRoutes);
     this.app.use('/api/products', productRoutes);
     this.app.use('/api/meals', mealRoutes);
     this.app.use('/api/nutrition', nutritionRoutes);
-
     this.app.use('/api/italian-food', italianFoodRoutes);
+
+    // Acqua e peso
+    const waterWeightRoutes = require('./routes/waterWeight');
+    this.app.use('/api', waterWeightRoutes);
 
     // Inizializza router attività solo dopo che il db è pronto
     if (this.database && this.database.sqliteDb) {

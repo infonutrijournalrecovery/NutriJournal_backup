@@ -1,4 +1,5 @@
 import { IonModal } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
 
 import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -179,7 +180,8 @@ export class AddActivityPage implements OnInit, OnDestroy {
   // Exposed Math for template
   Math = Math;
 
-  constructor() {}
+  constructor() {
+      addIcons({calendarOutline,restaurantOutline,createOutline,trashOutline,addCircleOutline});}
 
   async ngOnInit() {
     await this.initializePage();
@@ -402,7 +404,7 @@ export class AddActivityPage implements OnInit, OnDestroy {
   async editItemQuantity(item: ActivityItem) {
     const alert = await this.alertController.create({
       header: 'Modifica Quantità',
-      subHeader: item.productName,
+  subHeader: item.name,
       inputs: [
         {
           name: 'quantity',
@@ -483,7 +485,7 @@ export class AddActivityPage implements OnInit, OnDestroy {
   async removeItem(item: ActivityItem) {
   const alert = await this.alertController.create({
       header: 'Rimuovi Prodotto',
-      message: `Vuoi rimuovere ${item.productName} dal pasto?`,
+  message: `Vuoi rimuovere ${item.name} dal pasto?`,
       buttons: [
         {
           text: 'Annulla',

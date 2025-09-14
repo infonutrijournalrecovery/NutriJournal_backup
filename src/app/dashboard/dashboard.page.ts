@@ -519,59 +519,57 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   async loadDashboardData(event?: any) {
+    // Carica acqua dal backend
+    try {
+      const dateStr = this.currentDate.toISOString().split('T')[0];
+      const waterRes: any = await this.apiService.getWater(dateStr).toPromise();
+      this.dailyStats.water.consumed = (waterRes && typeof waterRes.amount === 'number') ? waterRes.amount : 0;
+    } catch (err) {
+      this.dailyStats.water.consumed = 0;
+    }
     try {
       if (!event) {
         this.isLoading = true;
       }
 
-      // Carica i pasti reali dal backend per la data selezionata
+      // Carica i pasti raggruppati per tipo dal backend
       const dateStr = this.currentDate.toISOString().split('T')[0];
-      const mealsRes = await this.apiService.getMealsByDate(dateStr).toPromise();
-      const meals = mealsRes?.data || [];
-      // Raggruppa i pasti per tipo
-      this.mealsByType = {
-        breakfast: [],
-        lunch: [],
-        snack: [],
-        dinner: []
-      };
-      // Reset foods
+      const mealsRes = await this.apiService.getMealsByDateGrouped(dateStr).toPromise();
+      const mealsByType: { [key: string]: any[] } = mealsRes?.data?.mealsByType || { breakfast: [], lunch: [], snack: [], dinner: [] };
+      // Reset foods e statistiche per ogni tipo di pasto
       (Object.keys(this.mealStats) as Array<'breakfast' | 'lunch' | 'snack' | 'dinner'>).forEach(type => {
         this.mealStats[type].foods = [];
+        this.mealStats[type].calories.consumed = 0;
+        this.mealStats[type].carbs.consumed = 0;
+        this.mealStats[type].proteins.consumed = 0;
+        this.mealStats[type].fats.consumed = 0;
       });
-      meals.forEach(meal => {
-        const mealType = meal.type as 'breakfast' | 'lunch' | 'snack' | 'dinner';
-        if (this.mealsByType[mealType]) {
-          this.mealsByType[mealType].push(meal);
-          // Inserisci i prodotti (nome) in mealStats[type].foods
+      // Popola mealStats[type].foods con i prodotti dei pasti
+      (['breakfast','lunch','snack','dinner'] as const).forEach(type => {
+        const meals: any[] = mealsByType[type] || [];
+        meals.forEach((meal: any) => {
           if (Array.isArray(meal.items)) {
-            meal.items.forEach(item => {
-              // Fallback robusto: accetta display_name, name_it, name se presenti
+            meal.items.forEach((item: any) => {
               const prod = item.product as any;
               const name = prod?.display_name || prod?.name_it || prod?.name || 'Prodotto';
-              this.mealStats[mealType].foods.push({ name });
+              this.mealStats[type].foods.push({ name });
             });
           }
-        }
+        });
       });
 
-      // Aggiorna le statistiche nutrizionali (esempio base)
-      this.dailyStats.calories.consumed = meals.reduce((sum, m) => sum + (m.total_calories || 0), 0);
-      this.dailyStats.carbs.consumed = meals.reduce((sum, m) => sum + (m.total_carbs || 0), 0);
-      this.dailyStats.proteins.consumed = meals.reduce((sum, m) => sum + (m.total_proteins || 0), 0);
-      this.dailyStats.fats.consumed = meals.reduce((sum, m) => sum + (m.total_fats || 0), 0);
+  // Aggiorna le statistiche nutrizionali sommando tutti i pasti di tutti i tipi
+  const allMeals: any[] = ([] as any[]).concat(...Object.values(mealsByType));
+  this.dailyStats.calories.consumed = allMeals.reduce((sum, m) => sum + (m.total_calories || 0), 0);
+  this.dailyStats.carbs.consumed = allMeals.reduce((sum, m) => sum + (m.total_carbs || 0), 0);
+  this.dailyStats.proteins.consumed = allMeals.reduce((sum, m) => sum + (m.total_proteins || 0), 0);
+  this.dailyStats.fats.consumed = allMeals.reduce((sum, m) => sum + (m.total_fats || 0), 0);
 
       this.updateDailyStatsPercentages();
 
-      // DEBUG LOG
-      // eslint-disable-next-line no-console
-      console.log('[DEBUG][Dashboard] meals:', meals);
-      // eslint-disable-next-line no-console
-      console.log('[DEBUG][Dashboard] mealsByType:', this.mealsByType);
-      // eslint-disable-next-line no-console
-      console.log('[DEBUG][Dashboard] mealStats:', this.mealStats);
-      // eslint-disable-next-line no-console
-      console.log('[DEBUG][Dashboard] dailyStats:', this.dailyStats);
+  // DEBUG LOG
+  // eslint-disable-next-line no-console
+  console.log('[DEBUG][Dashboard] Risposta pasti dal backend:', this.mealsByType);
 
       // Carica sempre le attività reali per la data selezionata
       await this.loadActivitiesForSelectedDate();
@@ -654,15 +652,32 @@ export class DashboardPage implements OnInit, OnDestroy {
   // Water Methods
   confirmWater() {
     const amount = this.waterForm.get('waterAmount')?.value || 0;
-    console.log("Acqua bevuta:", amount, "ml");
-    this.dailyStats.water.consumed += amount;
-    this.waterForm.get('waterAmount')?.setValue(0);
-    this.showToast(`${amount}ml di acqua aggiunti!`, 'success');
+    if (amount > 0) {
+      const dateStr = this.currentDate.toISOString().split('T')[0];
+      this.apiService.saveWater(dateStr, amount).subscribe({
+        next: () => {
+          this.dailyStats.water.consumed += amount;
+          this.waterForm.get('waterAmount')?.setValue(0);
+          this.showToast(`${amount}ml di acqua aggiunti!`, 'success');
+        },
+        error: () => {
+          this.showToast('Errore salvataggio acqua', 'danger');
+        }
+      });
+    }
   }
 
   async addWater() {
-    this.dailyStats.water.consumed += 250;
-    await this.showToast('250ml di acqua aggiunti!', 'success');
+    const dateStr = this.currentDate.toISOString().split('T')[0];
+    this.apiService.saveWater(dateStr, 250).subscribe({
+      next: () => {
+        this.dailyStats.water.consumed += 250;
+        this.showToast('250ml di acqua aggiunti!', 'success');
+      },
+      error: () => {
+        this.showToast('Errore salvataggio acqua', 'danger');
+      }
+    });
   }
 
   // Navigation Methods

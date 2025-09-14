@@ -6,8 +6,23 @@ class Meal {
   // Trova pasti per data (e tipo opzionale) per utente
   static async findByDate(userId, date, type = null, includeItems = true) {
     try {
-      const sql = `SELECT * FROM ${this.tableName} WHERE user_id = ? AND date = ?${type ? ' AND meal_type = ?' : ''} ORDER BY time ASC, created_at ASC`;
-      const params = type ? [userId, date, type] : [userId, date];
+      // Mappa valori italiani in inglese per meal_type
+      const typeMap = {
+        'Colazione': 'breakfast',
+        'Pranzo': 'lunch',
+        'Cena': 'dinner',
+        'Spuntino': 'snack',
+        'colazione': 'breakfast',
+        'pranzo': 'lunch',
+        'cena': 'dinner',
+        'spuntino': 'snack',
+      };
+      let mappedType = type;
+      if (type && typeMap[type]) {
+        mappedType = typeMap[type];
+      }
+      const sql = `SELECT * FROM ${this.tableName} WHERE user_id = ? AND date = ?${mappedType ? ' AND meal_type = ?' : ''} ORDER BY time ASC, created_at ASC`;
+      const params = mappedType ? [userId, date, mappedType] : [userId, date];
       const meals = await new Promise((resolve, reject) => {
         this.db.all(sql, params, (err, rows) => {
           if (err) reject(err);
@@ -79,22 +94,19 @@ class Meal {
    */
   async loadProducts() {
     try {
-      // Query per ottenere tutti gli items del pasto con i dettagli dei prodotti
-      const items = await this.db(Meal.itemsTableName + ' as mi')
-        .select(
-          'mi.*',
-          'p.*'
-        )
-        .join('products as p', 'mi.product_id', 'p.id')
-        .where('mi.meal_id', this.id);
-
-      // Mappa gli items in un formato più utile
+      const db = Meal.db;
+      const sql = `SELECT mi.*, p.* FROM meal_items mi JOIN products p ON mi.product_id = p.id WHERE mi.meal_id = ?`;
+      const items = await new Promise((resolve, reject) => {
+        db.all(sql, [this.id], (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        });
+      });
       this.products = items.map(item => ({
         quantity: item.quantity,
         unit: item.unit,
         product: new Product(item)
       }));
-
       return this;
     } catch (error) {
       logger.error('Errore nel caricamento dei prodotti del pasto:', {
@@ -108,13 +120,14 @@ class Meal {
   // Trova pasti recenti per utente
   static async findRecentByUser(userId, limit = 10) {
     try {
-      const meals = await this.db(this.tableName)
-        .where('user_id', userId)
-        .orderBy('date', 'desc')
-        .orderBy('time', 'desc')
-        .limit(limit);
-
-      // Carica gli items per ogni pasto
+      const db = this.db;
+      const sql = `SELECT * FROM ${this.tableName} WHERE user_id = ? ORDER BY date DESC, time DESC LIMIT ?`;
+      const meals = await new Promise((resolve, reject) => {
+        db.all(sql, [userId, limit], (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        });
+      });
       const mealsWithItems = await Promise.all(
         meals.map(async meal => {
           const instance = new Meal(meal);
@@ -122,7 +135,6 @@ class Meal {
           return instance;
         })
       );
-
       return mealsWithItems;
     } catch (error) {
       logger.error('Errore nel recupero pasti recenti:', {
@@ -170,20 +182,20 @@ class Meal {
   // Ottieni pasti dell'utente per data
   static async findByUserAndDate(userId, date, includeItems = true) {
     try {
-      const meals = await this.db(this.tableName)
-        .where('user_id', userId)
-        .where('date', date)
-        .orderBy('time', 'asc')
-        .orderBy('created_at', 'asc');
-
+      const db = this.db;
+      const sql = `SELECT * FROM ${this.tableName} WHERE user_id = ? AND date = ? ORDER BY time ASC, created_at ASC`;
+      const meals = await new Promise((resolve, reject) => {
+        db.all(sql, [userId, date], (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        });
+      });
       const mealInstances = meals.map(meal => new Meal(meal));
-      
       if (includeItems) {
         for (const meal of mealInstances) {
           await meal.loadItems();
         }
       }
-      
       return mealInstances;
     } catch (error) {
       console.error('❌ Errore ricerca pasti per utente e data:', error);
@@ -194,20 +206,20 @@ class Meal {
   // Ottieni pasti dell'utente per periodo
   static async findByUserAndDateRange(userId, startDate, endDate, includeItems = false) {
     try {
-      const meals = await this.db(this.tableName)
-        .where('user_id', userId)
-        .whereBetween('date', [startDate, endDate])
-        .orderBy('date', 'desc')
-        .orderBy('time', 'desc');
-
+      const db = this.db;
+      const sql = `SELECT * FROM ${this.tableName} WHERE user_id = ? AND date BETWEEN ? AND ? ORDER BY date DESC, time DESC`;
+      const meals = await new Promise((resolve, reject) => {
+        db.all(sql, [userId, startDate, endDate], (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        });
+      });
       const mealInstances = meals.map(meal => new Meal(meal));
-      
       if (includeItems) {
         for (const meal of mealInstances) {
           await meal.loadItems();
         }
       }
-      
       return mealInstances;
     } catch (error) {
       console.error('❌ Errore ricerca pasti per periodo:', error);
@@ -224,6 +236,7 @@ class Meal {
   // Crea nuovo pasto
   static async create(mealData) {
     const db = this.db;
+
     return await new Promise((resolve, reject) => {
       db.serialize(async () => {
         try {
@@ -234,12 +247,25 @@ class Meal {
             throw new Error('User ID e data sono obbligatori');
           }
 
-          // Prepara dati pasto
+          // Usa sempre il tipo già normalizzato dal controller
+          let mealType = mealData.meal_type || 'snack';
+
+          // Forza il campo date in formato YYYY-MM-DD
+          let dateOnly = mealData.date;
+          if (typeof dateOnly === 'string' && dateOnly.length > 10) {
+            // Gestisce ISO string tipo '2025-09-13T00:00:00.000Z'
+            dateOnly = new Date(dateOnly).toISOString().split('T')[0];
+          }
+          if (typeof dateOnly === 'string' && dateOnly.length === 10) {
+            // Già in formato YYYY-MM-DD
+            dateOnly = dateOnly;
+          }
+
           const mealToCreate = {
             user_id: mealData.user_id,
-            meal_type: mealData.meal_type || 'snack',
+            meal_type: mealType,
             meal_name: mealData.meal_name,
-            date: mealData.date,
+            date: dateOnly,
             time: mealData.time || new Date().toISOString().split('T')[1].substring(0, 8),
             location: mealData.location,
             notes: mealData.notes,
@@ -331,20 +357,26 @@ class Meal {
         'meal_type', 'meal_name', 'date', 'time', 
         'location', 'notes'
       ];
-
       const filteredUpdates = {};
       Object.keys(updates).forEach(key => {
         if (allowedFields.includes(key)) {
           filteredUpdates[key] = updates[key];
         }
       });
-
       filteredUpdates.updated_at = new Date().toISOString();
-
-      await Meal.db(Meal.tableName)
-        .where('id', this.id)
-        .update(filteredUpdates);
-
+      const db = Meal.db;
+      const setClause = Object.keys(filteredUpdates).map(k => `${k} = ?`).join(', ');
+      const values = [...Object.values(filteredUpdates), this.id];
+      await new Promise((resolve, reject) => {
+        db.run(
+          `UPDATE ${Meal.tableName} SET ${setClause} WHERE id = ?`,
+          values,
+          function(err) {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
+      });
       Object.assign(this, filteredUpdates);
       return this;
     } catch (error) {
@@ -356,12 +388,14 @@ class Meal {
   // Carica items del pasto
   async loadItems() {
     try {
-      const items = await Meal.db(Meal.itemsTableName)
-        .select('meal_items.*', 'products.name', 'products.name_it', 'products.brand', 'products.brand_it')
-        .leftJoin('products', 'meal_items.product_id', 'products.id')
-        .where('meal_items.meal_id', this.id)
-        .orderBy('meal_items.created_at', 'asc');
-
+      const db = Meal.db;
+      const sql = `SELECT meal_items.*, products.name, products.name_it, products.brand, products.brand_it FROM meal_items LEFT JOIN products ON meal_items.product_id = products.id WHERE meal_items.meal_id = ? ORDER BY meal_items.created_at ASC`;
+      const items = await new Promise((resolve, reject) => {
+        db.all(sql, [this.id], (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        });
+      });
       this.items = items.map(item => ({
         id: item.id,
         product_id: item.product_id,
@@ -383,7 +417,6 @@ class Meal {
         },
         created_at: item.created_at,
       }));
-
       return this.items;
     } catch (error) {
       console.error('❌ Errore caricamento items pasto:', error);
@@ -394,20 +427,28 @@ class Meal {
 
   // Aggiungi item al pasto
   async addItem(itemData) {
-    const trx = await Meal.db.transaction();
-    
+    const db = Meal.db;
     try {
-      await Meal.addItemToMeal(trx, this.id, itemData);
-      await Meal.recalculateMealTotals(trx, this.id);
-      await trx.commit();
-      
-      // Ricarica dati aggiornati
-      const updatedMeal = await Meal.findById(this.id);
-      Object.assign(this, updatedMeal);
-      
+      await new Promise((resolve, reject) => {
+        db.serialize(async () => {
+          try {
+            db.run('BEGIN TRANSACTION');
+            await Meal.addItemToMeal(db, this.id, itemData);
+            await Meal.recalculateMealTotals(db, this.id);
+            db.run('COMMIT');
+            // Ricarica dati aggiornati
+            const updatedMeal = await Meal.findById(this.id);
+            Object.assign(this, updatedMeal);
+            resolve(this);
+          } catch (error) {
+            db.run('ROLLBACK');
+            console.error('❌ Errore aggiunta item al pasto:', error);
+            reject(error);
+          }
+        });
+      });
       return this;
     } catch (error) {
-      await trx.rollback();
       console.error('❌ Errore aggiunta item al pasto:', error);
       throw error;
     }
@@ -415,24 +456,36 @@ class Meal {
 
   // Rimuovi item dal pasto
   async removeItem(itemId) {
-    const trx = await Meal.db.transaction();
-    
+    const db = Meal.db;
     try {
-      await trx(Meal.itemsTableName)
-        .where('id', itemId)
-        .where('meal_id', this.id)
-        .del();
-      
-      await Meal.recalculateMealTotals(trx, this.id);
-      await trx.commit();
-      
-      // Ricarica dati aggiornati
-      const updatedMeal = await Meal.findById(this.id);
-      Object.assign(this, updatedMeal);
-      
+      await new Promise((resolve, reject) => {
+        db.serialize(async () => {
+          try {
+            db.run('BEGIN TRANSACTION');
+            await new Promise((res, rej) => {
+              db.run(
+                `DELETE FROM ${Meal.itemsTableName} WHERE id = ? AND meal_id = ?`,
+                [itemId, this.id],
+                function(err) {
+                  if (err) rej(err); else res();
+                }
+              );
+            });
+            await Meal.recalculateMealTotals(db, this.id);
+            db.run('COMMIT');
+            // Ricarica dati aggiornati
+            const updatedMeal = await Meal.findById(this.id);
+            Object.assign(this, updatedMeal);
+            resolve(this);
+          } catch (error) {
+            db.run('ROLLBACK');
+            console.error('❌ Errore rimozione item dal pasto:', error);
+            reject(error);
+          }
+        });
+      });
       return this;
     } catch (error) {
-      await trx.rollback();
       console.error('❌ Errore rimozione item dal pasto:', error);
       throw error;
     }
@@ -440,46 +493,50 @@ class Meal {
 
   // Aggiorna quantità di un item
   async updateItemQuantity(itemId, newQuantity) {
-    const trx = await Meal.db.transaction();
-    
+    const db = Meal.db;
     try {
-      // Trova item e prodotto
-      const item = await trx(Meal.itemsTableName)
-        .select('meal_items.*', 'products.*')
-        .leftJoin('products', 'meal_items.product_id', 'products.id')
-        .where('meal_items.id', itemId)
-        .where('meal_items.meal_id', this.id)
-        .first();
-
-      if (!item) {
-        throw new Error('Item non trovato');
-      }
-
-      // Calcola nuovi valori nutrizionali
-      const product = new Product(item);
-      const nutrition = product.calculateNutritionForPortion(newQuantity);
-
-      await trx(Meal.itemsTableName)
-        .where('id', itemId)
-        .update({
-          quantity: newQuantity,
-          calories: nutrition.calories,
-          proteins: nutrition.proteins,
-          carbs: nutrition.carbs,
-          fats: nutrition.fats,
-          fiber: nutrition.fiber,
+      await new Promise((resolve, reject) => {
+        db.serialize(async () => {
+          try {
+            db.run('BEGIN TRANSACTION');
+            // Trova item e prodotto
+            const item = await new Promise((res, rej) => {
+              db.get(
+                `SELECT meal_items.*, products.* FROM meal_items LEFT JOIN products ON meal_items.product_id = products.id WHERE meal_items.id = ? AND meal_items.meal_id = ?`,
+                [itemId, this.id],
+                (err, row) => {
+                  if (err) rej(err); else res(row);
+                }
+              );
+            });
+            if (!item) throw new Error('Item non trovato');
+            // Calcola nuovi valori nutrizionali
+            const product = new Product(item);
+            const nutrition = product.calculateNutritionForPortion(newQuantity);
+            await new Promise((res, rej) => {
+              db.run(
+                `UPDATE ${Meal.itemsTableName} SET quantity = ?, calories = ?, proteins = ?, carbs = ?, fats = ?, fiber = ? WHERE id = ?`,
+                [newQuantity, nutrition.calories, nutrition.proteins, nutrition.carbs, nutrition.fats, nutrition.fiber, itemId],
+                function(err) {
+                  if (err) rej(err); else res();
+                }
+              );
+            });
+            await Meal.recalculateMealTotals(db, this.id);
+            db.run('COMMIT');
+            // Ricarica dati aggiornati
+            const updatedMeal = await Meal.findById(this.id);
+            Object.assign(this, updatedMeal);
+            resolve(this);
+          } catch (error) {
+            db.run('ROLLBACK');
+            console.error('❌ Errore aggiornamento quantità item:', error);
+            reject(error);
+          }
         });
-
-      await Meal.recalculateMealTotals(trx, this.id);
-      await trx.commit();
-      
-      // Ricarica dati aggiornati
-      const updatedMeal = await Meal.findById(this.id);
-      Object.assign(this, updatedMeal);
-      
+      });
       return this;
     } catch (error) {
-      await trx.rollback();
       console.error('❌ Errore aggiornamento quantità item:', error);
       throw error;
     }
@@ -551,23 +608,41 @@ class Meal {
 
   // Elimina pasto
   async delete() {
-    const trx = await Meal.db.transaction();
-    
+    const db = Meal.db;
     try {
-      // Elimina prima gli items
-      await trx(Meal.itemsTableName)
-        .where('meal_id', this.id)
-        .del();
-      
-      // Poi elimina il pasto
-      await trx(Meal.tableName)
-        .where('id', this.id)
-        .del();
-      
-      await trx.commit();
+      await new Promise((resolve, reject) => {
+        db.serialize(async () => {
+          try {
+            db.run('BEGIN TRANSACTION');
+            await new Promise((res, rej) => {
+              db.run(
+                `DELETE FROM ${Meal.itemsTableName} WHERE meal_id = ?`,
+                [this.id],
+                function(err) {
+                  if (err) rej(err); else res();
+                }
+              );
+            });
+            await new Promise((res, rej) => {
+              db.run(
+                `DELETE FROM ${Meal.tableName} WHERE id = ?`,
+                [this.id],
+                function(err) {
+                  if (err) rej(err); else res();
+                }
+              );
+            });
+            db.run('COMMIT');
+            resolve(true);
+          } catch (error) {
+            db.run('ROLLBACK');
+            console.error('❌ Errore eliminazione pasto:', error);
+            reject(new Error('Errore eliminazione pasto'));
+          }
+        });
+      });
       return true;
     } catch (error) {
-      await trx.rollback();
       console.error('❌ Errore eliminazione pasto:', error);
       throw new Error('Errore eliminazione pasto');
     }

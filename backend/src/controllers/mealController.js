@@ -1,5 +1,6 @@
 const Meal = require('../models/Meal');
 const Product = require('../models/Product');
+const upsertProductWithMerge = require('../models/upsertProductWithMerge');
 const { ValidationError, NotFoundError, UnauthorizedError } = require('../middleware/errorHandler');
 const { logger } = require('../middleware/logging');
 const MealUtils = require('../utils/mealUtils');
@@ -9,6 +10,21 @@ const mealSchemas = require('../validation/schemas/meal');
  * Controller per la gestione dei pasti
  */
 class MealController {
+
+  /**
+   * Ottiene tutti i pasti di un giorno specifico, raggruppati per tipo
+   */
+  static async getMealsByType(userId, date) {
+    // Per ogni tipo di pasto, chiama findByDate
+    const types = ['breakfast', 'lunch', 'dinner', 'snack'];
+    const result = {};
+    for (const type of types) {
+      const meals = await Meal.findByDate(userId, date, type);
+      console.log(`[DEBUG][getMealsByType] userId: ${userId}, date: ${date}, type: ${type}, meals trovati:`, meals);
+      result[type] = meals;
+    }
+    return result;
+  }
   /**
    * Schemi di validazione
    */
@@ -37,6 +53,21 @@ class MealController {
 
       const meals = await Meal.findByDate(userId, date, type);
 
+      // Log dettagliato per debug struttura dati
+      meals.forEach((meal, idx) => {
+        logger.info(`[DEBUG][MEAL] #${idx+1}`, {
+          type: meal.type || meal.meal_type,
+          date: meal.date,
+          itemsCount: meal.items?.length,
+          items: Array.isArray(meal.items) ? meal.items.map(item => ({
+            product_id: item.product_id,
+            name: item.product?.name,
+            name_it: item.product?.name_it,
+            display_name: item.product?.display_name
+          })) : []
+        });
+      });
+
       res.json({
         success: true,
         data: meals
@@ -64,7 +95,11 @@ class MealController {
    */
   static async createMeal(req, res, next) {
     try {
-      const { type, date, products } = req.body;
+      // Accetta sia 'products' che 'items' come array di prodotti
+      let products = Array.isArray(req.body.products) ? req.body.products : undefined;
+      if (!products && Array.isArray(req.body.items)) products = req.body.items;
+      if (!products) products = [];
+      const { type, date } = req.body;
       const userId = req.user.id;
 
       logger.info('Creazione nuovo pasto', {
@@ -74,39 +109,61 @@ class MealController {
         productsCount: products.length
       });
 
-      // Verifica che i prodotti esistano, altrimenti crea il prodotto
+      // Upsert/merge prodotti: crea o aggiorna ogni prodotto con i dati più completi
       for (const product of products) {
-        const exists = await Product.exists(product.productId);
-        if (!exists) {
-          // Prova a creare il prodotto con i dati minimi
-          try {
-            await Product.create({
-              id: product.productId,
-              name: product.name || 'Prodotto sconosciuto',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            });
-            logger.info('Prodotto creato automaticamente', { productId: product.productId });
-          } catch (err) {
-            logger.error('Errore creazione automatica prodotto', { productId: product.productId, error: err.message });
-            throw new NotFoundError(`Prodotto ${product.productId} non trovato e non creabile`);
-          }
+        try {
+          // Normalizza id
+          const id = product.product_id || product.productId;
+          if (!id) throw new Error('ID prodotto mancante');
+          // Prepara dati coerenti
+          const productData = { ...product, id };
+          await upsertProductWithMerge(productData);
+          logger.info('Prodotto upsert/merge', { productId: id });
+        } catch (err) {
+          logger.error('Errore upsert/merge prodotto', { product, error: err.message });
+          throw new NotFoundError(`Prodotto ${product.productId || product.product_id} non trovato o non aggiornabile`);
         }
       }
 
-      // Mappa tipo pasto italiano -> inglese DB
-      const mealTypeMap = {
-        'Colazione': 'breakfast',
-        'Pranzo': 'lunch',
-        'Cena': 'dinner',
-        'Spuntini': 'snack'
+
+      // Centralizza e normalizza il tipo pasto
+      const MEAL_TYPE_MAP = {
+        'colazione': 'breakfast',
+        'pranzo': 'lunch',
+        'cena': 'dinner',
+        'spuntino': 'snack',
+        'spuntini': 'snack',
+        'breakfast': 'breakfast',
+        'lunch': 'lunch',
+        'dinner': 'dinner',
+        'snack': 'snack'
       };
-      const dbMealType = mealTypeMap[type] || 'snack';
+      function normalizeMealType(input) {
+        const key = (input || '').toLowerCase();
+        return MEAL_TYPE_MAP[key] || 'snack';
+      }
+      const dbMealType = normalizeMealType(type);
+
+      // Mappa products in meal items con product_id e campi richiesti
+      const items = products.map(p => {
+        // Forza sempre la presenza di product_id
+        const product_id = p.product_id || p.productId;
+        return {
+          ...p,
+          product_id,
+        };
+      });
+
+
+      // Validazione forte lato backend
+      if (!['breakfast','lunch','dinner','snack'].includes(dbMealType)) {
+        throw new Error(`Tipo pasto non valido: ${type}`);
+      }
       const meal = await Meal.create({
         user_id: userId,
         meal_type: dbMealType,
         date,
-        items: products
+        items
       });
 
       res.status(201).json({
@@ -119,14 +176,9 @@ class MealController {
         mealId: meal.id
       });
     } catch (error) {
-      logger.error('Errore creazione pasto', {
-        userId: req.user.id,
-        error: error.message
-      });
       next(error);
     }
   }
-
   /**
    * Ottiene i dettagli di un pasto specifico
    */

@@ -1,3 +1,6 @@
+// Tipi pasto canonici, coerenti con il backend
+export const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
+export type MealTypeCanonical = typeof MEAL_TYPES[number];
 export interface Meal {
   id?: string;
   userId: string;
@@ -12,7 +15,7 @@ export interface Meal {
 export interface MealItem {
   id?: string;
   productId: string;
-  productName: string;
+  name: string;
   productBrand?: string;
   quantity: number;
   unit: QuantityUnit;

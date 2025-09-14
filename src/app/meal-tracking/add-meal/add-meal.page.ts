@@ -44,7 +44,9 @@ import {
   ProductCategory,
   QuantityUnit,
   NutritionInfo,
-  MealSearchResult
+  MealSearchResult,
+  MEAL_TYPES,
+  MealTypeCanonical
 } from '../../shared/interfaces/meal.interface';
 
 import {
@@ -123,7 +125,34 @@ export class AddMealPage implements OnInit, OnDestroy {
   
   // Meal data
   selectedDate: string = new Date().toISOString();
-  selectedMealType: MealType | null = null;
+  selectedMealType: MealTypeCanonical | null = null;
+
+  /** Normalizza un tipo pasto da qualsiasi input (es. da parametri o vecchi valori) */
+  normalizeMealType(input: string | null | undefined): MealTypeCanonical | null {
+    if (!input) return null;
+    const map: Record<string, MealTypeCanonical> = {
+      'colazione': 'breakfast',
+      'pranzo': 'lunch',
+      'cena': 'dinner',
+      'spuntino': 'snack',
+      'spuntini': 'snack',
+      'breakfast': 'breakfast',
+      'lunch': 'lunch',
+      'dinner': 'dinner',
+      'snack': 'snack',
+    };
+    return map[input.toLowerCase()] || null;
+  }
+  /** Restituisce la label italiana per il tipo canonico */
+  getMealTypeLabel(type: MealTypeCanonical | null): string {
+    const found = this.mealTypes.find(t => t.value === type);
+    return found ? found.label : 'Seleziona tipo';
+  }
+
+  /** Verifica se il tipo è selezionato */
+  isMealTypeSelected(type: MealTypeCanonical): boolean {
+    return this.selectedMealType === type;
+  }
   mealItems: MealItem[] = [];
   originalMeal: Meal | null = null;
   
@@ -133,7 +162,13 @@ export class AddMealPage implements OnInit, OnDestroy {
   
   // Constants
   today = new Date().toISOString();
-  mealTypes: MealType[] = ['Colazione', 'Pranzo', 'Spuntini', 'Cena'];
+  // Canonical meal types for selection (label-value)
+  mealTypes: { label: string; value: MealTypeCanonical }[] = [
+    { label: 'Colazione', value: 'breakfast' },
+    { label: 'Pranzo', value: 'lunch' },
+    { label: 'Cena', value: 'dinner' },
+    { label: 'Spuntini', value: 'snack' }
+  ];
   
   // Exposed Math for template
   Math = Math;
@@ -203,9 +238,41 @@ export class AddMealPage implements OnInit, OnDestroy {
    * Gestisce il click su un prodotto recente
    */
   selectProduct(product: any) {
-    console.log('Prodotto selezionato:', product);
-    // TODO: Aggiungi logica per aggiungerlo al pasto o aprire modal dettagli
-    this.showToast(`${product.name} selezionato`);
+    // Copia tutti i dati utili dal prodotto selezionato
+  const name = product.name || product.display_name;
+    const calories = product.calories ?? product.nutritionPer100g?.calories;
+    const proteins = product.proteins ?? product.nutritionPer100g?.proteins;
+    const carbs = product.carbs ?? product.nutritionPer100g?.carbohydrates;
+    const fats = product.fats ?? product.nutritionPer100g?.fats;
+    // Controllo dati minimi
+    if (!name || calories == null || proteins == null || carbs == null || fats == null) {
+      this.showErrorToast('Il prodotto selezionato non ha dati nutrizionali completi. Scegli un altro prodotto o completa i dati.');
+      return;
+    }
+    // Aggiungi a mealItems
+    this.mealItems.push({
+      productId: String(product.id || product.productId),
+      name,
+      productBrand: product.brand || product.productBrand,
+      quantity: 100, // default, l'utente può modificarlo
+      unit: 'g',
+      nutritionPer100g: {
+        calories,
+        proteins,
+        carbohydrates: carbs,
+        fats
+      },
+      totalNutrition: {
+        calories,
+        proteins,
+        carbohydrates: carbs,
+        fats
+      },
+      category: product.category,
+      ean: product.ean,
+      imageUrl: product.imageUrl
+    });
+    this.showToast(`${name} aggiunto al pasto`);
   }
 
   /**
@@ -219,8 +286,11 @@ export class AddMealPage implements OnInit, OnDestroy {
       if (params['date']) {
         this.selectedDate = params['date'];
       }
-      if (params['type'] && this.mealTypes.includes(params['type'])) {
-        this.selectedMealType = params['type'] as MealType;
+      if (params['type']) {
+        const normalized = this.normalizeMealType(params['type']);
+        if (normalized) {
+          this.selectedMealType = normalized;
+        }
       }
       if (mealId) {
         this.isEditing = true;
@@ -304,22 +374,64 @@ export class AddMealPage implements OnInit, OnDestroy {
       await this.showErrorToast('Aggiungi almeno un prodotto');
       return;
     }
+    // Controllo dati minimi e normalizzazione per ogni prodotto
+    for (const item of this.mealItems) {
+      const n = item.totalNutrition || {};
+      if (
+        !item.name ||
+        n.calories == null || n.proteins == null || n.carbohydrates == null || n.fats == null ||
+        isNaN(n.calories) || isNaN(n.proteins) || isNaN(n.carbohydrates) || isNaN(n.fats)
+      ) {
+        await this.showErrorToast('Ogni prodotto deve avere nome, calorie, proteine, carboidrati e grassi. Completa i dati o scegli un prodotto diverso.');
+        return;
+      }
+    }
     try {
       this.isSaving = true;
-      // Mappa i campi secondo l'interfaccia MealItem dell'API
-      const mealData = {
-        type: this.selectedMealType.toLowerCase() as 'breakfast' | 'lunch' | 'dinner' | 'snack',
-        consumed_at: this.selectedDate.split('T')[0],
-        items: this.mealItems.map(item => ({
+      // Costruisci items/products garantendo sempre la presenza di 'name'
+      const buildProductPayload = (item: any) => {
+        // Prova a recuperare il nome da più fonti
+        const name = item.name || item.display_name || item.nome || item.productName || '';
+        if (!name) {
+          throw new Error(`Il prodotto con ID ${item.productId || item.product_id} non ha un nome valido. Correggi o scegli un altro prodotto.`);
+        }
+        return {
           product_id: item.productId,
+          productId: item.productId,
           quantity: item.quantity,
           unit: item.unit,
           calories: item.totalNutrition?.calories ?? 0,
           proteins: item.totalNutrition?.proteins ?? 0,
           carbs: item.totalNutrition?.carbohydrates ?? 0,
-          fats: item.totalNutrition?.fats ?? 0
-        }))
+          fats: item.totalNutrition?.fats ?? 0,
+          name,
+          brand: item.productBrand,
+          nutritionPer100g: item.nutritionPer100g,
+          category: item.category,
+          ean: item.ean,
+          imageUrl: item.imageUrl
+        };
       };
+      let items: any[] = [];
+      let products: any[] = [];
+      try {
+        items = this.mealItems.map(buildProductPayload);
+        products = this.mealItems.map(buildProductPayload);
+      } catch (err: any) {
+        this.showErrorToast(err.message || 'Errore dati prodotto');
+        this.isSaving = false;
+        return;
+      }
+      const mealData = {
+        type: this.selectedMealType as MealTypeCanonical,
+        date: this.selectedDate.split('T')[0],
+        consumed_at: this.selectedDate.split('T')[0],
+        items,
+        products
+      };
+      // Log di debug per payload
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG][saveMeal] Payload inviato:', mealData);
       await this.apiService.createMeal(mealData as any).toPromise();
       this.eventBus.emitDataUpdated('meal');
       await this.showSuccessToast(
@@ -337,7 +449,7 @@ export class AddMealPage implements OnInit, OnDestroy {
   goToSearch() {
     this.router.navigate(['/search'], {
       queryParams: {
-        type: this.selectedMealType,
+        type: this.selectedMealType || 'lunch', // fallback sicuro
         date: this.selectedDate
       }
     });
@@ -374,7 +486,7 @@ export class AddMealPage implements OnInit, OnDestroy {
     this.showMealTypeSelector = false;
   }
 
-  selectMealType(type: MealType) {
+  selectMealType(type: MealTypeCanonical) {
     this.selectedMealType = type;
     this.closeMealTypeSelector();
   }
@@ -403,7 +515,7 @@ export class AddMealPage implements OnInit, OnDestroy {
   async editItemQuantity(item: MealItem) {
     const alert = await this.alertController.create({
       header: 'Modifica Quantità',
-      subHeader: item.productName,
+  subHeader: item.name,
       // ...altri parametri dell'alert...
     });
     await alert.present();
@@ -477,7 +589,7 @@ export class AddMealPage implements OnInit, OnDestroy {
   async removeItem(item: MealItem) {
     const alert = await this.alertController.create({
       header: 'Rimuovi Prodotto',
-      message: `Vuoi rimuovere ${item.productName} dal pasto?`,
+  message: `Vuoi rimuovere ${item.name} dal pasto?`,
       buttons: [
         { text: 'Annulla', role: 'cancel' },
         {

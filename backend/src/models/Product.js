@@ -359,15 +359,27 @@ class Product {
   // Aggiorna prodotto
   async update(updates) {
     try {
-      const updatedData = {
-        ...updates,
-        updated_at: new Date().toISOString(),
-      };
-
-      await Product.db(Product.tableName)
-        .where('id', this.id)
-        .update(updatedData);
-
+      // Filtra i campi non presenti nel DB (es. productId)
+      const forbidden = ['productId', 'product_id'];
+      const updatedData = Object.fromEntries(
+        Object.entries({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        }).filter(([k]) => !forbidden.includes(k))
+      );
+      const fields = Object.keys(updatedData);
+      const values = Object.values(updatedData);
+      const setClause = fields.map(f => `${f} = ?`).join(', ');
+      await new Promise((resolve, reject) => {
+        Product.db.run(
+          `UPDATE products SET ${setClause} WHERE id = ?`,
+          [...values, this.id],
+          function(err) {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
+      });
       Object.assign(this, updatedData);
       return this;
     } catch (error) {

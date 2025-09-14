@@ -65,7 +65,7 @@
             <ion-item-sliding *ngFor="let item of ActivityItems; trackBy: trackByItemId">
               <ion-item>
                 <ion-thumbnail slot="start" *ngIf="item.imageUrl">
-                  <img [src]="item.imageUrl" [alt]="item.productName">
+                  <img [src]="item.imageUrl" [alt]="item.name">
                 </ion-thumbnail>
                 <ion-icon 
                   *ngIf="!item.imageUrl" 
@@ -75,7 +75,7 @@
                 </ion-icon>
                 
                 <ion-label>
-                  <h3>{{ item.productName }}</h3>
+                  <h3>{{ item.name }}</h3>
                   <p *ngIf="item.productBrand">{{ item.productBrand }}</p>
                   <p class="quantity-info">
                     {{ item.quantity }} {{ item.unit }} • 

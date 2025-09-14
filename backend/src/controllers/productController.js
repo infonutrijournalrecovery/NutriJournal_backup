@@ -3,6 +3,8 @@ const { ValidationError, NotFoundError, UnauthorizedError } = require('../middle
 const { nutritionDataService } = require('../services/nutritionDataService/index');
 const translationService = require('../services/translationService');
 const { logger } = require('../middleware/logging');
+
+const openFoodFactsService = require('../services/openFoodFactsService');
 const joi = require('joi');
 
 /**

@@ -1,7 +1,7 @@
 <ion-content *ngIf="isDesktop" class="desktop-layout" [fullscreen]="true" scroll-y="true">
   <div class="desktop-welcome-header">
       <div class="welcome-content">
-<h1>{{ getWelcomeMessage() }}<span *ngIf="user">, {{ user?.name || 'Utente' }}!</span></h1>          <p class="welcome-subtitle">Dashboard nutrizionale e attività fisica</p>
+        <h1>{{ getWelcomeMessage() }}<span *ngIf="user">, {{ user?.name || 'Utente' }}!</span></h1>          <p class="welcome-subtitle">Dashboard nutrizionale e attività fisica</p>
       </div>
       <div class="user-profile-section">
           <ion-button fill="solid" class="profile-button" (click)="openUserProfile()">

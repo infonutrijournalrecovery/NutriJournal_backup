@@ -30,7 +30,7 @@ export interface Activity {
 export interface ActivityItem {
   id?: string | number;
   productId?: string | number;
-  productName?: string;
+  name?: string;
   productBrand?: string;
   quantity?: number;
   unit?: QuantityUnit;
@@ -45,7 +45,7 @@ export interface PantryItem {
   id?: string;
   userId: string;
   productId: string;
-  productName: string;
+  name: string;
   productBrand?: string;
   category: ProductCategory;
   nutritionPer100g: NutritionInfo;
@@ -57,7 +57,7 @@ export interface PantryItem {
 
 export interface RecentProduct {
   productId: string;
-  productName: string;
+  name: string;
   productBrand?: string;
   lastUsed: string;
   timesUsed: number;

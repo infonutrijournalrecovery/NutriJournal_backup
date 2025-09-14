@@ -21,7 +21,7 @@ const ADDITIVI_MAP: Record<string, string> = {
 
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { ProductService } from '../shared/services/product.service';
+import { ProductService, normalizeProduct } from '../shared/services/product.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -74,11 +74,11 @@ import { DeviceService } from '../shared/services/device.service';
     IonButtons,
     IonBackButton,
     IonIcon,
-  IonItem,
-  IonLabel,
-  IonButton,
-  IonList,
-  IonSpinner,
+    IonItem,
+    IonLabel,
+    IonButton,
+    IonList,
+    IonSpinner
   ]
 })
 export class ProductPage {
@@ -116,49 +116,12 @@ constructor() {
           const data = res?.data;
           const p = (data && typeof data === 'object' && 'product' in data) ? (data as any).product : data;
           console.log('DEBUG prodotto ricevuto:', p);
-          const nomeProdotto = p.name_it || p.name || '';
-          if (!nomeProdotto) {
+          const normalized = normalizeProduct(p);
+          if (!normalized.name) {
             this.showToast('Attenzione: il prodotto non ha un nome valido!');
           }
-          if (p) {
-            this.prodotto = {
-              nome: nomeProdotto,
-              marca: p.brand || '',
-              quantita: p.serving?.size || '',
-              nutrienti: p.nutrition_per_100g ? {
-                energia: p.nutrition_per_100g.calories || '',
-                carboidrati: p.nutrition_per_100g.carbohydrates || '',
-                grassi: p.nutrition_per_100g.fats || '',
-                proteine: p.nutrition_per_100g.proteins || '',
-                sale: p.nutrition_per_100g.sodium || '',
-                zuccheri: p.nutrition_per_100g.sugars || '',
-                fibre: p.nutrition_per_100g.fiber || ''
-              } : {},
-              additivi: Array.isArray(p.additives)
-                ? p.additives
-                    .map((codice: string) => {
-                      const code = codice.replace(/^[\w]+:/, '').toLowerCase();
-                      return {
-                        nome: code.toUpperCase() + (ADDITIVI_MAP[code] ? ' - ' + ADDITIVI_MAP[code] : '')
-                      };
-                    })
-                    .filter((a: { nome: string }) => a.nome && a.nome.trim() !== '')
-                : (typeof p.additives === 'string' ? p.additives.split(',')
-                    .map((a: string) => {
-                      const code = a.trim().replace(/^[\w]+:/, '').toLowerCase();
-                      return {
-                        nome: code.toUpperCase() + (ADDITIVI_MAP[code] ? ' - ' + ADDITIVI_MAP[code] : '')
-                      };
-                    })
-                    .filter((a: { nome: string }) => a.nome && a.nome.trim() !== '') : []),
-              allergeni: Array.isArray(p.allergens)
-                ? p.allergens
-                    .map((codice: string) => codice.replace(/^[\w]+:/, ''))
-                    .filter((a: string) => a && a.trim() !== '')
-                : (typeof p.allergens === 'string' ? p.allergens.split(',')
-                    .map((a: string) => a.trim().replace(/^[\w]+:/, ''))
-                    .filter((a: string) => a && a.trim() !== '') : [])
-            };
+          if (normalized) {
+            this.prodotto = normalized;
             // Dopo aver caricato il prodotto, verifica se è già in dispensa tramite barcode (EAN) e status
             this.checkPantryStatusByBarcode(ean);
           } else {

@@ -289,20 +289,29 @@ export class PantryPage implements OnInit, OnDestroy {
   async removePantryItem(item: any) {
     this.isSaving = true;
     try {
+      if (!item.id) {
+        console.error('ID prodotto non definito per la rimozione:', item);
+        await this.showErrorToast('Impossibile rimuovere: ID prodotto mancante');
+        this.isSaving = false;
+        return;
+      }
       const token = localStorage.getItem('nutrijournal_token');
       const httpHeaders = token
         ? { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) }
         : {};
-  
-      // CHIAMATA DELETE: /pantry/:productId
+
+      // Log id per debug
+      console.log('Chiamata DELETE per pantry item id:', item.id);
+
+      // CHIAMATA DELETE: /pantry/:id
       await this.http.delete(
-        `${environment.apiUrl}/pantry/${item.id}`, 
+        `${environment.apiUrl}/pantry/${item.id}`,
         httpHeaders
       ).toPromise();
-  
+
       // Aggiorno la lista locale
       this.pantryItems = this.pantryItems.filter(p => p.id !== item.id);
-  
+
       await this.showSuccessToast('Prodotto rimosso dalla dispensa');
     } catch (error) {
       console.error('Errore durante la rimozione:', error);
