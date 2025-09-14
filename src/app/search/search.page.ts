@@ -239,7 +239,27 @@ export class SearchPage implements OnInit, OnDestroy {
           productId: product.id,
           name: product.name,
           quantity: quantity,
-          unit: product.serving?.unit || 'g'
+          unit: product.serving?.unit || 'g',
+          nutritionPer100g: {
+            calories: product.nutrition_per_100g?.calories ?? 0,
+            proteins: product.nutrition_per_100g?.proteins ?? 0,
+            carbohydrates: product.nutrition_per_100g?.carbohydrates ?? 0,
+            fats: product.nutrition_per_100g?.fats ?? 0,
+            fiber: product.nutrition_per_100g?.fiber ?? 0,
+            sugar: product.nutrition_per_100g?.sugars ?? 0,
+            sodium: product.nutrition_per_100g?.sodium ?? 0,
+            saturatedFats: product.nutrition_per_100g?.saturated_fat ?? 0
+          },
+          totalNutrition: {
+            calories: nutrition.calories ?? 0,
+            proteins: nutrition.proteins ?? 0,
+            carbohydrates: nutrition.carbohydrates ?? 0,
+            fats: nutrition.fats ?? 0,
+            fiber: nutrition.fiber ?? 0,
+            sugar: nutrition.sugars ?? 0,
+            sodium: nutrition.sodium ?? 0,
+            saturatedFats: nutrition.saturated_fat ?? 0
+          }
         }
       ]
     };

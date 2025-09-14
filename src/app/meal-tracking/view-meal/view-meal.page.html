@@ -85,25 +85,13 @@
     </ion-item> -->
     <ion-item>
       <ion-label>
-        <strong>Resoconto Pasto:</strong>
+        <strong>Resoconto Pasto (tutti i nutrienti):</strong>
       </ion-label>
     </ion-item>
-    <div class="nutrient" *ngFor="let nutriente of nutrienti">
-      <span class="label">{{ nutriente.nome }}:</span>
-      <span class="value">{{ nutriente.assunto }} {{ nutriente.unita }}</span>
-    
-      <ion-progress-bar 
-        [value]="nutriente.assunto / nutriente.obiettivo"
-        [color]="nutriente.assunto > nutriente.obiettivo ? 'danger' : 'success'">
-      </ion-progress-bar>
-    
-      <div class="progress-text">
-        Obiettivo: {{ nutriente.obiettivo }} {{ nutriente.unita }} 
-        <ng-container *ngIf="nutriente.assunto > nutriente.obiettivo">
-          <span class="warning-text">
-          <ion-icon name="warning-outline"></ion-icon> Attenzione! Sei andato oltre il tuo obiettivo!
-        </span>
-        </ng-container>
+    <div class="nutrient-list">
+      <div class="nutrient" *ngFor="let nutriente of nutrientiDinamici">
+        <span class="label">{{ nutriente.nome }}:</span>
+        <span class="value">{{ nutriente.valore }} {{ nutriente.unita || '' }}</span>
       </div>
     </div>
 

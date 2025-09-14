@@ -52,29 +52,28 @@ class Meal {
   }
 
   constructor(data = {}) {
-    this.id = data.id;
-    this.userId = data.userId;
-    this.type = this.validateMealType(data.type);
-    this.meal_name = data.meal_name;
-    this.date = data.date;
-    this.time = data.time;
-    this.location = data.location;
-    this.notes = data.notes;
-    
-    // Totali nutrizionali calcolati
-    this.total_calories = data.total_calories;
-    this.total_proteins = data.total_proteins;
-    this.total_carbs = data.total_carbs;
-    this.total_fats = data.total_fats;
-    this.total_fiber = data.total_fiber;
-    
-    this.created_at = data.created_at;
-    this.updated_at = data.updated_at;
-    
-    // Array di meal_items (se caricati)
-    this.items = data.items || [];
-    // Array di prodotti con quantità (se caricati)
-    this.products = data.products || [];
+  this.id = data.id;
+  this.userId = data.userId;
+  // Valorizza sempre type a partire da meal_type o type
+  this.type = data.meal_type || data.type || null;
+  this.meal_type = data.meal_type || data.type || null;
+  this.meal_name = data.meal_name;
+  this.date = data.date;
+  this.time = data.time;
+  this.location = data.location;
+  this.notes = data.notes;
+  // Totali nutrizionali calcolati
+  this.total_calories = data.total_calories;
+  this.total_proteins = data.total_proteins;
+  this.total_carbs = data.total_carbs;
+  this.total_fats = data.total_fats;
+  this.total_fiber = data.total_fiber;
+  this.created_at = data.created_at;
+  this.updated_at = data.updated_at;
+  // Array di meal_items (se caricati)
+  this.items = data.items || [];
+  // Array di prodotti con quantità (se caricati)
+  this.products = data.products || [];
   }
 
   static get tableName() {
@@ -235,6 +234,7 @@ class Meal {
 
   // Crea nuovo pasto
   static async create(mealData) {
+  const { logger } = require('../middleware/logging');
     const db = this.db;
 
     return await new Promise((resolve, reject) => {
@@ -247,8 +247,25 @@ class Meal {
             throw new Error('User ID e data sono obbligatori');
           }
 
-          // Usa sempre il tipo già normalizzato dal controller
-          let mealType = mealData.meal_type || 'snack';
+          // Usa sempre il tipo già normalizzato dal controller, ma se manca normalizza qui
+          let mealType = mealData.meal_type;
+          if (!mealType && mealData.type) {
+            // Mappa italiano/inglese su costanti
+            const MEAL_TYPE_MAP = {
+              'colazione': 'breakfast',
+              'pranzo': 'lunch',
+              'cena': 'dinner',
+              'spuntino': 'snack',
+              'spuntini': 'snack',
+              'breakfast': 'breakfast',
+              'lunch': 'lunch',
+              'dinner': 'dinner',
+              'snack': 'snack'
+            };
+            const key = (mealData.type || '').toLowerCase();
+            mealType = MEAL_TYPE_MAP[key] || 'snack';
+          }
+          if (!mealType) mealType = 'snack';
 
           // Forza il campo date in formato YYYY-MM-DD
           let dateOnly = mealData.date;
@@ -297,7 +314,7 @@ class Meal {
               mealToCreate.created_at,
               mealToCreate.updated_at
             ],
-            function(err) {
+            async function(err) {
               if (err) {
                 db.run('ROLLBACK');
                 console.error('❌ Errore inserimento pasto:', err);
@@ -310,17 +327,78 @@ class Meal {
                 let errorOccurred = false;
                 let completed = 0;
                 for (const item of mealData.items) {
+                  // Usa i valori nutrizionali dal payload se disponibili, altrimenti calcola dal prodotto DB
+                  let calories = null, proteins = null, carbs = null, fats = null, fiber = null;
+                  let extraNutrients = {};
+                  try {
+                    // 1. Prova a prendere direttamente dai campi item
+                    calories = item.calories ?? item.totalNutrition?.calories ?? null;
+                    proteins = item.proteins ?? item.totalNutrition?.proteins ?? null;
+                    carbs = item.carbs ?? item.carbohydrates ?? item.totalNutrition?.carbohydrates ?? item.totalNutrition?.carbs ?? null;
+                    fats = item.fats ?? item.totalNutrition?.fats ?? null;
+                    fiber = item.fiber ?? item.totalNutrition?.fiber ?? null;
+
+                    // 2. Estrai tutti gli altri nutrienti dinamici dal payload (escludi quelli già mappati)
+                    const knownKeys = [
+                      'calories','proteins','carbs','carbohydrates','fats','fiber','product_id','productId','quantity','unit','name','brand','category','ean','imageUrl','totalNutrition','nutritionPer100g','sugar','sugars','sodium','salt','saturatedFats','saturated_fat','vitaminC','vitamin_a','vitamin_c','vitamin_d','vitamin_e','vitamin_k','thiamin','riboflavin','niacin','vitamin_b6','folate','vitamin_b12','biotin','pantothenic_acid','calcium','iron','magnesium','phosphorus','potassium','zinc','copper','manganese','selenium','iodine','chromium','molybdenum'
+                    ];
+                    // Prendi da item.totalNutrition e item.nutritionPer100g
+                    const nutrientSources = [item.totalNutrition, item.nutritionPer100g, item];
+                    for (const src of nutrientSources) {
+                      if (src && typeof src === 'object') {
+                        for (const [k, v] of Object.entries(src)) {
+                          if (!knownKeys.includes(k) && v != null) {
+                            extraNutrients[k] = v;
+                          }
+                        }
+                      }
+                    }
+
+                    // 3. Se ancora null, calcola dal prodotto DB
+                    if ([calories, proteins, carbs, fats, fiber].some(v => v === null)) {
+                      const product = await Product.findById(item.product_id);
+                      if (product) {
+                        const nutrition = product.calculateNutritionForPortion(item.quantity);
+                        if (nutrition) {
+                          if (calories === null) calories = nutrition.calories;
+                          if (proteins === null) proteins = nutrition.proteins;
+                          if (carbs === null) carbs = nutrition.carbs;
+                          if (fats === null) fats = nutrition.fats;
+                          if (fiber === null) fiber = nutrition.fiber;
+                        }
+                      }
+                    }
+                    logger.info('[DEBUG][Meal.create] Inserimento meal_item', {
+                      mealId,
+                      product_id: item.product_id,
+                      quantity: item.quantity,
+                      calories,
+                      proteins,
+                      carbs,
+                      fats,
+                      fiber,
+                      extraNutrients
+                    });
+                  } catch (e) {
+                    logger.error('[DEBUG][Meal.create] Errore calcolo nutrizionali meal_item', { mealId, product_id: item.product_id, error: e.message });
+                  }
                   db.run(
-                    `INSERT INTO meal_items (meal_id, product_id, quantity, unit, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+                    `INSERT INTO meal_items (meal_id, product_id, quantity, unit, calories, proteins, carbs, fats, fiber, created_at, updated_at, extra_nutrients) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                     [
                       mealId,
                       item.product_id,
                       item.quantity,
                       item.unit,
+                      calories,
+                      proteins,
+                      carbs,
+                      fats,
+                      fiber,
                       mealToCreate.created_at,
-                      mealToCreate.updated_at
+                      mealToCreate.updated_at,
+                      Object.keys(extraNutrients).length > 0 ? JSON.stringify(extraNutrients) : null
                     ],
-                    function(err) {
+                    async function(err) {
                       if (err && !errorOccurred) {
                         errorOccurred = true;
                         db.run('ROLLBACK');
@@ -329,6 +407,8 @@ class Meal {
                       }
                       completed++;
                       if (completed === mealData.items.length && !errorOccurred) {
+                        // Calcola e aggiorna i totali nutrizionali dopo aver inserito tutti gli items
+                        await Meal.recalculateMealTotals(Meal.db, mealId);
                         db.run('COMMIT');
                         resolve(Meal.findById(mealId));
                       }
@@ -336,6 +416,7 @@ class Meal {
                   );
                 }
               } else {
+                // Nessun item: commit diretto
                 db.run('COMMIT');
                 resolve(Meal.findById(mealId));
               }
@@ -579,31 +660,52 @@ class Meal {
     return true;
   }
 
-  // Metodo statico per ricalcolare totali pasto
-  static async recalculateMealTotals(trx, mealId) {
-    const totals = await trx(this.itemsTableName)
-      .where('meal_id', mealId)
-      .sum({
-        total_calories: 'calories',
-        total_proteins: 'proteins',
-        total_carbs: 'carbs',
-        total_fats: 'fats',
-        total_fiber: 'fiber',
-      })
-      .first();
-
-    await trx(this.tableName)
-      .where('id', mealId)
-      .update({
-        total_calories: Math.round((totals.total_calories || 0) * 10) / 10,
-        total_proteins: Math.round((totals.total_proteins || 0) * 10) / 10,
-        total_carbs: Math.round((totals.total_carbs || 0) * 10) / 10,
-        total_fats: Math.round((totals.total_fats || 0) * 10) / 10,
-        total_fiber: Math.round((totals.total_fiber || 0) * 10) / 10,
-        updated_at: new Date().toISOString(),
-      });
-
-    return true;
+  // Metodo statico per ricalcolare totali pasto (compatibile con SQLite classico)
+  static async recalculateMealTotals(db, mealId) {
+    return new Promise((resolve, reject) => {
+      db.get(
+        `SELECT 
+          SUM(calories) as total_calories,
+          SUM(proteins) as total_proteins,
+          SUM(carbs) as total_carbs,
+          SUM(fats) as total_fats,
+          SUM(fiber) as total_fiber
+        FROM meal_items WHERE meal_id = ?`,
+        [mealId],
+        (err, totals) => {
+          if (err) {
+            console.error('❌ Errore calcolo totali meal_items:', err);
+            return reject(err);
+          }
+          db.run(
+            `UPDATE meals SET 
+              total_calories = ?,
+              total_proteins = ?,
+              total_carbs = ?,
+              total_fats = ?,
+              total_fiber = ?,
+              updated_at = ?
+            WHERE id = ?`,
+            [
+              Math.round((totals.total_calories || 0) * 10) / 10,
+              Math.round((totals.total_proteins || 0) * 10) / 10,
+              Math.round((totals.total_carbs || 0) * 10) / 10,
+              Math.round((totals.total_fats || 0) * 10) / 10,
+              Math.round((totals.total_fiber || 0) * 10) / 10,
+              new Date().toISOString(),
+              mealId
+            ],
+            function(err2) {
+              if (err2) {
+                console.error('❌ Errore update totali meal:', err2);
+                return reject(err2);
+              }
+              resolve(true);
+            }
+          );
+        }
+      );
+    });
   }
 
   // Elimina pasto
@@ -718,15 +820,15 @@ class Meal {
 
   // Serializza per JSON
   toJSON() {
-    const meal = { ...this };
-    
-    // Aggiungi dati calcolati
-    meal.meal_type_italian = this.getMealTypeItalian();
-    meal.is_nutritionally_balanced = this.isNutritionallyBalanced();
-    meal.macro_distribution = this.getMacroDistribution();
-    meal.items_count = this.items.length;
-    
-    return meal;
+  const meal = { ...this };
+  // Esporta sempre il campo type valorizzato (in inglese)
+  meal.type = this.meal_type || this.type || null;
+  // Aggiungi dati calcolati
+  meal.meal_type_italian = this.getMealTypeItalian();
+  meal.is_nutritionally_balanced = this.isNutritionallyBalanced();
+  meal.macro_distribution = this.getMacroDistribution();
+  meal.items_count = this.items.length;
+  return meal;
   }
 
   // Statistiche pasti utente

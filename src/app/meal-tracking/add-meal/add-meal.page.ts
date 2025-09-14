@@ -395,18 +395,40 @@ export class AddMealPage implements OnInit, OnDestroy {
         if (!name) {
           throw new Error(`Il prodotto con ID ${item.productId || item.product_id} non ha un nome valido. Correggi o scegli un altro prodotto.`);
         }
+        // Estrai tutti i campi nutrizionali disponibili
+        const total = item.totalNutrition || {};
+        const per100g = item.nutritionPer100g || {};
         return {
           product_id: item.productId,
           productId: item.productId,
           quantity: item.quantity,
           unit: item.unit,
-          calories: item.totalNutrition?.calories ?? 0,
-          proteins: item.totalNutrition?.proteins ?? 0,
-          carbs: item.totalNutrition?.carbohydrates ?? 0,
-          fats: item.totalNutrition?.fats ?? 0,
           name,
           brand: item.productBrand,
-          nutritionPer100g: item.nutritionPer100g,
+          nutritionPer100g: {
+            calories: per100g.calories ?? 0,
+            proteins: per100g.proteins ?? 0,
+            carbohydrates: per100g.carbohydrates ?? 0,
+            fats: per100g.fats ?? 0,
+            fiber: per100g.fiber ?? 0,
+            sugar: per100g.sugar ?? per100g.sugars ?? 0,
+            sodium: per100g.sodium ?? 0,
+            saturatedFats: per100g.saturatedFats ?? per100g.saturated_fat ?? 0,
+            vitaminC: per100g.vitaminC ?? 0,
+            calcium: per100g.calcium ?? 0
+          },
+          totalNutrition: {
+            calories: total.calories ?? 0,
+            proteins: total.proteins ?? 0,
+            carbohydrates: total.carbohydrates ?? 0,
+            fats: total.fats ?? 0,
+            fiber: total.fiber ?? 0,
+            sugar: total.sugar ?? total.sugars ?? 0,
+            sodium: total.sodium ?? 0,
+            saturatedFats: total.saturatedFats ?? total.saturated_fat ?? 0,
+            vitaminC: total.vitaminC ?? 0,
+            calcium: total.calcium ?? 0
+          },
           category: item.category,
           ean: item.ean,
           imageUrl: item.imageUrl

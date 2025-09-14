@@ -10,7 +10,6 @@ import {
   trendingUpOutline,
   waterOutline,
   flameOutline,
-  timeOutline,
   checkmarkCircleOutline,
   alertCircleOutline,
   statsChartOutline,
@@ -40,11 +39,11 @@ import { DatePickerModalComponent } from '../shared/components/date-picker-modal
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
-  imports: [IonList, 
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    RouterModule,
+  imports: [
+  CommonModule,
+  FormsModule,
+  ReactiveFormsModule,
+  RouterModule,
   IonContent,
   IonCard,
   IonCardHeader,
@@ -55,12 +54,8 @@ import { DatePickerModalComponent } from '../shared/components/date-picker-modal
   IonItem,
   IonLabel,
   IonProgressBar,
-  IonSegment,
-  IonSegmentButton,
   IonInput,
-  IonGrid,
-  IonRow,
-  IonCol,
+  IonList,
   ],
   providers: []
 })
@@ -74,12 +69,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       'Camminata': 'Camminata',
       'Corsa': 'Corsa',
       'Ciclismo': 'Ciclismo',
-      'Nuoto': 'Nuoto',
-      'Palestra': 'Palestra',
       'Corpo libero': 'Corpo libero',
-      'Sollevamento pesi': 'Sollevamento pesi',
-      'Calcio': 'Calcio',
-      'Basket': 'Basket',
       'Pallavolo': 'Pallavolo',
       // Inglese comuni
       'Walking': 'Camminata',
@@ -298,7 +288,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       this.waterForm = this.fb.group({
         waterAmount: [0]
       });
-      addIcons({personOutline,chevronBackOutline,calendarOutline,chevronForwardOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,barcodeOutline,fastFoodOutline,scaleOutline,flameOutline,wineOutline,timeOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,checkmarkCircle:checkmarkCircleOutline,alertCircle:alertCircleOutline});
+  addIcons({personOutline,chevronBackOutline,calendarOutline,chevronForwardOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,barcodeOutline,fastFoodOutline,scaleOutline,flameOutline,wineOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,checkmarkCircle:checkmarkCircleOutline,alertCircle:alertCircleOutline});
   }
 
   async openDatePicker() {
@@ -532,30 +522,31 @@ export class DashboardPage implements OnInit, OnDestroy {
         this.isLoading = true;
       }
 
-      // Carica i pasti raggruppati per tipo dal backend
-      const dateStr = this.currentDate.toISOString().split('T')[0];
-      const mealsRes = await this.apiService.getMealsByDateGrouped(dateStr).toPromise();
-      const mealsByType: { [key: string]: any[] } = mealsRes?.data?.mealsByType || { breakfast: [], lunch: [], snack: [], dinner: [] };
-      // Reset foods e statistiche per ogni tipo di pasto
-      (Object.keys(this.mealStats) as Array<'breakfast' | 'lunch' | 'snack' | 'dinner'>).forEach(type => {
-        this.mealStats[type].foods = [];
+  // Carica i pasti raggruppati per tipo dal backend
+  const dateStr = this.currentDate.toISOString().split('T')[0];
+  const mealsRes = await this.apiService.getMealsByDateGrouped(dateStr).toPromise();
+  // DEBUG: logga la risposta grezza dal backend
+  // eslint-disable-next-line no-console
+  console.log('[DEBUG][Dashboard] Risposta grezza getMealsByDateGrouped:', mealsRes);
+  const mealsByType: { [key: string]: any[] } = mealsRes?.data?.mealsByType || { breakfast: [], lunch: [], snack: [], dinner: [] };
+      // Reset e popola foods/statistiche per ogni tipo di pasto (forza sostituzione array)
+      (['breakfast','lunch','snack','dinner'] as const).forEach(type => {
         this.mealStats[type].calories.consumed = 0;
         this.mealStats[type].carbs.consumed = 0;
         this.mealStats[type].proteins.consumed = 0;
         this.mealStats[type].fats.consumed = 0;
-      });
-      // Popola mealStats[type].foods con i prodotti dei pasti
-      (['breakfast','lunch','snack','dinner'] as const).forEach(type => {
         const meals: any[] = mealsByType[type] || [];
+        const foods: any[] = [];
         meals.forEach((meal: any) => {
           if (Array.isArray(meal.items)) {
             meal.items.forEach((item: any) => {
               const prod = item.product as any;
               const name = prod?.display_name || prod?.name_it || prod?.name || 'Prodotto';
-              this.mealStats[type].foods.push({ name });
+              foods.push({ name });
             });
           }
         });
+        this.mealStats[type].foods = foods; // Sostituzione reference per trigger Angular
       });
 
   // Aggiorna le statistiche nutrizionali sommando tutti i pasti di tutti i tipi

@@ -332,17 +332,27 @@ class Product {
         }
       }
 
-      const productToCreate = {
-        ...productData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      // Inserimento manuale compatibile con sqlite3
+      const now = new Date().toISOString();
+      // Elenco colonne supportate (aggiorna se aggiungi campi in tabella)
+      const columns = [
+        'id', 'barcode', 'name', 'name_it', 'brand', 'brand_it', 'category_id', 'image_path',
+        'calories', 'proteins', 'carbs', 'fats', 'fiber', 'sugars', 'salt',
+        'vitamin_a', 'vitamin_c', 'vitamin_d', 'vitamin_e', 'vitamin_k', 'thiamin', 'riboflavin', 'niacin', 'vitamin_b6', 'folate', 'vitamin_b12', 'biotin', 'pantothenic_acid',
+        'calcium', 'iron', 'magnesium', 'phosphorus', 'potassium', 'sodium', 'zinc', 'copper', 'manganese', 'selenium', 'iodine', 'chromium', 'molybdenum',
+        'saturated_fats', 'monounsaturated_fats', 'polyunsaturated_fats', 'trans_fats', 'cholesterol',
+        'alcohol', 'caffeine', 'water',
+        'nutriscore', 'nova_group', 'ecoscore',
+        'source', 'original_language', 'translation_status', 'is_favorite', 'usage_count', 'last_used',
+        'created_at', 'updated_at'
+      ];
+      const productToCreate = { ...productData, created_at: now, updated_at: now };
+      const insertCols = columns.filter(col => productToCreate[col] !== undefined);
+      const insertVals = insertCols.map(col => productToCreate[col]);
+      const placeholders = insertCols.map(() => '?').join(', ');
       await new Promise((resolve, reject) => {
         database.sqliteDb.run(
-          `INSERT INTO products (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)`,
-          [productToCreate.id, productToCreate.name, productToCreate.created_at, productToCreate.updated_at],
+          `INSERT INTO products (${insertCols.join(', ')}) VALUES (${placeholders})`,
+          insertVals,
           function(err) {
             if (err) reject(err);
             else resolve();

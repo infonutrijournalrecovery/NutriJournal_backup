@@ -1,7 +1,7 @@
 <ion-content *ngIf="isDesktop" class="desktop-layout" [fullscreen]="true" scroll-y="true">
   <div class="desktop-welcome-header">
       <div class="welcome-content">
-        <h1>{{ getWelcomeMessage() }}<span *ngIf="user">, {{ user?.name || 'Utente' }}!</span></h1>          <p class="welcome-subtitle">Dashboard nutrizionale e attività fisica</p>
+    <h1>{{ getWelcomeMessage() }}<span *ngIf="user">, {{ user.name || 'Utente' }}!</span></h1>          <p class="welcome-subtitle">Dashboard nutrizionale e attività fisica</p>
       </div>
       <div class="user-profile-section">
           <ion-button fill="solid" class="profile-button" (click)="openUserProfile()">
@@ -185,42 +185,26 @@
                               </div>
                           </div>
                           <div class="meal-content">
-                              <div *ngIf="getMealStats(type).foods.length === 0" class="empty-meal">
-                                  <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
-                                  <p class="empty-text">Nessun pasto aggiunto</p>
+                              <ng-container *ngIf="getMealStats(type).foods.length === 0">
+                                  <div class="empty-meal">
+                                      <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                                      <p class="empty-text">Nessun pasto aggiunto</p>
+                                  </div>
+                              </ng-container>
+                              <ng-container *ngIf="getMealStats(type).foods.length > 0">
+                                  <div class="meal-products-list" style="margin-top: 10px;">
+                                      <ion-list lines="none">
+                                          <ion-item *ngFor="let food of getMealStats(type).foods">
+                                              <ion-label>{{ food.name }}</ion-label>
+                                          </ion-item>
+                                      </ion-list>
+                                  </div>
+                              </ng-container>
+                              <div class="add-meal-btn-wrapper" style="margin-top: 10px; text-align: right;">
                                   <ion-button fill="solid" size="small" class="add-meal-btn" (click)="addMeal(type)">
                                       <ion-icon name="add-outline"></ion-icon>
                                       Aggiungi
                                   </ion-button>
-                              </div>
-                              <div *ngIf="getMealStats(type).foods.length > 0" class="meal-progress">
-                                  <div class="macro-progress-item">
-                                      <span class="macro-label">Calorie</span>
-                                      <ion-progress-bar *ngIf="!isLoading" [value]="getMealStats(type).calories.percentage / 100" [color]="getProgressColor(getMealStats(type).calories.percentage)"></ion-progress-bar>
-                                      <span class="macro-percentage">{{ getMealStats(type).calories.percentage }}%</span>
-                                  </div>
-                                  <div class="macro-progress-item">
-                                      <span class="macro-label">Carb</span>
-                                      <ion-progress-bar *ngIf="!isLoading" [value]="getMealStats(type).carbs.percentage / 100" color="primary"></ion-progress-bar>
-                                      <span class="macro-percentage">{{ getMealStats(type).carbs.percentage }}%</span>
-                                  </div>
-                                  <div class="macro-progress-item">
-                                      <span class="macro-label">Prot</span>
-                                      <ion-progress-bar *ngIf="!isLoading" [value]="getMealStats(type).proteins.percentage / 100" color="success"></ion-progress-bar>
-                                      <span class="macro-percentage">{{ getMealStats(type).proteins.percentage }}%</span>
-                                  </div>
-                                  <div class="macro-progress-item">
-                                      <span class="macro-label">Grassi</span>
-                                      <ion-progress-bar [value]="getMealStats(type).fats.percentage / 100" color="warning"></ion-progress-bar>
-                                      <span class="macro-percentage">{{ getMealStats(type).fats.percentage }}%</span>
-                                  </div>
-                                    <div class="meal-products-list" style="margin-top: 10px;">
-                                        <ion-list lines="none">
-                                            <ion-item *ngFor="let food of getMealStats(type).foods">
-                                                <ion-label>{{ food.name }}</ion-label>
-                                            </ion-item>
-                                        </ion-list>
-                                    </div>
                               </div>
                           </div>
                       </div>

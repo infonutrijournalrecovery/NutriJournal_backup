@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { warningOutline, trashOutline } from 'ionicons/icons';
+import { addIcons } from 'ionicons';
 import {
   IonContent,
   IonHeader,
@@ -41,6 +42,49 @@ import { AlertController, ToastController, LoadingController, ActionSheetControl
   ]
 })
 export class ViewMealPage {
+  buildNutrientiDinamici() {
+    // Unisce i nutrienti principali e quelli extra in un array per la view
+    const labels: Record<string, string> = {
+      calories: 'Energia',
+      proteins: 'Proteine',
+      carbs: 'Carboidrati',
+      fats: 'Grassi',
+      fiber: 'Fibre',
+      // aggiungi qui altre label se vuoi
+    };
+    const unita: Record<string, string> = {
+      calories: 'kcal',
+      proteins: 'g',
+      carbs: 'g',
+      fats: 'g',
+      fiber: 'g',
+      sale: 'g',
+      zuccheri: 'g',
+      saturi: 'g',
+      vitaminaC: 'mg',
+      potassio: 'mg',
+    };
+    const nutrienti: Array<{ nome: string, valore: any, unita?: string }> = [];
+    // Principali
+    for (const key of ['calories','carbs','fats','proteins','fiber']) {
+      if (this.prodotto[key] != null) {
+        nutrienti.push({ nome: labels[key] || key, valore: this.prodotto[key], unita: unita[key] });
+      }
+    }
+    // Extra
+    let extra = {};
+    if (this.prodotto.extra_nutrients) {
+      try {
+        extra = JSON.parse(this.prodotto.extra_nutrients);
+      } catch {}
+    }
+    for (const [k, v] of Object.entries(extra)) {
+      if (v != null) {
+        nutrienti.push({ nome: labels[k] || k.charAt(0).toUpperCase() + k.slice(1), valore: v, unita: unita[k] });
+      }
+    }
+    this.nutrientiDinamici = nutrienti;
+  }
   private router = inject(Router);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
@@ -51,21 +95,12 @@ export class ViewMealPage {
   userAllergeni: string[] = ['Glutine', 'Soia'];
 
   prodotto: any;
-
   prodotti: any[] = [];
-
   dispensa: any[] = [
     { id: 1, nome: 'Pasta di Semola' },
     { id: 2, nome: 'Riso Arborio' }
   ];
-
-  nutrienti = [
-    { nome: 'Energia', assunto: 200, obiettivo: 400, unita: 'kcal' },
-    { nome: 'Carboidrati', assunto: 400, obiettivo: 200, unita: 'g' },
-    { nome: 'Grassi', assunto: 50, obiettivo: 70, unita: 'g' },
-    { nome: 'Proteine', assunto: 30, obiettivo: 50, unita: 'g' },
-    { nome: 'Sale', assunto: 3, obiettivo: 5, unita: 'g' }
-  ];
+  nutrientiDinamici: Array<{ nome: string, valore: any, unita?: string }> = [];
   
 
   meals: string[] = ['Colazione', 'Pranzo', 'Cena', 'Spuntino'];
@@ -74,7 +109,8 @@ export class ViewMealPage {
 
 
 
-  constructor() {}
+  constructor() {
+      addIcons({trashOutline});}
 
   ngOnInit() {
     // prodotto di esempio
@@ -83,20 +119,25 @@ export class ViewMealPage {
       marca: 'Pranzo',
       quantita: '500 g',
       allergeni: ['Glutine'],
-      nutrienti: {
-        energia: 350,
-        carboidrati: 72,
+      // Simula struttura reale: nutrienti principali + extra_nutrients JSON
+      calories: 350,
+      proteins: 12,
+      carbs: 72,
+      fats: 1.5,
+      fiber: 3.0,
+      extra_nutrients: JSON.stringify({
         zuccheri: 2.5,
-        grassi: 1.5,
         saturi: 0.3,
-        proteine: 12,
-        fibre: 3.0,
-        sale: 0.01
-      }
+        sale: 0.01,
+        vitaminaC: 12,
+        potassio: 400
+      })
     };
-
+    this.buildNutrientiDinamici();
     this.loadProducts();
   }
+
+
 
   // lista dinamica di prodotti
   loadProducts() {
