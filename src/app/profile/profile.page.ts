@@ -136,6 +136,10 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    const sub = this.authService.currentUser$.subscribe(user => {
+      this.user = user;
+    });
+    this.subscriptions.push(sub);
     this.loadUserProfile();
   }
 
@@ -178,41 +182,61 @@ export class ProfilePage implements OnInit, OnDestroy {
   /**
    * Carica il profilo utente
    */
-  async loadUserProfile(event?: any) {
-    if (!event) {
-      this.isLoading = true;
+/**
+ * Carica il profilo utente
+ */
+/**
+ * Carica il profilo utente
+ */
+async loadUserProfile(event?: any) {
+  if (!event) {
+    this.isLoading = true;
+  }
+
+  try {
+    // Prendi utente aggiornato dall'AuthService
+    const authUser = this.authService.currentUser;
+
+    // Prendi i dati pi� recenti dal backend
+    const userProfile = await this.apiService.getUserProfile().toPromise();
+
+    if (userProfile && userProfile.data) {
+      const data = userProfile.data;
+      // fetchedUser contiene i dati ricevuti dal backend
+      let fetchedUser: any = (typeof data === 'object' && 'user' in data) ? (data as any).user : data;
+
+      // Mappa date
+      fetchedUser = {
+        ...fetchedUser,
+        dateOfBirth: fetchedUser.dateOfBirth ? new Date(fetchedUser.dateOfBirth)
+                     : (fetchedUser.date_of_birth ? new Date(fetchedUser.date_of_birth) : undefined),
+        createdAt: fetchedUser.createdAt ? new Date(fetchedUser.createdAt) : undefined,
+      };
+
+      // Se il peso � aggiornato in AuthService, usa quello
+      if (authUser?.weight) {
+        fetchedUser.weight = authUser.weight;
+      }
+
+      // Aggiorna this.user
+      this.user = { ...this.user, ...fetchedUser };
     }
 
-    try {
-      const userProfile = await this.apiService.getUserProfile().toPromise();
-      if (userProfile && userProfile.data) {
-        const data = userProfile.data;
-        let user: any = (typeof data === 'object' && 'user' in data) ? (data as any).user : data;
-        // Mappa date e fallback
-        user = {
-          ...user,
-          dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth) : (user.date_of_birth ? new Date(user.date_of_birth) : undefined),
-          createdAt: user.createdAt ? new Date(user.createdAt) : undefined,
-        };
-        // Merge activeGoal as nutritionGoals if presente
-        if (typeof data === 'object' && 'activeGoal' in data && data.activeGoal) {
-          user.nutritionGoals = (data as any).activeGoal;
-        }
-        this.user = user;
-      }
-      if (event) {
-        event.target.complete();
-      }
-    } catch (error) {
-      console.error('Errore caricamento profilo:', error);
-      await this.showToast('Errore nel caricamento del profilo', 'danger');
-      if (event) {
-        event.target.complete();
-      }
-    } finally {
-      this.isLoading = false;
+    if (event) {
+      event.target.complete();
     }
+  } catch (error) {
+    console.error('Errore caricamento profilo:', error);
+    await this.showToast('Errore nel caricamento del profilo', 'danger');
+    if (event) {
+      event.target.complete();
+    }
+  } finally {
+    this.isLoading = false;
   }
+}
+
+
   /**
    * Ottieni label obiettivo
    */

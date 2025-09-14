@@ -235,7 +235,7 @@
                       <ion-item lines="none">
                           <ion-input type="number" [formControl]="waterAmount" label="ml"></ion-input>
                       </ion-item>
-                      <ion-button fill="solid" class="action-btn water-btn" expand="block" (click)="addWater()">
+                      <ion-button fill="solid" class="action-btn water-btn" expand="block" (click)="confirmWater()">
                           <ion-icon slot="start" name="water-outline"></ion-icon>
                           Bevi acqua
                       </ion-button>
@@ -255,9 +255,9 @@
                   </ion-item>
                   <ion-item lines="none">
                       <ion-item lines="none"> 
-                          <ion-input type="number" [formControl]="waterAmount" label="kg"></ion-input>
+                          <ion-input type="number" [formControl]="weightAmount" label="kg"></ion-input>
                       </ion-item>
-                      <ion-button fill="solid" class="action-btn weight-btn" expand="block" (click)="addWater()">
+                      <ion-button fill="solid" class="action-btn weight-btn" expand="block" (click)="confirmWeight()">
                           <ion-icon slot="start" name="scale-outline"></ion-icon>
                           Aggiungi peso giornaliero
                       </ion-button>
@@ -517,7 +517,7 @@
               <ion-item lines="none">
                   <ion-input type="number" [formControl]="waterAmount" label="ml"></ion-input>
               </ion-item>
-              <ion-button fill="solid" class="action-btn water-btn" expand="block" (click)="addWater()">
+              <ion-button fill="solid" class="action-btn water-btn" expand="block" (click)="confirmWater()">
                   <ion-icon slot="start" name="water-outline"></ion-icon>
                   Bevi acqua
               </ion-button>

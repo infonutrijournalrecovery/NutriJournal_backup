@@ -29,6 +29,7 @@ import { DeviceService } from '../shared/services/device.service';
 import { User, DailyNutrition, Meal } from '../shared/interfaces/types';
 import { Activity } from '../shared/interfaces/Activity.interface';
 import { ApiService } from '../shared/services/api.service';
+import { AuthService } from '../shared/services/auth.service';
 import { EventBusService } from '../shared/services/event-bus.service';
 
 import { DatePickerModalComponent } from '../shared/components/date-picker-modal.component';
@@ -107,6 +108,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       return this.selectedSegment === 'activity';
     }
     waterForm: FormGroup;
+    weightForm: FormGroup;
     currentDate = new Date();
     isDesktop = false;
     isTablet = false;
@@ -282,11 +284,15 @@ export class DashboardPage implements OnInit, OnDestroy {
       private navCtrl: NavController,
       private fb: FormBuilder,
       private apiService: ApiService,
+      private authService: AuthService,
       private eventBus: EventBusService,
       private modalController: ModalController
     ) {
       this.waterForm = this.fb.group({
         waterAmount: [0]
+      });
+      this.weightForm = this.fb.group({
+        weightAmount: [0]
       });
   addIcons({personOutline,chevronBackOutline,calendarOutline,chevronForwardOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,barcodeOutline,fastFoodOutline,scaleOutline,flameOutline,wineOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,checkmarkCircle:checkmarkCircleOutline,alertCircle:alertCircleOutline});
   }
@@ -332,6 +338,10 @@ export class DashboardPage implements OnInit, OnDestroy {
   // Form Control Getters
   get waterAmount() {
     return this.waterForm.get('waterAmount') as FormControl;
+  }
+
+  get weightAmount() {
+    return this.weightForm.get('weightAmount') as FormControl;
   }
 
   // Progress Getters
@@ -657,6 +667,34 @@ export class DashboardPage implements OnInit, OnDestroy {
       });
     }
   }
+
+  confirmWeight() {
+    const weight = this.weightForm.get('weightAmount')?.value;
+    if (weight && weight > 0) {
+      const dateStr = this.currentDate.toISOString().split('T')[0];
+  
+      this.apiService.saveWeight(dateStr, weight).subscribe({
+        next: () => {
+          // Aggiorna il dailyStats per la dashboard
+          this.dailyStats.userProfile.weight = weight;
+  
+          // Aggiorna il currentUser tramite AuthService
+          this.authService.updateCurrentUser({ weight });
+  
+          this.weightForm.get('weightAmount')?.setValue(0);
+          this.showToast(`${weight} kg salvati correttamente`, 'success');
+        },
+        error: () => {
+          this.showToast('Errore salvataggio peso', 'danger');
+        }
+      });
+    }
+  }
+  
+  
+  
+  
+  
 
   async addWater() {
     const dateStr = this.currentDate.toISOString().split('T')[0];

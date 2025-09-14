@@ -129,21 +129,15 @@ export class AuthService {
   /**
    * Aggiorna profilo utente
    */
-  updateProfile(userData: Partial<User>): Observable<any> {
-    const headers = this.getAuthHeaders();
-    return this.http.put(`http://localhost:3000/api/users/profile`, userData, { headers })
-      .pipe(
-        tap((response: any) => {
-          if (response.success && response.data) {
-            // Aggiorna l'utente corrente
-            const updatedUser = { ...this.currentUser, ...response.data };
-            this.currentUserSubject.next(updatedUser);
-            localStorage.setItem('nutrijournal_user', JSON.stringify(updatedUser));
-          }
-        }),
-        catchError(this.handleError('updateProfile'))
-      );
+/** Aggiorna l'utente corrente */
+updateCurrentUser(userData: Partial<User>) {
+  if (this.currentUser) {
+    const updatedUser = { ...this.currentUser, ...userData };
+    this.currentUserSubject.next(updatedUser);
+    localStorage.setItem('nutrijournal_user', JSON.stringify(updatedUser));
   }
+}
+
 
   /**
    * Verifica se il token è valido
