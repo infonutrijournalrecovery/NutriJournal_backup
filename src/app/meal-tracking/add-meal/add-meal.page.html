@@ -64,58 +64,6 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Current Meal Items -->
-    <ion-card *ngIf="mealItems.length > 0" class="current-meal-card">
-      <ion-card-header>
-        <ion-card-title>
-          <ion-icon name="restaurant-outline"></ion-icon>
-          Prodotti Aggiunti ({{ mealItems.length }})
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-list lines="none">
-          <ion-item-sliding *ngFor="let item of mealItems; trackBy: trackByItemId">
-            <ion-item>
-              <ion-thumbnail slot="start" *ngIf="item.imageUrl">
-                <img [src]="item.imageUrl" [alt]="item.name">
-              </ion-thumbnail>
-              <ion-icon 
-                *ngIf="!item.imageUrl" 
-                slot="start" 
-                [name]="getCategoryIcon(item.category)"
-
-                size="large">
-              </ion-icon>
-              
-              <ion-label>
-                <h3>{{ item.name }}</h3>
-                <p *ngIf="item.productBrand">{{ item.productBrand }}</p>
-                <p class="quantity-info">
-                  {{ item.quantity }} {{ item.unit }} • 
-                  <span class="calories">{{ Math.round(item.totalNutrition.calories) }} kcal</span>
-                </p>
-              </ion-label>
-              
-              <ion-button 
-                slot="end" 
-                fill="clear" 
-                size="small"
-                (click)="editItemQuantity(item)">
-                <ion-icon name="create-outline"></ion-icon>
-              </ion-button>
-            </ion-item>
-            
-            <ion-item-options slot="end">
-              <ion-item-option (click)="removeItem(item)">
-                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-              </ion-item-option>
-            </ion-item-options>
-          </ion-item-sliding>
-        </ion-list>
-        
-      </ion-card-content>
-    </ion-card>
-
     <!-- Add Products Section -->
     <ion-card class="add-products-card">
       <ion-card-header>
