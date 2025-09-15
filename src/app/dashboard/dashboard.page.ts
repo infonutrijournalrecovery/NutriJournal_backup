@@ -590,11 +590,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       if (event) event.target.complete();
     }
   }
-  
-  
-  
-  
-  
+
   // Struttura per i pasti raggruppati per tipo
   mealsByType: { [key: string]: any[] } = {
     breakfast: [],
@@ -699,11 +695,6 @@ export class DashboardPage implements OnInit, OnDestroy {
       });
     }
   }
-  
-  
-  
-  
-  
 
   async addWater() {
     const dateStr = this.currentDate.toISOString().split('T')[0];
@@ -731,31 +722,6 @@ export class DashboardPage implements OnInit, OnDestroy {
   openUserProfile() {
     this.router.navigate(['/profile']);
   }
-
-  // Time Navigation Methods
-  /* goToPreviousDay() {
-    const newDate = new Date(this.currentDate);
-    newDate.setDate(newDate.getDate() - 1);
-    this.currentDate = newDate;
-    this.loadDashboardData();
-  }
-
-  goToNextDay() {
-    const newDate = new Date(this.currentDate);
-    newDate.setDate(newDate.getDate() + 1);
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
-    
-    if (newDate <= today) {
-      this.currentDate = newDate;
-      this.loadDashboardData();
-    }
-  }
-
-  goToToday() {
-    this.currentDate = new Date();
-    this.loadDashboardData();
-  } */
 
   // Date Helper Methods
   getDateDisplayText(): string {
@@ -918,6 +884,7 @@ export class DashboardPage implements OnInit, OnDestroy {
   
   /** Naviga alla pagina view-meal per il tipo di pasto selezionato */
   openViewMeal(type: string) {
-    this.router.navigate(['/view-meal', type]);
+    const dateStr = this.currentDate.toISOString().split('T')[0];
+    this.router.navigate(['/view-meal', type], { queryParams: { date: dateStr } });
   }
 }

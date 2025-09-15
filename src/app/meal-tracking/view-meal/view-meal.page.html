@@ -14,75 +14,45 @@
     <ion-item>
       <ion-label>
         <strong>DATA:</strong>
-        <div class="value">{{ prodotto.nome }}</div>
+        <div class="value">{{ dataPasto }}</div>
       </ion-label>
-      <ion-button 
-      fill="solid" 
-      class="profile-button">
-      <ion-icon name="trash-outline" slot="start"></ion-icon>
-      Elimina attività
-    </ion-button>
     </ion-item>
 
     <ion-item>
       <ion-label>
         <strong>TIPO:</strong>
-        <div class="value">{{ prodotto.marca }}</div>
+        <div class="value">{{ tipoPasto | titlecase }}</div>
       </ion-label>
     </ion-item>
 
     <ion-item>
       <ion-label>
         <strong>PRODOTTI:</strong>
-        <ion-list class="products-list">
-          <ion-item *ngFor="let prod of prodotti" button detail="true" (click)="goToProduct(prod)">
-            <ion-label>
-              <h3>{{ prod.nome }}</h3>
-              <p>{{ prod.marca }} • {{ prod.quantita }}</p>
-            </ion-label>
-        
-            <ion-button 
-              class="elimina-btn" 
-              fill="outline" 
-              (click)="removeProduct(prod); $event.stopPropagation()">
-              Rimuovi
-            </ion-button>
-        
-            <ion-note slot="end">
-              {{ prod.note || '' }}
-            </ion-note>
-          </ion-item>
-        </ion-list>
       </ion-label>
     </ion-item>
-    
-    <!-- <ion-item >
-      <ion-label>
-        <h2><strong>Resoconto pasto</strong></h2>
-        <div class="nutrient-list">
-          <div class="nutrient">
-            <span class="label">Energia:</span>
-            <span class="value">{{ prodotto.nutrienti?.energia }} kcal</span>
+    <ion-list class="products-list">
+      <ion-item *ngFor="let prod of prodotti" button detail="true" (click)="goToProduct(prod)">
+        <ion-label>
+          <h3>{{ prod.nome }}</h3>
+          <p>{{ prod.marca }} • {{ prod.quantita }}</p>
+          <div class="nutrienti-prodotto" *ngIf="prod.nutrienti">
+            <span *ngFor="let n of prod.nutrienti">
+              <span class="nutriente-prodotto">{{ n.nome }}: {{ n.valore }} {{ n.unita || '' }}</span>
+            </span>
           </div>
-          <div class="nutrient">
-            <span class="label">Carboidrati:</span>
-            <span class="value">{{ prodotto.nutrienti?.carboidrati }} g</span>
-          </div>
-          <div class="nutrient">
-            <span class="label">Grassi:</span>
-            <span class="value">{{ prodotto.nutrienti?.grassi }} g</span>
-          </div>
-          <div class="nutrient">
-            <span class="label">Proteine:</span>
-            <span class="value">{{ prodotto.nutrienti?.proteine }} g</span>
-          </div>
-          <div class="nutrient">
-            <span class="label">Sale:</span>
-            <span class="value">{{ prodotto.nutrienti?.sale }} g</span>
-          </div>
-        </div>
-      </ion-label>
-    </ion-item> -->
+        </ion-label>
+        <ion-button 
+          class="elimina-btn" 
+          fill="outline" 
+          (click)="removeProduct(prod); $event.stopPropagation()">
+          Rimuovi
+        </ion-button>
+        <ion-note slot="end">
+          {{ prod.note || '' }}
+        </ion-note>
+      </ion-item>
+    </ion-list>
+
     <ion-item>
       <ion-label>
         <strong>Resoconto Pasto (tutti i nutrienti):</strong>
@@ -92,8 +62,10 @@
       <div class="nutrient" *ngFor="let nutriente of nutrientiDinamici">
         <span class="label">{{ nutriente.nome }}:</span>
         <span class="value">{{ nutriente.valore }} {{ nutriente.unita || '' }}</span>
+        <!-- Progress bar for macronutrients -->
+        <ion-progress-bar *ngIf="nutriente.nome === 'Energia' || nutriente.nome === 'Carboidrati' || nutriente.nome === 'Proteine' || nutriente.nome === 'Grassi'"
+          [value]="nutriente.valore / getProgressBarMax(nutriente.nome)" color="primary"></ion-progress-bar>
       </div>
     </div>
-
   </ion-list>
 </ion-content>

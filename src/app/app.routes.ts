@@ -67,6 +67,12 @@ export const routes: Routes = [
   },
 
   {
+    path: 'vals',
+    loadComponent: () => import('./vals/vals.page').then((m) => m.ValsPage),
+    canActivate: [AuthGuard],
+  },
+
+  {
     path: 'activity/add',
     loadComponent: () => import('./activity-tracking/add-activity/add-Activity.page').then((m) => m.AddActivityPage),
     canActivate: [AuthGuard],
