@@ -39,7 +39,8 @@ import { AlertController, ToastController, LoadingController, ActionSheetControl
     IonLabel,
     IonList,
     IonNote
-  ]
+  ],
+  providers: [ModalController]
 })
 export class ViewMealPage {
   buildNutrientiDinamici() {

@@ -61,7 +61,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'meal/view',
+    path: 'view-meal/:type',
     loadComponent: () => import('./meal-tracking/view-meal/view-meal.page').then((m) => m.ViewMealPage),
     canActivate: [AuthGuard],
   },
@@ -98,38 +98,22 @@ export const routes: Routes = [
       },
 
       {
-
-
         path: 'meal/add',
-
-
         loadComponent: () => import('./meal-tracking/add-meal/add-meal.page').then((m) => m.AddMealPage),
-
-
       },
 
-
       {
-
-
         path: 'meal/edit/:id',
-
-
         loadComponent: () => import('./meal-tracking/add-meal/add-meal.page').then((m) => m.AddMealPage),
-
-
       },
-
-
       {
-
-
+        path: 'view-meal/:type',
+        loadComponent: () => import('./meal-tracking/view-meal/view-meal.page').then((m) => m.ViewMealPage),
+        canActivate: [AuthGuard],
+      },
+      {
         path: 'activity/add',
-
-
         loadComponent: () => import('./activity-tracking/add-activity/add-Activity.page').then((m) => m.AddActivityPage),
-
-
       },
       {
         path: 'scanner',

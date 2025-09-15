@@ -363,12 +363,6 @@ export class DashboardPage implements OnInit, OnDestroy {
     return circumference - (circumference * percentage / 100);
   }
 
-    /** Naviga alla pagina di dettaglio del pasto (view-meal) */
-  async openMealDetail(meal: any) {
-    if (!meal || !meal.id) return;
-    await this.router.navigate(['/meal/view'], { queryParams: { id: meal.id } });
-  }
-  
   // Device Detection
   private initializeDeviceDetection() {
     console.log('Initializing device detection');
@@ -909,8 +903,6 @@ export class DashboardPage implements OnInit, OnDestroy {
     }
   }
 
-
-
   // Metodo per abilitare/disabilitare il pulsante "giorno successivo"
   canGoToNextDay(): boolean {
     const today = new Date();
@@ -921,5 +913,11 @@ export class DashboardPage implements OnInit, OnDestroy {
           (this.currentDate.getMonth() === today.getMonth() &&
             this.currentDate.getDate() < today.getDate())))
     );
+  }
+
+  
+  /** Naviga alla pagina view-meal per il tipo di pasto selezionato */
+  openViewMeal(type: string) {
+    this.router.navigate(['/view-meal', type]);
   }
 }

@@ -176,7 +176,7 @@
               </ion-card-header>
               <ion-card-content>
                     <div class="meal-management-grid">
-                      <div class="meal-section" *ngFor="let type of ['breakfast','lunch','snack','dinner']">
+                      <div class="meal-section" *ngFor="let type of ['breakfast','lunch','snack','dinner']" (click)="openViewMeal(type)" style="cursor:pointer;">
                           <div class="meal-header">
                               <ion-icon [name]="getMealIcon(type)" class="meal-icon"></ion-icon>
                               <div class="meal-info">
@@ -315,7 +315,7 @@
   </div>
   <div class="mobile-grid">
     <!-- Nutrizione -->
-      <ion-card class="desktop-nutrition-card modern-nutrition">
+    <ion-card class="desktop-nutrition-card modern-nutrition">
           <ion-card-header>
               <ion-card-title>
                   <ion-icon name="nutrition-outline"></ion-icon>
@@ -429,34 +429,19 @@
                   + Registra Attività
               </ion-button>
           </div>
-          <style>
-              .desktop-activities-list {
-                  position: relative;
-                  min-height: 120px;
-                  padding-bottom: 56px;
-              }
-              .desktop-activity-add-btn-wrapper {
-                  position: absolute;
-                  left: 0;
-                  right: 0;
-                  bottom: 8px;
-                  display: flex;
-                  justify-content: center;
-                  z-index: 2;
-              }
-          </style>          </ion-card-content>
+        </ion-card-content>
       </ion-card>
-      <!-- Pasti -->
+      <!-- Gestione Pasti (mobile, stile desktop) -->
       <ion-card class="desktop-meals-card desktop-meal-management">
-        <ion-card-header>
-            <ion-card-title>
-                <ion-icon name="restaurant-outline"></ion-icon>
-                Gestione Pasti
-            </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="meal-management-grid">
-            <div class="meal-section" *ngFor="let type of ['breakfast','lunch','snack','dinner']">
+          <ion-card-header>
+              <ion-card-title>
+                  <ion-icon name="restaurant-outline"></ion-icon>
+                  Gestione Pasti
+              </ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="meal-management-grid">
+            <div class="meal-section" *ngFor="let type of ['breakfast','lunch','snack','dinner']" (click)="openViewMeal(type)" style="cursor:pointer;">
                 <div class="meal-header">
                     <ion-icon [name]="getMealIcon(type)" class="meal-icon"></ion-icon>
                     <div class="meal-info">
@@ -479,7 +464,7 @@
                         <div class="meal-products-list" style="margin-top: 10px;">
                             <ion-list lines="none">
                                 <ng-container *ngFor="let meal of mealsByDateGrouped[type]">
-                                    <ion-item class="meal-summary-item" (click)="openMealDetail(meal)" button detail="true">
+                                    <ion-item class="meal-summary-item">
                                         <ion-label>
                                             <b>{{ getMealName(type) }}</b>
                                             <span *ngIf="meal.total_calories != null" style="float: right; color: #b0b0b0; font-size: 0.98em; font-weight: 500; margin-left: 12px;">{{ meal.total_calories }} kcal</span>
@@ -504,8 +489,8 @@
                     </ng-container>
                 </div>
             </div>
-          </div>
-        </ion-card-content>
+        </div>
+     </ion-card-content>
       </ion-card>
       <!-- Azioni rapide -->
         <ion-card class="desktop-activities-card">
