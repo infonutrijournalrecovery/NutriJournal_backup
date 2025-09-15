@@ -166,7 +166,7 @@
       </div>
 
       <div class="desktop-right-column">
-          <!-- Gestione Pasti -->
+          <!-- Gestione Pasti (dettagliata, sempre visibile su desktop) -->
           <ion-card class="desktop-meals-card desktop-meal-management">
               <ion-card-header>
                   <ion-card-title>
@@ -175,28 +175,41 @@
                   </ion-card-title>
               </ion-card-header>
               <ion-card-content>
-                  <div class="meal-management-grid">
+                    <div class="meal-management-grid">
                       <div class="meal-section" *ngFor="let type of ['breakfast','lunch','snack','dinner']">
                           <div class="meal-header">
                               <ion-icon [name]="getMealIcon(type)" class="meal-icon"></ion-icon>
                               <div class="meal-info">
                                   <h4 class="meal-name">{{ getMealName(type) }}</h4>
-                                  <p class="meal-calories">{{ getMealStats(type).calories.consumed }} / {{ getMealStats(type).calories.goal }} kcal</p>
                               </div>
                           </div>
                           <div class="meal-content">
-                              <ng-container *ngIf="getMealStats(type).foods.length === 0">
+                              <ng-container *ngIf="!mealsByDateGrouped[type] || mealsByDateGrouped[type].length === 0">
                                   <div class="empty-meal">
                                       <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
                                       <p class="empty-text">Nessun pasto aggiunto</p>
                                   </div>
                               </ng-container>
-                              <ng-container *ngIf="getMealStats(type).foods.length > 0">
+                              <ng-container *ngIf="mealsByDateGrouped[type] && mealsByDateGrouped[type].length > 0">
                                   <div class="meal-products-list" style="margin-top: 10px;">
                                       <ion-list lines="none">
-                                          <ion-item *ngFor="let food of getMealStats(type).foods">
-                                              <ion-label>{{ food.name }}</ion-label>
-                                          </ion-item>
+                                          <ng-container *ngFor="let meal of mealsByDateGrouped[type]">
+                                              <ng-container *ngIf="meal.items && meal.items.length > 0; else noProducts">
+                                                  <ion-item *ngFor="let item of meal.items" class="product-item" lines="none">
+                                                      <ion-label>
+                                                          {{ item.product?.display_name || item.product?.name_it || item.product?.name || 'Prodotto' }}
+                                                          <span *ngIf="item.quantity"> - {{ item.quantity }}{{ item.unit || 'g' }} 
+                                                            <span *ngIf="meal.total_calories != null" style="float: right; color: #b0b0b0; font-size: 0.98em; font-weight: 500; margin-left: 12px;">  {{ meal.total_calories }} kcal</span>
+                                                          </span>
+                                                      </ion-label>
+                                                  </ion-item>
+                                              </ng-container>
+                                              <ng-template #noProducts>
+                                                  <ion-item lines="none">
+                                                      <ion-label style="color: #c00; font-size: 0.95em;">Nessun prodotto trovato in questo pasto (id: {{ meal.id }})</ion-label>
+                                                  </ion-item>
+                                              </ng-template>
+                                          </ng-container>
                                       </ion-list>
                                   </div>
                               </ng-container>
@@ -301,7 +314,7 @@
       </div>
   </div>
   <div class="mobile-grid">
-      <!-- Nutrizione -->
+    <!-- Nutrizione -->
       <ion-card class="desktop-nutrition-card modern-nutrition">
           <ion-card-header>
               <ion-card-title>
@@ -435,14 +448,14 @@
       </ion-card>
       <!-- Pasti -->
       <ion-card class="desktop-meals-card desktop-meal-management">
-          <ion-card-header>
-              <ion-card-title>
-                  <ion-icon name="restaurant-outline"></ion-icon>
-                  Gestione Pasti
-              </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <div class="meal-management-grid">
+        <ion-card-header>
+            <ion-card-title>
+                <ion-icon name="restaurant-outline"></ion-icon>
+                Gestione Pasti
+            </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="meal-management-grid">
             <div class="meal-section" *ngFor="let type of ['breakfast','lunch','snack','dinner']">
                 <div class="meal-header">
                     <ion-icon [name]="getMealIcon(type)" class="meal-icon"></ion-icon>
@@ -452,47 +465,47 @@
                     </div>
                 </div>
                 <div class="meal-content">
-                    <div *ngIf="getMealStats(type).foods.length === 0" class="empty-meal">
-                        <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
-                        <p class="empty-text">Nessun pasto aggiunto</p>
-                        <ion-button fill="solid" size="small" class="add-meal-btn" (click)="addMeal(type)">
-                            <ion-icon name="add-outline"></ion-icon>
-                            Aggiungi
-                        </ion-button>
-                    </div>
-                    <div *ngIf="getMealStats(type).foods.length > 0" class="meal-progress">
-                        <div class="macro-progress-item">
-                            <span class="macro-label">Calorie</span>
-                            <ion-progress-bar *ngIf="!isLoading" [value]="getMealStats(type).calories.percentage / 100" [color]="getProgressColor(getMealStats(type).calories.percentage)"></ion-progress-bar>
-                            <span class="macro-percentage">{{ getMealStats(type).calories.percentage }}%</span>
+                    <ng-container *ngIf="!mealsByDateGrouped[type] || mealsByDateGrouped[type].length === 0">
+                        <div class="empty-meal">
+                            <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                            <p class="empty-text">Nessun pasto aggiunto</p>
+                            <ion-button fill="solid" size="small" class="add-meal-btn" (click)="addMeal(type)">
+                                <ion-icon name="add-outline"></ion-icon>
+                                Aggiungi
+                            </ion-button>
                         </div>
-                        <div class="macro-progress-item">
-                            <span class="macro-label">Carb</span>
-                            <ion-progress-bar *ngIf="!isLoading" [value]="getMealStats(type).carbs.percentage / 100" color="primary"></ion-progress-bar>
-                            <span class="macro-percentage">{{ getMealStats(type).carbs.percentage }}%</span>
-                        </div>
-                        <div class="macro-progress-item">
-                            <span class="macro-label">Prot</span>
-                            <ion-progress-bar *ngIf="!isLoading" [value]="getMealStats(type).proteins.percentage / 100" color="success"></ion-progress-bar>
-                            <span class="macro-percentage">{{ getMealStats(type).proteins.percentage }}%</span>
-                        </div>
-                        <div class="macro-progress-item">
-                            <span class="macro-label">Grassi</span>
-                            <ion-progress-bar [value]="getMealStats(type).fats.percentage / 100" color="warning"></ion-progress-bar>
-                            <span class="macro-percentage">{{ getMealStats(type).fats.percentage }}%</span>
-                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="mealsByDateGrouped[type] && mealsByDateGrouped[type].length > 0">
                         <div class="meal-products-list" style="margin-top: 10px;">
                             <ion-list lines="none">
-                                <ion-item *ngFor="let food of getMealStats(type).foods">
-                                    <ion-label>{{ food.name }}</ion-label>
-                                </ion-item>
+                                <ng-container *ngFor="let meal of mealsByDateGrouped[type]">
+                                    <ion-item class="meal-summary-item" (click)="openMealDetail(meal)" button detail="true">
+                                        <ion-label>
+                                            <b>{{ getMealName(type) }}</b>
+                                            <span *ngIf="meal.total_calories != null" style="float: right; color: #b0b0b0; font-size: 0.98em; font-weight: 500; margin-left: 12px;">{{ meal.total_calories }} kcal</span>
+                                        </ion-label>
+                                    </ion-item>
+                                    <ng-container *ngIf="meal.items && meal.items.length > 0; else noProducts">
+                                        <ion-item *ngFor="let item of meal.items" class="product-item" lines="none">
+                                            <ion-label>
+                                                {{ item.product?.display_name || item.product?.name_it || item.product?.name || 'Prodotto' }}
+                                                <span *ngIf="item.quantity"> - {{ item.quantity }}{{ item.unit || 'g' }}</span>
+                                            </ion-label>
+                                        </ion-item>
+                                    </ng-container>
+                                    <ng-template #noProducts>
+                                        <ion-item lines="none">
+                                            <ion-label style="color: #c00; font-size: 0.95em;">Nessun prodotto trovato in questo pasto (id: {{ meal.id }})</ion-label>
+                                        </ion-item>
+                                    </ng-template>
+                                </ng-container>
                             </ion-list>
                         </div>
-                    </div>
+                    </ng-container>
                 </div>
             </div>
-        </div>
-     </ion-card-content>
+          </div>
+        </ion-card-content>
       </ion-card>
       <!-- Azioni rapide -->
         <ion-card class="desktop-activities-card">

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -62,6 +62,13 @@ import { DatePickerModalComponent } from '../shared/components/date-picker-modal
 })
 
 export class DashboardPage implements OnInit, OnDestroy {
+  /** Pasti raggruppati per tipo, usati per la visualizzazione diretta dei prodotti */
+  public mealsByDateGrouped: { [key: string]: any[] } = {
+    breakfast: [],
+    lunch: [],
+    snack: [],
+    dinner: []
+  };
 
   /** Restituisce la label italiana per il tipo di attività */
   getActivityLabel(type: string): string {
@@ -93,9 +100,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     };
     return map[type] || (type ? type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() : 'Attività');
   }
-  // ionViewWillEnter() {
-  //   this.loadTodayActivities();
-  // }
+
     activitiesToday: Activity[] = [];
     user: User | null = null;
     todayNutrition: DailyNutrition | null = null;
@@ -286,7 +291,8 @@ export class DashboardPage implements OnInit, OnDestroy {
       private apiService: ApiService,
       private authService: AuthService,
       private eventBus: EventBusService,
-      private modalController: ModalController
+      private modalController: ModalController,
+      private cdr: ChangeDetectorRef
     ) {
       this.waterForm = this.fb.group({
         waterAmount: [0]
@@ -357,6 +363,12 @@ export class DashboardPage implements OnInit, OnDestroy {
     return circumference - (circumference * percentage / 100);
   }
 
+    /** Naviga alla pagina di dettaglio del pasto (view-meal) */
+  async openMealDetail(meal: any) {
+    if (!meal || !meal.id) return;
+    await this.router.navigate(['/meal/view'], { queryParams: { id: meal.id } });
+  }
+  
   // Device Detection
   private initializeDeviceDetection() {
     console.log('Initializing device detection');
@@ -519,7 +531,8 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   async loadDashboardData(event?: any) {
-    const dateStr = this.currentDate.toISOString().split('T')[0];
+  const dateStr = this.currentDate.toISOString().split('T')[0];
+  console.log('[DEBUG][DASHBOARD] Data usata per getMealsByDateGrouped:', dateStr);
   
     // Carica acqua
     try {
@@ -535,58 +548,35 @@ export class DashboardPage implements OnInit, OnDestroy {
       // Carica i pasti raggruppati per tipo
       const mealsRes: any = await this.apiService.getMealsByDateGrouped(dateStr).toPromise();
       console.log('[DEBUG][Dashboard] Risposta grezza getMealsByDateGrouped:', mealsRes);
-  
-      const mealsByType: { [key: string]: any[] } = mealsRes?.data?.mealsByType || {
+
+      // Salva direttamente per il template
+        console.log('[DEBUG][DASHBOARD] Risposta API getMealsByDateGrouped:', mealsRes);
+      console.log('[DEBUG][DASHBOARD] mealsRes:', mealsRes);
+      console.log('[DEBUG][DASHBOARD] mealsRes.data:', mealsRes?.data);
+      console.log('[DEBUG][DASHBOARD] mealsRes.data.mealsByType:', mealsRes?.data?.mealsByType);
+      this.mealsByDateGrouped = mealsRes?.mealsByType || {
         breakfast: [],
         lunch: [],
         snack: [],
         dinner: []
       };
-  
+      console.log('[DEBUG][DASHBOARD] mealsByDateGrouped dopo assegnazione:', this.mealsByDateGrouped);
+      if (this.mealsByDateGrouped && this.mealsByDateGrouped['breakfast']) {
+        console.log('[DEBUG][DASHBOARD] Dettaglio breakfast:', JSON.stringify(this.mealsByDateGrouped['breakfast'], null, 2));
+      }
+      this.cdr.detectChanges();
+
       // DEBUG: stampa ogni pasto e i suoi items
-      Object.keys(mealsByType).forEach(type => {
-        mealsByType[type].forEach(meal => {
+      Object.keys(this.mealsByDateGrouped).forEach(type => {
+        this.mealsByDateGrouped[type].forEach(meal => {
           console.log(`[DEBUG][Dashboard] tipo ${type} pasto ${meal.id}: items`, meal.items);
         });
       });
-  
-      // Popola mealStats in modo **immutabile**
-      (['breakfast','lunch','snack','dinner'] as const).forEach(type => {
-        const meals: any[] = mealsByType[type] || [];
-        const foods: { name: string }[] = [];
-        let calories = 0, carbs = 0, proteins = 0, fats = 0;
-  
-        meals.forEach((meal: { items?: any[], id?: any }) => {
-          if (Array.isArray(meal.items) && meal.items.length > 0) {
-            meal.items.forEach((item: { product?: any, quantity?: number }) => {
-              const prod = item.product;
-              const name = prod?.display_name || prod?.name_it || prod?.name || 'Prodotto';
-              foods.push({ name });
-  
-              const qty = item.quantity || 100; // default 100g
-              calories += (prod?.calories || 0) * (qty / 100);
-              carbs += (prod?.carbs || 0) * (qty / 100);
-              proteins += (prod?.proteins || 0) * (qty / 100);
-              fats += (prod?.fats || 0) * (qty / 100);
-            });
-          }
-        });
-  
-        // Aggiorna mealStats immutabilmente
-        this.mealStats = {
-          ...this.mealStats,
-          [type]: {
-            foods,
-            calories: { consumed: calories },
-            carbs: { consumed: carbs },
-            proteins: { consumed: proteins },
-            fats: { consumed: fats }
-          }
-        };
-      });
+
+      // RIMOSSA logica foods: ora tutta la visualizzazione e i calcoli devono usare solo mealsByDateGrouped
   
       // Aggiorna statistiche giornaliere totali
-      const allMeals: any[] = ([] as any[]).concat(...Object.values(mealsByType));
+  const allMeals: any[] = ([] as any[]).concat(...Object.values(this.mealsByDateGrouped));
       this.dailyStats.calories.consumed = allMeals.reduce((sum, m) => sum + (m.total_calories || 0), 0);
       this.dailyStats.carbs.consumed = allMeals.reduce((sum, m) => sum + (m.total_carbs || 0), 0);
       this.dailyStats.proteins.consumed = allMeals.reduce((sum, m) => sum + (m.total_proteins || 0), 0);

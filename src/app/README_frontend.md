@@ -1,11 +1,11 @@
 INDICAZIONI:
 -collegare tutto al backend, appena la GUI è finita
 -calendario data di nascita in register non funzionante
--in login: button "Collegati con google" e apple da eliminare
--in login non esiste la funzionalità recupera password 
--la home teoricamente non serve perchè abbiamo la dashboard quindi possiamo rimuoverla
+
+
+
 -correggere le routes
--aggiungere dashboard navigabile nel tempo
+
 -le progress bar non sono ottimizzate per layout desktop e non sono presenti nel layout mobile
 -rimuovi le quick stats nell'header e inseriamo lì un button per il profilo utente
 -rimuovi la sezione azioni rapide dalla dashboard
