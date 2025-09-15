@@ -192,6 +192,11 @@ const userUpdateSchema = Joi.object({
         .messages({
             'array.base': 'Le allergie devono essere un array di stringhe'
         })
+        ,
+        goal: Joi.string().valid('lose_weight', 'maintain_weight', 'gain_muscle', 'gain_weight')
+            .messages({
+                'any.only': 'Obiettivo non valido'
+            })
 });
 
 /**

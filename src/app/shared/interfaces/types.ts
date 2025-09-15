@@ -37,6 +37,7 @@ export interface User {
   totalMeals?: number;
   currentStreak?: number;
   joinDate?: Date;
+  goal?: string;
   age?: number; // Età calcolata dal backend
   dailyCalories?: number; // Kcal giornaliere obiettivo dal backend
   created_at: string;
@@ -128,6 +129,7 @@ export interface RegisterData {
   height: number;
   weight: number;
   activity_level?: string;
+  goal?: string;
 }
 
 export interface Product {

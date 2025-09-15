@@ -186,6 +186,21 @@
                 </ion-select-option>
               </ion-select>
             </ion-item>
+              <!-- Obiettivo -->
+              <ion-item class="input-item" [class.error]="hasFieldError('goal')">
+                <ion-icon slot="start" name="trending-up-outline"></ion-icon>
+                <ion-select 
+                  formControlName="goal" 
+                  placeholder="Obiettivo"
+                  interface="popover">
+                  <ion-select-option *ngFor="let option of goalOptions" [value]="option.value">
+                    {{ option.label }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              <div class="error-message" *ngIf="hasFieldError('goal')">
+                {{ getFieldError('goal') }}
+              </div>
           </div>
 
           <!-- Pulsante Registrazione -->

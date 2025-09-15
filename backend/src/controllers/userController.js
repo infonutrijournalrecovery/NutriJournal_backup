@@ -208,6 +208,7 @@ class UserController {
         activity_level: req.user.activity_level,
         timezone: req.user.timezone,
         language: req.user.language,
+        goal: req.user.goal,
         createdAt: req.user.createdAt,
         updatedAt: req.user.updatedAt,
         allergies,
@@ -245,10 +246,11 @@ class UserController {
   static async updateProfile(req, res, next) {
   // Log payload ricevuto
   console.log('[DEBUG] Payload updateProfile:', req.body);
+  const updates = {};
     try {
       const allowedFields = [
         'name', 'email', 'avatar_path', 'date_of_birth', 'gender',
-        'height', 'weight', 'activity_level', 'timezone', 'language'
+        'height', 'weight', 'activity_level', 'timezone', 'language', 'goal'
       ];
 
       // Mappa i campi dal payload frontend ai nomi backend
@@ -266,6 +268,14 @@ class UserController {
           let value = req.body[key];
           // Gestione stringhe vuote come NULL
           if (typeof value === 'string' && value.trim() === '') value = null;
+          if (backendKey === 'goal') {
+            const allowedGoals = ['lose_weight', 'maintain_weight', 'gain_muscle', 'gain_weight'];
+            if (!allowedGoals.includes(value)) {
+              throw new ValidationError(`Valore obiettivo non valido: ${value}`);
+            }
+            updates[backendKey] = value;
+            return;
+          }
           // Validazione tipo di dato
           switch(backendKey) {
             case 'height':

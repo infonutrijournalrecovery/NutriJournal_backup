@@ -176,8 +176,8 @@
               </ion-card-header>
               <ion-card-content>
                     <div class="meal-management-grid">
-                      <div class="meal-section" *ngFor="let type of ['breakfast','lunch','snack','dinner']" (click)="openViewMeal(type)" style="cursor:pointer;">
-                          <div class="meal-header">
+                      <div class="meal-section" *ngFor="let type of ['breakfast','lunch','snack','dinner']">
+                          <div class="meal-header" (click)="openViewMeal(type)" style="cursor:pointer;">
                               <ion-icon [name]="getMealIcon(type)" class="meal-icon"></ion-icon>
                               <div class="meal-info">
                                   <h4 class="meal-name">{{ getMealName(type) }}</h4>
@@ -213,7 +213,7 @@
                                       </ion-list>
                                   </div>
                               </ng-container>
-                              <div class="add-meal-btn-wrapper" style="margin-top: 10px; text-align: right;">
+                              <div class="add-meal-btn-wrapper-fixed">
                                   <ion-button fill="solid" size="small" class="add-meal-btn" (click)="addMeal(type)">
                                       <ion-icon name="add-outline"></ion-icon>
                                       Aggiungi

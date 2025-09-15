@@ -31,26 +31,35 @@
       </ion-label>
     </ion-item>
     <ion-list class="products-list">
-      <ion-item *ngFor="let prod of prodotti" button detail="true" (click)="goToProduct(prod)">
-        <ion-label>
-          <h3>{{ prod.nome }}</h3>
-          <p>{{ prod.marca }} • {{ prod.quantita }}</p>
-          <div class="nutrienti-prodotto" *ngIf="prod.nutrienti">
-            <span *ngFor="let n of prod.nutrienti">
-              <span class="nutriente-prodotto">{{ n.nome }}: {{ n.valore }} {{ n.unita || '' }}</span>
-            </span>
-          </div>
-        </ion-label>
-        <ion-button 
-          class="elimina-btn" 
-          fill="outline" 
-          (click)="removeProduct(prod); $event.stopPropagation()">
-          Rimuovi
-        </ion-button>
-        <ion-note slot="end">
-          {{ prod.note || '' }}
-        </ion-note>
-      </ion-item>
+      <ng-container *ngFor="let prod of prodotti; let i = index">
+        <ion-item button detail="false" (click)="prod.expanded = !prod.expanded">
+          <ion-label>
+            <h3>{{ prod.nome }}</h3>
+            <p *ngIf="prod.marca || prod.quantita">
+              <span *ngIf="prod.marca">{{ prod.marca }}</span>
+              <span *ngIf="prod.marca && prod.quantita"> • </span>
+              <span *ngIf="prod.quantita">{{ prod.quantita }}</span>
+            </p>
+          </ion-label>
+          <ion-button 
+            class="elimina-btn" 
+            fill="outline" 
+            (click)="removeProduct(prod); $event.stopPropagation()">
+            Rimuovi
+          </ion-button>
+          <ion-icon [name]="prod.expanded ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end"></ion-icon>
+        </ion-item>
+        <div *ngIf="prod.expanded" class="nutrienti-prodotto-tendina">
+          <ion-list lines="none">
+            <ion-item *ngFor="let n of prod.nutrienti">
+              <ion-label>
+                <span class="nutriente-prodotto-label">{{ n.nome }}</span>
+                <span class="nutriente-prodotto-value">{{ n.valore }} {{ n.unita || '' }}</span>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </div>
+      </ng-container>
     </ion-list>
 
     <ion-item>

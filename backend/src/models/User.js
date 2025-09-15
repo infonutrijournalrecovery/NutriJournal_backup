@@ -61,7 +61,7 @@ class User {
       }
       const allowedFields = [
         'name', 'email', 'avatar_path', 'date_of_birth', 'gender',
-        'height', 'weight', 'activity_level', 'timezone', 'language'
+        'height', 'weight', 'activity_level', 'timezone', 'language', 'goal'
       ];
       const setClauses = [];
       const values = [];
@@ -145,6 +145,7 @@ class User {
     this.updated_at = data.updated_at;
     this.last_login = data.last_login;
     this.email_verified = data.email_verified || false;
+  this.goal = data.goal;
   }
 
   static create(data, db) {

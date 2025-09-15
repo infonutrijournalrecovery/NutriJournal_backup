@@ -1,3 +1,21 @@
+.add-meal-btn-wrapper-fixed {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+.meal-section {
+  position: relative;
+  min-height: 220px;
+  margin-bottom: 24px;
+  background: var(--ion-color-light-shade);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding-bottom: 56px;
+}
 ion-content{
   --background: #75b972;
 }

@@ -40,7 +40,7 @@ import {
   womanOutline,
   resizeOutline,
   scaleOutline,
-  arrowBackOutline, fitnessOutline } from 'ionicons/icons';
+  arrowBackOutline, fitnessOutline, trendingUpOutline } from 'ionicons/icons';
 import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
@@ -77,6 +77,7 @@ import { AuthService } from '../../shared/services/auth.service';
   ]
 })
 export class RegisterPage implements OnInit {
+
   registerForm: FormGroup;
   showPassword = false;
   showConfirmPassword = false;
@@ -97,6 +98,13 @@ export class RegisterPage implements OnInit {
     { value: 'very_active', label: 'Molto Attivo', description: '2 volte al giorno o lavoro fisico' }
   ];
 
+  public goalOptions = [
+    { value: 'lose_weight', label: 'Perdere peso' },
+    { value: 'maintain_weight', label: 'Mantenere peso' },
+    { value: 'gain_weight', label: 'Aumentare peso' },
+    { value: 'gain_muscle', label: 'Aumentare massa muscolare' }
+  ];
+
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
@@ -104,7 +112,7 @@ export class RegisterPage implements OnInit {
     private toastController: ToastController,
     private loadingController: LoadingController
   ) {
-    addIcons({personOutline,mailOutline,lockClosedOutline,calendarOutline,resizeOutline,scaleOutline,fitnessOutline,eyeOutline,eyeOffOutline,manOutline,womanOutline,arrowBackOutline});
+    addIcons({personOutline,mailOutline,lockClosedOutline,calendarOutline,resizeOutline,scaleOutline,fitnessOutline,trendingUpOutline,eyeOutline,eyeOffOutline,manOutline,womanOutline,arrowBackOutline});
     
     this.registerForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -115,7 +123,8 @@ export class RegisterPage implements OnInit {
       gender: ['', [Validators.required]],
       height: ['', [Validators.required, Validators.min(100), Validators.max(250)]],
       weight: ['', [Validators.required, Validators.min(30), Validators.max(300)]],
-      activity_level: ['moderate']
+      activity_level: ['moderate'],
+      goal: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
   }
 

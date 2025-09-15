@@ -1,3 +1,83 @@
+:host {
+  --ion-background-color: var(--ion-color-light);
+}
+
+.meal-details {
+  margin-top: 16px;
+  border-radius: 16px;
+  background: var(--ion-color-light-shade);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.ion-item {
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.products-list {
+  margin-bottom: 24px;
+}
+
+ion-item[button] {
+  transition: background 0.2s;
+}
+ion-item[button]:hover {
+  background: var(--ion-color-primary-tint);
+}
+
+.nutrienti-prodotto-tendina {
+  background: var(--ion-color-light);
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  padding: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.nutriente-prodotto-label {
+  font-weight: 300;
+  color: #75b972;
+}
+.nutriente-prodotto-value {
+  float: right;
+  color: var(--ion-color-dark);
+}
+
+.nutrient-list {
+  margin-top: 16px;
+  padding: 12px 0;
+  background: var(--ion-color-light-shade);
+  border-radius: 12px;
+}
+.nutrient {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--ion-color-light);
+}
+.nutrient:last-child {
+  border-bottom: none;
+}
+.label {
+  font-weight: 500;
+  color: var(--ion-color-primary);
+}
+.value {
+  color: var(--ion-color-dark);
+  margin-left: 8px;
+}
+ion-progress-bar {
+  margin-top: 4px;
+  height: 8px;
+  border-radius: 4px;
+  --background: var(--ion-color-light);
+  --progress-background: var(--ion-color-primary);
+}
+.elimina-btn {
+  --color: var(--ion-color-danger);
+  --border-radius: 8px;
+  margin-left: 8px;
+}
 :root {
   --meal-primary: #fff000;
   --meal-secondary: #0000ff;

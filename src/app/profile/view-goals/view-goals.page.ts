@@ -190,6 +190,7 @@ export class ViewGoalsPage implements OnInit {
       // Support both { user, activeGoal } and flat user
   const user = (typeof data === 'object' && 'user' in data) ? (data as any).user : data;
   this.user = user;
+  console.log('[DEBUG] user.goal dal backend:', user.goal);
 
   // Extract data for calculations
   this.userAge = this.calculateAge(user.birthDate || user.birth_date || '1990-05-15');
@@ -198,9 +199,9 @@ export class ViewGoalsPage implements OnInit {
   this.userGender = user.gender || 'male';
   this.userActivityLevel = user.activity_level || 'moderate';
 
-  // Get current goal (if present, else default)
+  // Get current goal (prefer user.goal, else fallback)
   let activeGoal = (typeof data === 'object' && 'activeGoal' in data) ? (data as any).activeGoal : undefined;
-  this.currentGoal = (user.nutritionGoals?.goal_type as GoalType) || (activeGoal?.goal_type as GoalType) || 'maintain_weight';
+  this.currentGoal = user.goal || (user.nutritionGoals?.goal_type as GoalType) || (activeGoal?.goal_type as GoalType) || 'maintain_weight';
 
       // Calculate nutrition goals
       this.calculateGoals();
@@ -442,11 +443,21 @@ export class ViewGoalsPage implements OnInit {
         },
         {
           text: 'Conferma',
-          handler: (data) => {
+          handler: async (data) => {
             if (data !== this.currentGoal) {
-              this.currentGoal = data;
-              this.calculateGoals();
-              this.showToast('Obiettivo aggiornato! I valori sono stati ricalcolati.', 'success');
+              // Mostra loading
+              this.isLoading = true;
+              try {
+                // Aggiorna obiettivo nel backend
+                await this.apiService.updateUserProfile({ goal: data }).toPromise();
+                this.currentGoal = data;
+                this.calculateGoals();
+                await this.showToast('Obiettivo aggiornato e salvato!', 'success');
+              } catch (error) {
+                await this.showToast('Errore nel salvataggio dell\'obiettivo', 'danger');
+              } finally {
+                this.isLoading = false;
+              }
             }
           }
         }

@@ -109,16 +109,6 @@ class AuthController {
         userAgent: req.get('User-Agent')
       });
 
-      // Invia email di benvenuto (solo in produzione)
-      if (process.env.NODE_ENV === 'production' && emailConfig.isEmailConfigured) {
-        try {
-          await emailConfig.sendWelcomeEmail(user.email, user.name);
-          logger.info('Email di benvenuto inviata', { email: user.email });
-        } catch (error) {
-          logger.error('Errore invio email di benvenuto', { email: user.email, error: error.message });
-        }
-      }
-
       // Genera token di accesso
       const authResponse = authConfig.generateAuthResponse(user, 'Registrazione completata con successo');
 
