@@ -7,6 +7,7 @@
 .stats-page {
 background: var(--white);
 color: var(--dark);
+padding-bottom: 110px; // spazio per quick stats fisse
 }
 
 
@@ -55,6 +56,15 @@ color: var(--white);
 margin-top: 12px;
 }
 
+canvas {
+  display: block;
+  width: 100% !important;
+  max-width: 100%;
+  height: auto !important;
+  min-height: 200px;
+  max-height: 280px; // o il valore che vuoi
+}
+
 
 .chart-card {
 	margin-top: 12px;
@@ -67,9 +77,9 @@ margin-top: 12px;
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
-	min-height: 220px;
-	max-height: 340px;
-	width: 100%;
+	height: auto;
+	min-height: 220px; // garantisce spazio minimo
+    max-height: 320px;
 	overflow-x: auto;
 }
 
@@ -120,7 +130,15 @@ margin-top: 12px;
 display: grid;
 grid-template-columns: repeat(1, 1fr);
 gap: 12px;
-margin-top: 12px;
+position: fixed;
+bottom: 0;
+left: 0;
+width: 100%;
+z-index: 10;
+background: var(--white);
+box-shadow: 0 -2px 12px rgba(65,85,64,0.06);
+padding: 16px 0 12px 0;
+margin-top: 0;
 }
 
 

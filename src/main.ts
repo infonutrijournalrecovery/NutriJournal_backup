@@ -1,3 +1,4 @@
+import 'chart.js/auto';
 import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
