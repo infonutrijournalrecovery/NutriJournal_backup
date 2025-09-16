@@ -27,7 +27,7 @@ const mealRoutes = require('./routes/meals');
 const nutritionRoutes = require('./routes/nutrition');
 const italianFoodRoutes = require('./routes/italian-food');
 const setupActivitiesRoutes = require('./routes/activities');
-const analyticsRoutes = require('./routes/analytics');
+const createAnalyticsRouter = require('./routes/analytics');
 const createPantryRouter = require('./routes/pantry');
 
 class NutriJournalServer {
@@ -238,7 +238,13 @@ class NutriJournalServer {
       console.error('❌ Database non inizializzato, impossibile configurare /api/activities e /api/pantry');
     }
 
-    this.app.use('/api/analytics', analyticsRoutes);
+    // Inizializza router analytics solo dopo che il db è pronto
+    if (this.database && this.database.sqliteDb) {
+      const analyticsRouter = createAnalyticsRouter(this.database.sqliteDb);
+      this.app.use('/api/analytics', analyticsRouter);
+    } else {
+      console.error('❌ Database non inizializzato, impossibile configurare /api/analytics');
+    }
 
     // 404 handler per API
     this.app.use('/api/*', (req, res) => {

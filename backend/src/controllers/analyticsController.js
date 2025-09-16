@@ -11,8 +11,8 @@ class AnalyticsController {
      * Crea una nuova istanza del controller
      * @param {Object} database - Istanza del database
      */
-    constructor(database) {
-        this.analyticsModel = new Analytics(database);
+    constructor(sqliteDb) {
+        this.analyticsModel = new Analytics(sqliteDb);
     }
 
     /**
@@ -22,6 +22,9 @@ class AnalyticsController {
      * @param {Function} next - Next middleware function
      */
     async getDashboard(req, res, next) {
+    // Log di debug: verifica connessione DB e utente
+    console.log('[DEBUG] analyticsController.getDashboard: DB:', this.analyticsModel?.db ? 'OK' : 'NULL');
+    console.log('[DEBUG] analyticsController.getDashboard: req.user:', req.user);
         try {
             const userId = req.user.id;
             const { days = 30 } = req.query;
@@ -37,7 +40,12 @@ class AnalyticsController {
                 days: daysNum
             });
 
+
             const dashboard = await this.analyticsModel.getDashboard(userId, daysNum);
+            if (!dashboard || Object.keys(dashboard).length === 0) {
+                logger.warn('Dashboard vuota o non disponibile', { userId, days: daysNum });
+                return res.status(200).json({ success: true, data: {}, message: 'Nessun dato disponibile per la dashboard', empty: true });
+            }
 
             res.json({
                 success: true,

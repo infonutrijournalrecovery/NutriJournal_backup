@@ -5,6 +5,7 @@ class AuthMiddleware {
   // Middleware per verificare JWT token
   static async verifyToken(req, res, next) {
     try {
+      console.log('[DEBUG] AuthMiddleware.verifyToken chiamato, header:', req.headers.authorization);
       // Estrai token dall'header Authorization
       const authHeader = req.headers.authorization;
       const token = authConfig.extractTokenFromHeader(authHeader);

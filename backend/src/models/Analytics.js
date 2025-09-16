@@ -84,7 +84,7 @@ class Analytics {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve(rows);
+                    resolve(rows || []);
                 }
             });
         });
@@ -117,13 +117,23 @@ class Analytics {
                 meals_count, activities_count, weight_kg, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
-
-        return this.runQuery(sql, [
+        const params = [
             userId, date, calories_consumed, calories_goal, calories_burned,
             proteins_consumed, proteins_goal, carbs_consumed, carbs_goal,
             fats_consumed, fats_goal, fiber_consumed, water_consumed,
             meals_count, activities_count, weight_kg
-        ]);
+        ];
+        // Logging dettagliato
+        console.log('[DEBUG][Analytics.updateNutritionTrend] SQL:', sql);
+        console.log('[DEBUG][Analytics.updateNutritionTrend] Params:', params);
+        try {
+            const result = await this.runQuery(sql, params);
+            console.log('[DEBUG][Analytics.updateNutritionTrend] Result:', result);
+            return result;
+        } catch (err) {
+            console.error('[ERROR][Analytics.updateNutritionTrend]', err);
+            throw err;
+        }
     }
 
     // Ottieni trend nutrizionali per periodo
@@ -332,11 +342,13 @@ class Analytics {
         const dateFrom = startDate.toISOString().split('T')[0];
         const dateTo = endDate.toISOString().split('T')[0];
 
-        const [nutritionStats, goalProgress, recentTrends] = await Promise.all([
+        const [nutritionStats, goalProgress, recentTrendsRaw] = await Promise.all([
             this.getNutritionStats(userId, dateFrom, dateTo),
             this.getGoalProgress(userId, dateFrom, dateTo),
             this.getNutritionTrends(userId, dateFrom, dateTo)
         ]);
+
+        const recentTrends = Array.isArray(recentTrendsRaw) ? recentTrendsRaw : [];
 
         // Calcola streak (giorni consecutivi di successo)
         let currentStreak = 0;
@@ -372,7 +384,7 @@ class Analytics {
                 current: currentStreak,
                 best: maxStreak
             },
-            recent_progress: goalProgress.slice(-7), // Ultimi 7 giorni
+            recent_progress: Array.isArray(goalProgress) ? goalProgress.slice(-7) : [], // Ultimi 7 giorni
             trends_count: recentTrends.length
         };
     }

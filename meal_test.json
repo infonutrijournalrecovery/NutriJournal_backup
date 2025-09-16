@@ -1,0 +1,7 @@
+{
+  "type": "pranzo",
+  "date": "2025-09-16",
+  "items": [
+    { "product_id": 454004, "quantity": 100 }
+  ]
+}

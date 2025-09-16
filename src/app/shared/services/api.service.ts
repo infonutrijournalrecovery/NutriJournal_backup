@@ -262,7 +262,7 @@ export class ApiService {
    */
   getNutritionTrends(period: string, dateFrom?: string, dateTo?: string): Observable<ApiResponse<any>> {
     const headers = this.authService.getAuthHeaders();
-    let url = `${this.baseUrl}/analytics/nutrition-trends?period=${period}`;
+  let url = `${this.baseUrl}/analytics/nutrition/trends?period=${period}`;
     
     if (dateFrom) url += `&date_from=${dateFrom}`;
     if (dateTo) url += `&date_to=${dateTo}`;

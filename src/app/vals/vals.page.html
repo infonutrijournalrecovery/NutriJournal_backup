@@ -1,50 +1,65 @@
-<ion-header [translucent]="true">
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-back-button defaultHref="/tabs/dashboard"></ion-back-button>
-      </ion-buttons>
-      <ion-title>I miei valori</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  
-  <ion-content>
-    <ion-grid>
-      <ion-row>
-        <ion-col size="12" sizeMd="3">
-          <ion-list inset>
-            <ion-item button>Peso</ion-item>
-            <ion-item button>Calorie</ion-item>
-            <ion-item button>Proteine</ion-item>
-            <ion-item button>Carboidrati</ion-item>
-            <ion-item button>Grassi</ion-item>
-            <ion-item button>Acqua</ion-item>
-          </ion-list>
-        </ion-col>
-  
-        <ion-col size="12" sizeMd="9" class="segment-custom">
-          <ion-segment mode="md" [(ngModel)]="selectedRange">
-            <ion-segment-button value="settimanale">Settimanale</ion-segment-button>
-            <ion-segment-button value="mensile">Mensile</ion-segment-button>
-            <ion-segment-button value="3mesi">3 Mesi</ion-segment-button>
-          </ion-segment>
-  
-          <div class="action-buttons">
-            <ion-button fill="outline" size="small" (click)="openDateModal()">
-             <!--<ion-icon slot="start" name="calendar-outline"></ion-icon>--> 
-              {{ formatDate(selectedDate) }}
-            </ion-button>
-            <ion-button fill="outline" size="small">
-              <ion-icon slot="icon-only" name="grid-outline"></ion-icon>
-            </ion-button>
-          </div>
-  
-          <div class="chart-wrapper">
-            <canvas #lineCanvas></canvas>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  
-    <!-- Modal con calendario -->
-    <!-- Date picker modal handled dynamically by ModalController -->
-  </ion-content>
+<ion-header>
+  <ion-toolbar color="light">
+    <ion-title class="title">Statistiche</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="ion-padding stats-page">
+<!-- Metric selector -->
+<div class="metric-selector">
+<div class="metric-scroll" style="overflow-x: auto; white-space: nowrap;">
+  <div class="metrics-row" style="display: inline-flex;">
+    <button
+      *ngFor="let m of metrics"
+      (click)="selectMetric(m)"
+      [class.active]="selectedMetric === m"
+      class="metric-pill"
+      style="margin-right: 8px;"
+    >
+      {{ m }}
+    </button>
+  </div>
+</div>
+</div>
+
+
+<!-- Period selector -->
+<div class="period-selector">
+  <ion-segment [value]="selectedPeriod" (ionChange)="selectPeriod($event.detail.value)">
+    <ion-segment-button *ngFor="let p of periods" [value]="p">
+      {{ p }}
+    </ion-segment-button>
+  </ion-segment>
+</div>
+
+
+<!-- Chart card -->
+<div class="chart-card">
+<div *ngIf="lineChartData">
+  <canvas
+    baseChart
+    [data]="lineChartData"
+    [type]="'line'"
+    [options]="lineChartOptions">
+  </canvas>
+</div>
+</div>
+
+
+<!-- Quick stats -->
+<div class="quick-stats">
+  <div class="stat-card">
+    <div class="stat-label">{{selectedMetric}} medio</div>
+    <div class="stat-value">{{ formatValue(quickStats.average) }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Trend</div>
+    <div class="stat-value">{{ quickStats.trend !== 0 ? (formatValue(quickStats.trend) + '%') : '-' }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Periodo</div>
+    <div class="stat-value">{{ quickStats.period }}</div>
+  </div>
+</div>
+</ion-content>

@@ -1,3 +1,5 @@
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';

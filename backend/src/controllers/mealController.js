@@ -1,4 +1,5 @@
 const Meal = require('../models/Meal');
+const Analytics = require('../models/Analytics');
 const Product = require('../models/Product');
 const upsertProductWithMerge = require('../models/upsertProductWithMerge');
 const { ValidationError, NotFoundError, UnauthorizedError } = require('../middleware/errorHandler');
@@ -214,6 +215,44 @@ class MealController {
         items
       });
 
+
+      // Dopo la creazione del pasto, aggiorna i dati aggregati del giorno
+      try {
+        // Usa la connessione DB corretta: preferisci quella passata da Express app, fallback su statica
+        let sqliteDb = null;
+        if (req.app && typeof req.app.get === 'function' && req.app.get('sqliteDb')) {
+          sqliteDb = req.app.get('sqliteDb');
+        } else {
+          // fallback: usa la connessione statica
+          const database = require('../config/database');
+          sqliteDb = database.getConnection();
+        }
+        const analyticsModel = new Analytics(sqliteDb);
+        // Recupera tutti i pasti del giorno per l'utente
+        const meals = await Meal.findByUserAndDate(userId, date, false);
+        let nutritionData = {
+          calories_consumed: 0,
+          proteins_consumed: 0,
+          carbs_consumed: 0,
+          fats_consumed: 0,
+          fiber_consumed: 0,
+          water_consumed: 0,
+          meals_count: meals.length
+        };
+        for (const m of meals) {
+          nutritionData.calories_consumed += m.total_calories || 0;
+          nutritionData.proteins_consumed += m.total_proteins || 0;
+          nutritionData.carbs_consumed += m.total_carbs || 0;
+          nutritionData.fats_consumed += m.total_fats || 0;
+          nutritionData.fiber_consumed += m.total_fiber || 0;
+          // Se hai un campo water, aggiungilo qui
+        }
+        await analyticsModel.updateNutritionTrend(userId, date, nutritionData);
+        logger.info('Dati aggregati nutrition_trends aggiornati', { userId, date });
+      } catch (aggErr) {
+        logger.error('Errore aggiornamento nutrition_trends dopo creazione pasto', { userId, date, error: aggErr.message });
+      }
+
       res.status(201).json({
         success: true,
         data: meal
@@ -291,6 +330,34 @@ class MealController {
 
       const updatedMeal = await Meal.update(mealId, { type, date, products });
 
+      // Dopo l'aggiornamento del pasto, aggiorna i dati aggregati del giorno
+      try {
+        const Analytics = require('../models/Analytics');
+        const analyticsModel = new Analytics(req.app.get('sqliteDb'));
+        const meals = await Meal.getMealsByDate(userId, date);
+        let nutritionData = {
+          calories_consumed: 0,
+          proteins_consumed: 0,
+          carbs_consumed: 0,
+          fats_consumed: 0,
+          fiber_consumed: 0,
+          water_consumed: 0,
+          meals_count: meals.length
+        };
+        for (const m of meals) {
+          nutritionData.calories_consumed += m.calories || 0;
+          nutritionData.proteins_consumed += m.proteins || 0;
+          nutritionData.carbs_consumed += m.carbs || 0;
+          nutritionData.fats_consumed += m.fats || 0;
+          nutritionData.fiber_consumed += m.fiber || 0;
+          nutritionData.water_consumed += m.water || 0;
+        }
+        await analyticsModel.updateNutritionTrend(userId, date, nutritionData);
+        logger.info('Dati aggregati nutrition_trends aggiornati dopo update', { userId, date });
+      } catch (aggErr) {
+        logger.error('Errore aggiornamento nutrition_trends dopo updateMeal', { userId, date, error: aggErr.message });
+      }
+
       res.json({ success: true, data: updatedMeal });
       logger.info('Pasto aggiornato', { userId, mealId });
     } catch (error) {
@@ -315,7 +382,36 @@ class MealController {
       if (!existingMeal) throw new NotFoundError('Pasto non trovato');
       if (existingMeal.userId !== userId) throw new UnauthorizedError('Non hai accesso a questo pasto');
 
+      const mealDate = existingMeal.date;
       await Meal.delete(mealId);
+
+      // Dopo la cancellazione del pasto, aggiorna i dati aggregati del giorno
+      try {
+        const Analytics = require('../models/Analytics');
+        const analyticsModel = new Analytics(req.app.get('sqliteDb'));
+        const meals = await Meal.getMealsByDate(userId, mealDate);
+        let nutritionData = {
+          calories_consumed: 0,
+          proteins_consumed: 0,
+          carbs_consumed: 0,
+          fats_consumed: 0,
+          fiber_consumed: 0,
+          water_consumed: 0,
+          meals_count: meals.length
+        };
+        for (const m of meals) {
+          nutritionData.calories_consumed += m.calories || 0;
+          nutritionData.proteins_consumed += m.proteins || 0;
+          nutritionData.carbs_consumed += m.carbs || 0;
+          nutritionData.fats_consumed += m.fats || 0;
+          nutritionData.fiber_consumed += m.fiber || 0;
+          nutritionData.water_consumed += m.water || 0;
+        }
+        await analyticsModel.updateNutritionTrend(userId, mealDate, nutritionData);
+        logger.info('Dati aggregati nutrition_trends aggiornati dopo delete', { userId, mealDate });
+      } catch (aggErr) {
+        logger.error('Errore aggiornamento nutrition_trends dopo deleteMeal', { userId, mealDate, error: aggErr.message });
+      }
 
       res.json({ success: true, message: 'Pasto eliminato con successo' });
       logger.info('Pasto eliminato', { userId, mealId });
