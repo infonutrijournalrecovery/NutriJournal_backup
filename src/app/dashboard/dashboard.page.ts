@@ -23,7 +23,7 @@ import {
   moonOutline,
   chevronBackOutline,
   chevronForwardOutline,
-  calendarOutline, wineOutline, fastFoodOutline, barcodeOutline, scaleOutline } from 'ionicons/icons';
+  calendarOutline, wineOutline, fastFoodOutline, barcodeOutline, scaleOutline, trashOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { DeviceService } from '../shared/services/device.service';
 import { User, DailyNutrition, Meal } from '../shared/interfaces/types';
@@ -300,7 +300,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       this.weightForm = this.fb.group({
         weightAmount: [0]
       });
-  addIcons({personOutline,chevronBackOutline,calendarOutline,chevronForwardOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,cafeOutline,addOutline,pizzaOutline,moonOutline,barcodeOutline,fastFoodOutline,scaleOutline,flameOutline,wineOutline,checkmarkCircleOutline,alertCircleOutline,statsChartOutline,refreshOutline,scanOutline,checkmarkCircle:checkmarkCircleOutline,alertCircle:alertCircleOutline});
+  addIcons({personOutline,chevronBackOutline,calendarOutline,chevronForwardOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,trashOutline,addOutline,barcodeOutline,fastFoodOutline,statsChartOutline,scaleOutline,cafeOutline,pizzaOutline,moonOutline,flameOutline,wineOutline,checkmarkCircleOutline,alertCircleOutline,refreshOutline,scanOutline,checkmarkCircle:checkmarkCircleOutline,alertCircle:alertCircleOutline});
   }
 
   async openDatePicker() {
@@ -880,6 +880,35 @@ export class DashboardPage implements OnInit, OnDestroy {
             this.currentDate.getDate() < today.getDate())))
     );
   }
+
+  async deleteActivity(activity: Activity) {
+    if (!activity?.id) {
+      console.error('[DEBUG] Nessun id attivit� da eliminare:', activity);
+      return;
+    }
+  
+    try {
+      const id = Number(activity.id); // \U0001f448 forza la conversione a numero
+  
+      if (isNaN(id)) {
+        console.error('[DEBUG] ID non valido (non numerico):', activity.id);
+        return;
+      }
+  
+      await this.apiService.deleteActivity(id).toPromise();
+      console.log('[DEBUG] Attivit� eliminata con successo:', id);
+  
+      // Aggiorna lista locale
+      this.activitiesToday = this.activitiesToday.filter(a => Number(a.id) !== id);
+      this.recentActivities = this.activitiesToday.slice(0, 5);
+      this.dailyStats.calories.burned = this.activitiesToday.reduce((sum, a) => sum + (a.calories_burned || 0), 0);
+  
+    } catch (err) {
+      console.error('[DEBUG] Errore durante l\'eliminazione dell\'attivit�:', err);
+    }
+  }
+  
+  
 
   
   /** Naviga alla pagina view-meal per il tipo di pasto selezionato */

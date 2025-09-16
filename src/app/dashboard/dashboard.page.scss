@@ -16,6 +16,10 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   padding-bottom: 56px;
 }
+
+.meal-content{
+  background-color: #f9f9f9;
+}
 ion-content{
   --background: #75b972;
 }
@@ -69,14 +73,21 @@ ion-input{
 }
 
 .welcome-subtitle {
-  font-size: 1rem;
+  font-size: 1.3rem;
   color: #ffffff;
+  font-weight: 100;
+  font-style: italic;
 }
 
 .profile-button {
   --background: #ffffff;
   --color: #415540;
   border-radius: 8px;
+}
+
+.scrollable-section {
+  max-height: 390px;
+  overflow-y: auto;
 }
 
 // calendario
@@ -217,6 +228,9 @@ ion-input{
 }
 
 // Activ
+.desktop-activities-list{
+  background-color: #ffffff;
+}
 .desktop-activities-card {
   background: #ffffff;
   border-radius: 12px;
@@ -226,8 +240,21 @@ ion-input{
 
 .desktop-activity-item h4 {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 100;
+  color: #202020;
+}
+
+.desktop-activity-item p {
+  margin: 0;
+  font-size: 1.0rem;
+  font-weight: 100;
+  color: #888888;
+}
+
+.elimina-btn{
+  color: #ff0000;
+  --border-color: #ff0000;
 }
 
 .desktop-empty-state {
@@ -291,6 +318,11 @@ ion-input{
   margin-top: 8px;
   --background: #415540;
   --color: #ffffff;
+  border-radius: 8px;
+}
+
+ion-list{
+  background: #f9f9f9;
   border-radius: 8px;
 }
 

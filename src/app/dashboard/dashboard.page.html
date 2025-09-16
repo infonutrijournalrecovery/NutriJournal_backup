@@ -1,7 +1,8 @@
 <ion-content *ngIf="isDesktop" class="desktop-layout" [fullscreen]="true" scroll-y="true">
   <div class="desktop-welcome-header">
       <div class="welcome-content">
-    <h1>{{ getWelcomeMessage() }}<span *ngIf="user">, {{ user.name || 'Utente' }}!</span></h1>          <p class="welcome-subtitle">Dashboard nutrizionale e attività fisica</p>
+    <h1>🍎 {{ getWelcomeMessage() }}<span *ngIf="user">, {{ user.name || 'Utente' }}!</span></h1>          
+    <p class="welcome-subtitle">Il tuo NutriJournal</p>
       </div>
       <div class="user-profile-section">
           <ion-button fill="solid" class="profile-button" (click)="openUserProfile()">
@@ -120,25 +121,32 @@
                   </ion-card-title>
               </ion-card-header>
               <ion-card-content>
-                  <div class="desktop-activities-list">
-                      <ng-container *ngIf="activitiesToday && activitiesToday.length > 0; else noActivities">
-                          <div *ngFor="let activity of activitiesToday" class="desktop-activity-item">
-                              <div class="activity-info">
-                                  <h4>{{ activity.name || getActivityLabel(activity.type || '') }}</h4>
-                                  <p>
-                                      {{ activity.duration_minutes || (activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?') }} min \u2022
-                                      {{ activity.calories_burned || activity.totalNutrition?.calories || '?' }} kcal
-                                  </p>
-                              </div>
-                          </div>
-                      </ng-container>
-                      <ng-template #noActivities>
-                          <div class="desktop-empty-state">
-                              <ion-icon name="trending-up-outline" style="color: #ff0000;"></ion-icon>
+                    <ion-list class="desktop-activities-list">
+                        <ng-container *ngIf="activitiesToday && activitiesToday.length > 0; else noActivities">
+                          <ion-item *ngFor="let activity of activitiesToday" class="desktop-activity-item" lines="none">
+                            <ion-label class="activity-info" lines="none">
+                              <h4>{{ activity.name || getActivityLabel(activity.type || '') }}</h4>
+                              <p>
+                                {{ activity.duration_minutes || (activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?') }} min
+                                {{ activity.calories_burned || activity.totalNutrition?.calories || '?' }} kcal
+                              </p>
+                            </ion-label>
+                            <ion-button class="elimina-btn" fill="outline" (click)="deleteActivity(activity)">
+                                <ion-icon name="trash-outline"></ion-icon>
+                              </ion-button>
+                          </ion-item>
+                        </ng-container>
+                      
+                        <ng-template #noActivities>
+                          <ion-item class="desktop-empty-state" lines="none">
+                            <ion-icon name="trending-up-outline" slot="start" style="color: #ff0000;"></ion-icon>
+                            <ion-label>
                               <p>Nessuna attività registrata</p>
-                          </div>
-                      </ng-template>
-                  </div>
+                            </ion-label>
+                          </ion-item>
+                        </ng-template>
+                      </ion-list>
+                      
                   <div class="desktop-activity-add-btn-wrapper">
                       <ion-button fill="solid" size="small" class="action-btn activity-btn desktop-activity-add-btn" style="--border-color: #1976d2; --color: #ffffff; border-color: #1976d2 !important; color: #ffffff !important; font-size: 0.95rem; font-weight: 500; border-radius: 8px; padding: 0 18px; height: 36px;" (click)="goToActivity()">
                           <ion-icon slot="start" name="fitness-outline"></ion-icon>
@@ -148,8 +156,9 @@
                   <style>
                       .desktop-activities-list {
                           position: relative;
-                          min-height: 120px;
+                          min-height: 265px;
                           padding-bottom: 56px;
+                          overflow-y: auto;
                       }
                       .desktop-activity-add-btn-wrapper {
                           position: absolute;
@@ -175,6 +184,7 @@
                   </ion-card-title>
               </ion-card-header>
               <ion-card-content>
+                <div class="scrollable-section">
                     <div class="meal-management-grid">
                       <div class="meal-section" *ngFor="let type of ['breakfast','lunch','snack','dinner']">
                           <div class="meal-header" (click)="openViewMeal(type)" style="cursor:pointer;">
@@ -222,6 +232,7 @@
                           </div>
                       </div>
                   </div>
+                </div>
               </ion-card-content>
           </ion-card>
 

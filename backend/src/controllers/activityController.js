@@ -281,7 +281,7 @@ class ActivityController {
                 updateFields: Object.keys(req.body)
             });
 
-            const activity = await this.activityModel.findById(activityId);
+            const activity = await this.activityModel.getById(activityId);
 
             if (!activity) {
                 throw new NotFoundError('Attività non trovata');
@@ -354,46 +354,37 @@ class ActivityController {
      * @param {Function} next - Next middleware function
      */
     async deleteActivity(req, res, next) {
+        const activityId = Number(req.params.id || req.params.activityId);
+        const userId = req.user.id;
+    
         try {
-            const { activityId } = req.params;
-            logger.info('Richiesta eliminazione attività', {
-                userId: req.user.id,
-                activityId
-            });
-
-            const activity = await this.activityModel.findById(activityId);
+            logger.info('Richiesta eliminazione attività', { userId, activityId });
+    
+            // Verifica che l’attività esista per quell’utente
+            const activity = await this.activityModel.getById(activityId, userId);
             if (!activity) {
-                throw new NotFoundError('Attività non trovata');
+                logger.warn('Attività non trovata', { userId, activityId });
+                return res.status(404).json({ error: 'Attività non trovata' });
             }
-            if (activity.user_id !== req.user.id) {
-                logger.warn('Tentativo eliminazione non autorizzato', {
-                    userId: req.user.id,
-                    activityId,
-                    ownerUserId: activity.user_id
-                });
-                throw new UnauthorizedError('Non autorizzato a eliminare questa attività');
-            }
-            await this.activityModel.delete(activityId, req.user.id);
+    
+            // Elimina
+            await this.activityModel.delete(activityId, userId);
+    
             res.json({
                 success: true,
                 message: 'Attività eliminata con successo',
-                data: {
-                    timestamp: new Date().toISOString()
-                }
+                data: { timestamp: new Date().toISOString() }
             });
-            logger.info('Attività eliminata con successo', {
-                userId: req.user.id,
-                activityId
-            });
+    
+            logger.info('Attività eliminata con successo', { userId, activityId });
+    
         } catch (error) {
-            logger.error('Errore eliminazione attività', {
-                userId: req.user.id,
-                activityId: req.params.activityId,
-                error: error.message
-            });
+            logger.error('Errore eliminazione attività', { userId, activityId, error: error.message });
             next(error);
         }
     }
+    
+    
 
     /**
      * Recupera le statistiche delle attività per un periodo
@@ -525,6 +516,7 @@ class ActivityController {
             next(error);
         }
     }
+
 
     /**
      * Recupera il report trimestrale delle attività
