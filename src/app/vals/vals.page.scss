@@ -61,14 +61,14 @@ canvas {
   width: 100% !important;
   max-width: 100%;
   height: auto !important;
-  min-height: 200px;
-  max-height: 280px; // o il valore che vuoi
+  min-height: 250px;
+  max-height: 300px; // o il valore che vuoi
 }
 
 
 .chart-card {
 	margin-top: 12px;
-	margin-bottom: 24px;
+	margin-bottom: 12px;
 	padding: 16px 12px 24px 12px;
 	background: var(--white);
 	border-radius: 16px;
@@ -78,7 +78,7 @@ canvas {
 	align-items: center;
 	justify-content: flex-start;
 	height: auto;
-	min-height: 220px; // garantisce spazio minimo
+	min-height: 2500px; // garantisce spazio minimo
     max-height: 320px;
 	overflow-x: auto;
 }

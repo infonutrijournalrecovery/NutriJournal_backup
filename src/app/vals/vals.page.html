@@ -1,5 +1,11 @@
 <ion-header>
   <ion-toolbar color="light">
+    <ion-buttons slot="start">
+      <ion-button (click)="goToDashboard()" fill="solid" color="primary" style="display:inline-flex;align-items:center;">
+        <ion-icon name="arrow-back-outline" slot="start" style="font-size: 22px;"></ion-icon>
+        <span style="margin-left:4px;">Dashboard</span>
+      </ion-button>
+    </ion-buttons>
     <ion-title class="title">Statistiche</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -36,14 +42,24 @@
 
 <!-- Chart card -->
 <div class="chart-card">
-<div *ngIf="lineChartData">
+<div *ngIf="lineChartData && lineChartData.labels && lineChartData.labels.length > 0; else noChartData">
   <canvas
     baseChart
     [data]="lineChartData"
-    [type]="'line'"
+    [type]="'bar'"
     [options]="lineChartOptions">
   </canvas>
 </div>
+<ng-template #noChartData>
+  <div class="empty-chart-message" style="text-align:center; color:#888; padding:24px;">
+    Nessun dato disponibile per il grafico.<br>
+    Se hai appena registrato dati, aggiorna la pagina.<br>
+    <span style="font-size:13px;">
+      (Debug: labels={{ lineChartData && lineChartData.labels ? lineChartData.labels.length : 0 }},
+      datasets={{ lineChartData && lineChartData.datasets ? lineChartData.datasets.length : 0 }})
+    </span>
+  </div>
+</ng-template>
 </div>
 
 

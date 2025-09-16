@@ -8,6 +8,214 @@ const { logger } = require('../middleware/logging');
  */
 class AnalyticsController {
     /**
+     * Aggiorna il peso per una data
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Next middleware function
+     */
+    async updateWeight(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { date, weight } = req.body;
+            if (!date || typeof weight !== 'number') {
+                throw new ValidationError('Data e valore peso sono obbligatori');
+            }
+            // Aggiorna trend con peso
+            const nutritionData = { weight_kg: weight };
+            await this.analyticsModel.updateNutritionTrend(userId, date, nutritionData);
+            res.json({ success: true, message: 'Peso aggiornato', date, weight });
+        } catch (error) {
+            logger.error('Errore aggiornamento peso', {
+                userId: req.user?.id,
+                error: error.message,
+                body: req.body
+            });
+            next(error);
+        }
+    }
+    /**
+     * Aggiorna le fibre assunte per una data
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Next middleware function
+     */
+    async updateFiber(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { date, fiber } = req.body;
+            if (!date || typeof fiber !== 'number') {
+                throw new ValidationError('Data e valore fibre sono obbligatori');
+            }
+            // Aggiorna trend con fibre assunte
+            const nutritionData = { fiber_consumed: fiber };
+            await this.analyticsModel.updateNutritionTrend(userId, date, nutritionData);
+            res.json({ success: true, message: 'Fibre assunte aggiornate', date, fiber });
+        } catch (error) {
+            logger.error('Errore aggiornamento fibre assunte', {
+                userId: req.user?.id,
+                error: error.message,
+                body: req.body
+            });
+            next(error);
+        }
+    }
+    /**
+     * Aggiorna l'acqua assunta per una data
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Next middleware function
+     */
+    async updateWater(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { date, water } = req.body;
+            if (!date || typeof water !== 'number') {
+                throw new ValidationError('Data e valore acqua sono obbligatori');
+            }
+            // Aggiorna trend con acqua assunta
+            const nutritionData = { water_consumed: water };
+            await this.analyticsModel.updateNutritionTrend(userId, date, nutritionData);
+            res.json({ success: true, message: 'Acqua assunta aggiornata', date, water });
+        } catch (error) {
+            logger.error('Errore aggiornamento acqua assunta', {
+                userId: req.user?.id,
+                error: error.message,
+                body: req.body
+            });
+            next(error);
+        }
+    }
+    /**
+     * Aggiorna i carboidrati assunti per una data
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Next middleware function
+     */
+    async updateCarbs(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { date, carbs } = req.body;
+            if (!date || typeof carbs !== 'number') {
+                throw new ValidationError('Data e valore carboidrati sono obbligatori');
+            }
+            // Aggiorna trend con carboidrati assunti
+            const nutritionData = { carbs_consumed: carbs };
+            await this.analyticsModel.updateNutritionTrend(userId, date, nutritionData);
+            res.json({ success: true, message: 'Carboidrati assunti aggiornati', date, carbs });
+        } catch (error) {
+            logger.error('Errore aggiornamento carboidrati assunti', {
+                userId: req.user?.id,
+                error: error.message,
+                body: req.body
+            });
+            next(error);
+        }
+    }
+    /**
+     * Aggiorna i grassi assunti per una data
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Next middleware function
+     */
+    async updateFats(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { date, fats } = req.body;
+            if (!date || typeof fats !== 'number') {
+                throw new ValidationError('Data e valore grassi sono obbligatori');
+            }
+            // Aggiorna trend con grassi assunti
+            const nutritionData = { fats_consumed: fats };
+            await this.analyticsModel.updateNutritionTrend(userId, date, nutritionData);
+            res.json({ success: true, message: 'Grassi assunti aggiornati', date, fats });
+        } catch (error) {
+            logger.error('Errore aggiornamento grassi assunti', {
+                userId: req.user?.id,
+                error: error.message,
+                body: req.body
+            });
+            next(error);
+        }
+    }
+    /**
+     * Aggiorna le proteine assunte per una data
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Next middleware function
+     */
+    async updateProteins(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { date, proteins } = req.body;
+            if (!date || typeof proteins !== 'number') {
+                throw new ValidationError('Data e valore proteine sono obbligatori');
+            }
+            // Aggiorna trend con proteine assunte
+            const nutritionData = { proteins_consumed: proteins };
+            await this.analyticsModel.updateNutritionTrend(userId, date, nutritionData);
+            res.json({ success: true, message: 'Proteine assunte aggiornate', date, proteins });
+        } catch (error) {
+            logger.error('Errore aggiornamento proteine assunte', {
+                userId: req.user?.id,
+                error: error.message,
+                body: req.body
+            });
+            next(error);
+        }
+    }
+    /**
+     * Aggiorna le calorie bruciate per una data
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Next middleware function
+     */
+    async updateCaloriesBurned(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { date, calories } = req.body;
+            if (!date || typeof calories !== 'number') {
+                throw new ValidationError('Data e valore calorie sono obbligatori');
+            }
+            // Aggiorna trend con calorie bruciate
+            const nutritionData = { calories_burned: calories };
+            await this.analyticsModel.updateNutritionTrend(userId, date, nutritionData);
+            res.json({ success: true, message: 'Calorie bruciate aggiornate', date, calories });
+        } catch (error) {
+            logger.error('Errore aggiornamento calorie bruciate', {
+                userId: req.user?.id,
+                error: error.message,
+                body: req.body
+            });
+            next(error);
+        }
+    }
+    /**
+     * Aggiorna le calorie assunte per una data
+     * @param {Object} req - Request object
+     * @param {Object} res - Response object
+     * @param {Function} next - Next middleware function
+     */
+    async updateCalories(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { date, calories } = req.body;
+            if (!date || typeof calories !== 'number') {
+                throw new ValidationError('Data e valore calorie sono obbligatori');
+            }
+            // Recupera trend esistente
+            const nutritionData = { calories_consumed: calories };
+            await this.analyticsModel.updateNutritionTrend(userId, date, nutritionData);
+            res.json({ success: true, message: 'Calorie assunte aggiornate', date, calories });
+        } catch (error) {
+            logger.error('Errore aggiornamento calorie assunte', {
+                userId: req.user?.id,
+                error: error.message,
+                body: req.body
+            });
+            next(error);
+        }
+    }
+    /**
      * Crea una nuova istanza del controller
      * @param {Object} database - Istanza del database
      */

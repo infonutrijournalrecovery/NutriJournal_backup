@@ -16,6 +16,9 @@ import { inject } from '@angular/core';
   imports: [CommonModule, IonicModule, NgChartsModule]
 })
 export class ValsPage implements OnInit {
+  goToDashboard() {
+    window.location.href = '/dashboard';
+  }
   // Forza aggiornamento grafico
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
   constructor(private cdRef: ChangeDetectorRef) {}
@@ -36,8 +39,8 @@ export class ValsPage implements OnInit {
   public periods: string[] = ['Settimanale', 'Mensile', 'Trimestrale'];
   public selectedPeriod: string = this.periods[0];
 
-  public lineChartData: ChartData<'line'> = { labels: [], datasets: [] };
-  public lineChartOptions: ChartOptions<'line'> = {
+  public lineChartData: ChartData<'bar'> = { labels: [], datasets: [] };
+  public lineChartOptions: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -141,14 +144,9 @@ export class ValsPage implements OnInit {
       }
     }
 
-    // 3. Mapping ottimizzato per Peso: gap/null nei giorni senza dati
+    // 3. Mapping: gap/null nei giorni senza dati per tutti i metrici
     const chartLabels: string[] = allDates;
-    let chartData: (number|null)[] = [];
-    if (this.selectedMetric === 'Peso') {
-      chartData = allDates.map(date => dateValueMap[date] != null ? dateValueMap[date]! : null);
-    } else {
-      chartData = allDates.map(date => dateValueMap[date] != null ? dateValueMap[date]! : 0);
-    }
+    let chartData: (number|null)[] = allDates.map(date => dateValueMap[date] != null ? dateValueMap[date]! : null);
 
     // 4. Calcola stats solo sui giorni con valori reali
     const dataDays = allDates.filter(date => dateValueMap[date] != null);
@@ -166,13 +164,9 @@ export class ValsPage implements OnInit {
         {
           label: this.selectedMetric,
           data: chartData,
-          tension: 0.4,
-          borderColor: this.primary,
-          backgroundColor: 'rgba(117,185,114,0.08)',
-          pointBackgroundColor: this.dark,
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          fill: true,
+          backgroundColor: this.primary,
+          borderColor: this.dark,
+          borderWidth: 1,
         }
       ]
     };

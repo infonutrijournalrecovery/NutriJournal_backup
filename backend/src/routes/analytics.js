@@ -9,6 +9,40 @@ function createAnalyticsRouter(sqliteDb) {
     const analyticsController = new AnalyticsController(sqliteDb);
     const auth = AuthMiddleware.verifyToken;
 
+    // PUT /api/analytics/nutrition/fiber - Aggiorna fibre assunte
+    router.put('/nutrition/fiber', auth, async (req, res, next) => {
+        await analyticsController.updateFiber(req, res, next);
+    });
+    // PUT /api/analytics/nutrition/water - Aggiorna acqua assunta
+    router.put('/nutrition/water', auth, async (req, res, next) => {
+        await analyticsController.updateWater(req, res, next);
+    });
+    // PUT /api/analytics/nutrition/carbs - Aggiorna carboidrati assunti
+    router.put('/nutrition/carbs', auth, async (req, res, next) => {
+        await analyticsController.updateCarbs(req, res, next);
+    });
+    // PUT /api/analytics/nutrition/fats - Aggiorna grassi assunti
+    router.put('/nutrition/fats', auth, async (req, res, next) => {
+        await analyticsController.updateFats(req, res, next);
+    });
+    // PUT /api/analytics/nutrition/proteins - Aggiorna proteine assunte
+    router.put('/nutrition/proteins', auth, async (req, res, next) => {
+        await analyticsController.updateProteins(req, res, next);
+    });
+    // PUT /api/analytics/nutrition/calories-burned - Aggiorna calorie bruciate
+    router.put('/nutrition/calories-burned', auth, async (req, res, next) => {
+        await analyticsController.updateCaloriesBurned(req, res, next);
+    });
+    // PUT /api/analytics/nutrition/weight - Aggiorna peso
+    router.put('/nutrition/weight', auth, async (req, res, next) => {
+        await analyticsController.updateWeight(req, res, next);
+    });
+
+    // PUT /api/analytics/nutrition/calories - Aggiorna calorie assunte
+    router.put('/nutrition/calories', auth, async (req, res, next) => {
+        await analyticsController.updateCalories(req, res, next);
+    });
+
     // GET /api/analytics/dashboard - Dashboard principale
     router.get('/dashboard', auth, async (req, res, next) => {
         console.log('[DEBUG] Route /api/analytics/dashboard chiamata');

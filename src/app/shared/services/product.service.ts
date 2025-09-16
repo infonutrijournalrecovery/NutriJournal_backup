@@ -13,6 +13,7 @@ export interface Product {
   category?: string;
   description?: string;
   source?: string;
+  quantita?: number;
   serving?: {
     size: string;
     quantity: number;
@@ -33,6 +34,8 @@ export interface Product {
   ingredients_it?: string;
   allergens: string[];
   additives?: any[];
+  additivi?: { nome: string; pericolosita: number; isUserSensitive?: boolean; code?: string }[];
+  allergeni?: { nome: string; key: string; isUserAllergic: boolean }[];
 }
 
 /**
@@ -50,6 +53,7 @@ export function normalizeProduct(raw: any): Product {
     category: raw.category ?? undefined,
     description: raw.description ?? undefined,
     source: raw.source ?? undefined,
+  quantita: raw.serving?.quantity ?? raw.serving_quantity ?? raw.quantity ?? 100,
     serving: raw.serving || (raw.portion_size ? {
       size: raw.portion_size.description ?? '',
       quantity: raw.portion_size.amount ?? 100,

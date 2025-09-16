@@ -665,6 +665,8 @@ export class DashboardPage implements OnInit, OnDestroy {
           this.dailyStats.water.consumed += amount;
           this.waterForm.get('waterAmount')?.setValue(0);
           this.showToast(`${amount}ml di acqua aggiunti!`, 'success');
+          // Aggiorna anche il trend giornaliero
+          this.apiService.saveWaterTrend(dateStr, amount).subscribe();
         },
         error: () => {
           this.showToast('Errore salvataggio acqua', 'danger');

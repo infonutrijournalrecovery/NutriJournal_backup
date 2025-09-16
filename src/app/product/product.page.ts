@@ -17,6 +17,59 @@ const ADDITIVI_MAP: Record<string, string> = {
   'e472e': 'Estere diacilico degli acidi grassi',
   'e621': 'Glutammato monosodico',
   // ...altri codici se vuoi
+  };
+
+  import { ApiService } from '../shared/services/api.service';
+
+// Mappa allergeni inglese → italiano
+const ALLERGENI_MAP: Record<string, string> = {
+  'nuts': 'Frutta a guscio',
+  'milk': 'Latte',
+  'egg': 'Uovo',
+  'soybeans': 'Soia',
+  'peanuts': 'Arachidi',
+  'gluten': 'Glutine',
+  'fish': 'Pesce',
+  'crustaceans': 'Crostacei',
+  'molluscs': 'Molluschi',
+  'sesame': 'Sesamo',
+  'mustard': 'Senape',
+  'celery': 'Sedano',
+  'lupin': 'Lupino',
+  'sulphur-dioxide': 'Anidride solforosa',
+  'wheat': 'Frumento',
+  'barley': 'Orzo',
+  'rye': 'Segale',
+  'oats': 'Avena',
+  'hazelnuts': 'Nocciole',
+  'almonds': 'Mandorle',
+  'walnuts': 'Noci',
+  'cashews': 'Anacardi',
+  'pistachios': 'Pistacchi',
+  'pecans': 'Noci pecan',
+  'macadamia': 'Noci macadamia',
+  'brazil-nuts': 'Noci del Brasile',
+  'shellfish': 'Crostacei',
+  'shrimp': 'Gamberi',
+  'scallops': 'Capesante',
+  'clams': 'Vongole',
+  'mussels': 'Cozze',
+  'octopus': 'Polpo',
+  'squid': 'Calamaro',
+  'corn': 'Mais',
+  'chicken': 'Pollo',
+  'beef': 'Manzo',
+  'pork': 'Maiale',
+  'turkey': 'Tacchino',
+  'fruit': 'Frutta',
+  'vegetables': 'Verdure',
+  'legumes': 'Legumi',
+  'sesame-seeds': 'Semi di sesamo',
+  'sunflower-seeds': 'Semi di girasole',
+  'mustard-seeds': 'Semi di senape',
+  'sulphites': 'Solfiti',
+  'yeast': 'Lievito',
+  // altri comuni
 };
 
 import { Component, inject } from '@angular/core';
@@ -82,33 +135,79 @@ import { DeviceService } from '../shared/services/device.service';
   ]
 })
 export class ProductPage {
-  private deviceService = inject(DeviceService);
-  private router = inject(Router);
-  private alertController = inject(AlertController);
-  private toastController = inject(ToastController);
-  private loadingController = inject(LoadingController);
-  private actionSheetController = inject(ActionSheetController);
-  private modalController = inject(ModalController);
-  private route = inject(ActivatedRoute);
-  private productService = inject(ProductService);
+  /**
+   * Restituisce la lista di allergeni/additivi pericolosi per l'utente (nome in italiano)
+   */
+  getDangerousIngredients(): string[] {
+    const pericolosi: string[] = [];
+    if (this.prodotto) {
+      // Debug allergeni
+      console.log('DEBUG allergeni prodotto:', this.prodotto.allergeni);
+      console.log('DEBUG userAllergeni:', this.userAllergeni);
+      if (Array.isArray(this.prodotto.allergeni)) {
+        pericolosi.push(...this.prodotto.allergeni.filter((a: { nome: string; key: string; isUserAllergic: boolean }) => a.isUserAllergic).map((a: { nome: string }) => a.nome));
+      }
+      // Debug additivi
+      console.log('DEBUG additivi prodotto:', this.prodotto.additivi);
+      console.log('DEBUG userAdditivi:', this.userAdditivi);
+      if (Array.isArray(this.prodotto.additivi)) {
+        pericolosi.push(...this.prodotto.additivi.filter((a: { nome: string; pericolosita: number; isUserSensitive?: boolean; code?: string }) => a.isUserSensitive).map((a: { nome: string }) => a.nome));
+      }
+    }
+    console.log('DEBUG ingredienti pericolosi:', pericolosi);
+    return pericolosi;
+  }
+  isDesktop: boolean;
+  isMobile: boolean;
+  prodotto: any = null;
+  productQuantity: number | null = null; // Quantità del prodotto (dal JSON API esterna)
+  userAllergeni: string[] = [];
+  userAdditivi: any[] = [];
+  meals: string[] = ['Colazione', 'Pranzo', 'Cena', 'Spuntino'];
+  selectedMeal: string | null = null;
+  selectedDate: string = new Date().toISOString().split('T')[0];
+  inPantry: boolean = false;
+  consumedQuantity: number | null = null; // Quantità consumata dall'utente
 
-  isDesktop = false;
-  isMobile = false;
-
-
-prodotto: any;
-userAllergeni: string[] = [];
-meals: string[] = ['Colazione', 'Pranzo', 'Cena', 'Spuntino'];
-selectedMeal: string | null = null;
-selectedDate: string = new Date().toISOString().split('T')[0];
-inPantry: boolean = false;
-
-constructor() {
-  this.isDesktop = this.deviceService.isDesktop();
-  this.isMobile = this.deviceService.isMobile();
-}
+  constructor(
+    private deviceService: DeviceService,
+    private router: Router,
+    private alertController: AlertController,
+    private toastController: ToastController,
+    private loadingController: LoadingController,
+    private actionSheetController: ActionSheetController,
+    private modalController: ModalController,
+    private route: ActivatedRoute,
+    private productService: ProductService,
+    private apiService: ApiService
+  ) {
+    this.isDesktop = this.deviceService.isDesktop();
+    this.isMobile = this.deviceService.isMobile();
+  }
 
   ngOnInit() {
+    // Recupera allergeni/additivi utente
+    this.apiService.getUserAllergies().subscribe({
+      next: (res: any) => {
+        if (res && res.data) {
+          // Estrai solo i codici degli allergeni
+          this.userAllergeni = Array.isArray(res.data)
+            ? res.data.map((a: any) => (a.allergen_code || a.code || '').toLowerCase())
+            : [];
+        }
+      }
+    });
+    this.apiService.getUserAdditives().subscribe({
+      next: (res: any) => {
+        if (res && res.data) {
+          // Estrai solo i codici degli additivi
+          this.userAdditivi = Array.isArray(res.data)
+            ? res.data.map((a: any) => (a.additive_code || a.code || '').toLowerCase())
+            : [];
+        }
+      }
+    });
+
     const ean = this.route.snapshot.paramMap.get('ean');
     if (ean) {
       this.productService.getProductByBarcode(ean).subscribe({
@@ -117,12 +216,49 @@ constructor() {
           const p = (data && typeof data === 'object' && 'product' in data) ? (data as any).product : data;
           console.log('DEBUG prodotto ricevuto:', p);
           const normalized = normalizeProduct(p);
+          // Estrai quantità prodotto dal JSON API esterna (es. open food facts)
+          // Ad esempio: p.quantity, p.net_weight, p.serving_size, ecc.
+          this.productQuantity = p.quantity || p.net_weight || p.serving_size || null;
+
+          // Trasforma additivi: da codici a oggetti { nome, pericolosita, isUserSensitive }
+          if (Array.isArray(normalized.additives)) {
+            normalized.additivi = normalized.additives.map((code: string) => {
+              const nome = ADDITIVI_MAP[code.toLowerCase()] || code;
+              let pericolosita = 0;
+              if (["e220","e250","e251","e621"].includes(code.toLowerCase())) pericolosita = 2;
+              else if (["e202","e330","e472e"].includes(code.toLowerCase())) pericolosita = 1;
+              // Segnala se l'utente è sensibile
+              const isUserSensitive = this.userAdditivi.includes(code.toLowerCase());
+              return { nome, pericolosita, isUserSensitive, code: code.toLowerCase() };
+            });
+          } else {
+            normalized.additivi = [];
+          }
+
+          // Trasforma allergeni: rimuovi prefisso lingua e traduci in italiano se presente, aggiungi flag isUserAllergic
+          normalized.allergeni = Array.isArray(normalized.allergens)
+            ? normalized.allergens.map((a: string) => {
+                const key = a.replace(/^[a-z]{2}:/, '').trim().toLowerCase();
+                const nome = ALLERGENI_MAP[key] || key;
+                // Confronta con array di codici estratti
+                const isUserAllergic = this.userAllergeni.includes(key);
+                return { nome, key, isUserAllergic };
+              })
+            : (normalized.allergens
+                ? String(normalized.allergens)
+                    .split(',')
+                    .map((a: string) => {
+                      const key = a.replace(/^[a-z]{2}:/, '').trim().toLowerCase();
+                      const nome = ALLERGENI_MAP[key] || key;
+                      const isUserAllergic = this.userAllergeni.includes(key);
+                      return { nome, key, isUserAllergic };
+                    })
+                : []);
           if (!normalized.name) {
             this.showToast('Attenzione: il prodotto non ha un nome valido!');
           }
           if (normalized) {
             this.prodotto = normalized;
-            // Dopo aver caricato il prodotto, verifica se è già in dispensa tramite barcode (EAN) e status
             this.checkPantryStatusByBarcode(ean);
           } else {
             this.prodotto = null;
@@ -224,8 +360,9 @@ constructor() {
     });
   }
 
-  isUserAllergic(allergene: string): boolean {
-    return this.userAllergeni.includes(allergene);
+  // Deprecated: la logica ora è nel template tramite allergene.isUserAllergic
+  isUserAllergic(_allergene: any): boolean {
+    return false;
   }
 
   async onButtonClick(item: any) {
@@ -294,7 +431,7 @@ constructor() {
 
     <ion-item class="ion-margin-top">
       <ion-label position="stacked">Quantità (g)</ion-label>
-      <ion-input type="number" [(ngModel)]="quantity" placeholder="Inserisci grammi"></ion-input>
+  <ion-input type="number" [(ngModel)]="consumedQuantity" placeholder="Inserisci grammi"></ion-input>
     </ion-item>
 
     <ion-button expand="full" class="ion-margin-top" (click)="confirm()">Conferma</ion-button>
@@ -322,7 +459,7 @@ export class ModalMealDateComponent {
   meals: string[] = [];
   selectedMeal: string | null = null;
   selectedDate: string = new Date().toISOString().split('T')[0];
-  quantity: number | null = null;
+  consumedQuantity: number | null = null; // Quantità consumata dall'utente
 
   private modalController = inject(ModalController);
 
@@ -330,7 +467,7 @@ export class ModalMealDateComponent {
     this.modalController.dismiss({
       selectedMeal: this.selectedMeal,
       selectedDate: this.selectedDate,
-      quantity: this.quantity
+      consumedQuantity: this.consumedQuantity
     });
   }
 

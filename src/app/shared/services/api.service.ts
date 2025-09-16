@@ -25,6 +25,41 @@ import { Activity } from '../interfaces/Activity.interface';
   providedIn: 'root'
 })
 export class ApiService {
+  /** Salva fibre assunte giornaliere */
+  saveFiber(date: string, fiber: number) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/analytics/nutrition/fiber`, { date, fiber }, { headers });
+  }
+  /** Salva acqua assunta giornaliera (trend) */
+  saveWaterTrend(date: string, water: number) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/analytics/nutrition/water`, { date, water }, { headers });
+  }
+  /** Salva carboidrati assunti giornalieri */
+  saveCarbs(date: string, carbs: number) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/analytics/nutrition/carbs`, { date, carbs }, { headers });
+  }
+  /** Salva grassi assunti giornalieri */
+  saveFats(date: string, fats: number) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/analytics/nutrition/fats`, { date, fats }, { headers });
+  }
+  /** Salva proteine assunte giornaliere */
+  saveProteins(date: string, proteins: number) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/analytics/nutrition/proteins`, { date, proteins }, { headers });
+  }
+  /** Salva calorie bruciate giornaliere */
+  saveCaloriesBurned(date: string, calories: number) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/analytics/nutrition/calories-burned`, { date, calories }, { headers });
+  }
+  /** Salva calorie assunte giornaliere */
+  saveCalories(date: string, calories: number) {
+    const headers = this.authService.getAuthHeaders();
+    return this.http.put<ApiResponse<any>>(`${this.baseUrl}/analytics/nutrition/calories`, { date, calories }, { headers });
+  }
   /** Recupera pasti per data, raggruppati per tipo */
   getMealsByDateGrouped(date: string) {
     const headers = this.authService.getAuthHeaders();
@@ -46,8 +81,8 @@ export class ApiService {
 
   /** Salva peso giornaliero */
   saveWeight(date: string, weight: number) {
-    const headers = this.authService.getAuthHeaders();
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}/weight`, { date, weight }, { headers });
+  const headers = this.authService.getAuthHeaders();
+  return this.http.put<ApiResponse<any>>(`${this.baseUrl}/analytics/nutrition/weight`, { date, weight }, { headers });
   }
 
   /** Recupera peso giornaliero */
@@ -263,7 +298,7 @@ export class ApiService {
    */
   getNutritionTrends(period: string, dateFrom?: string, dateTo?: string): Observable<ApiResponse<any>> {
     const headers = this.authService.getAuthHeaders();
-    let url = `${this.baseUrl}/analytics/nutrition-trends?period=${period}`;
+  let url = `${this.baseUrl}/analytics/nutrition/trends?period=${period}`;
     
     if (dateFrom) url += `&date_from=${dateFrom}`;
     if (dateTo) url += `&date_to=${dateTo}`;

@@ -1,6 +1,10 @@
 import { Additive } from '../../shared/interfaces/types';
 
 export const COMMON_ADDITIVES: Additive[] = [
+  { code: "E160a", name: "Carotene", category: "colorante" },
+  { code: "E415", name: "Gomma di xantano", category: "addensante" },
+  { code: "E472e", name: "Estere diacilico degli acidi grassi", category: "emulsionante" },
+  { code: "E621", name: "Glutammato monosodico", category: "esaltatore di sapidità" },
   { code: "E100", name: "Curcumina", category: "colorante" },
   { code: "E101", name: "Riboflavina", category: "colorante" },
   { code: "E110", name: "Giallo arancio S", category: "colorante" },

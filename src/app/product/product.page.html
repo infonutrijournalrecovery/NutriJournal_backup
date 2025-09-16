@@ -9,17 +9,21 @@
 
 <ion-content [fullscreen]="true">
   <ng-container *ngIf="prodotto; else loadingOrError">
+    <!-- Messaggio di avviso allergeni/additivi pericolosi -->
+    <div *ngIf="getDangerousIngredients().length" style="color: red; font-weight: bold; margin-bottom: 1em; border: 2px solid red; padding: 0.5em; border-radius: 8px;">
+      ⚠️ Attenzione, il prodotto contiene traccia di {{ getDangerousIngredients().join(', ') }}
+    </div>
     <ion-list lines="none" class="product-details">
       <ion-item>
         <ion-label>
           <strong>NOME:</strong>
-          <div class="value">{{ prodotto.nome }}</div>
+          <div class="value">{{ prodotto.name }}</div>
         </ion-label>
       </ion-item>
       <ion-item>
         <ion-label>
           <strong>MARCA:</strong>
-          <div class="value">{{ prodotto.marca }}</div>
+          <div class="value">{{ prodotto.brand }}</div>
         </ion-label>
       </ion-item>
       <ion-item>
@@ -38,12 +42,14 @@
                      [ngClass]="{
                        'Pericoloso': additivo.pericolosita === 2,
                        'Potenzialmente-pericoloso': additivo.pericolosita === 1,
-                       'Innocuo': additivo.pericolosita === 0
+                       'Innocuo': additivo.pericolosita === 0,
+                       'Utente-sensibile': additivo.isUserSensitive
                      }">
                   {{ additivo.nome }}
                 </div>
                 <span class="additivo-comment">
                   {{ additivo.pericolosita === 2 ? 'Pericoloso' : additivo.pericolosita === 1 ? 'Potenzialmente pericoloso' : 'Innocuo' }}
+                  <span *ngIf="additivo.isUserSensitive" style="color: red; font-weight: bold;">⚠️ Sensibile per utente!</span>
                 </span>
               </div>
             </div>
@@ -57,11 +63,11 @@
           <div class="value-list">
             <div *ngIf="prodotto.allergeni?.length; else noAllergeni">
               <div *ngFor="let allergene of prodotto.allergeni" class="allergene-wrapper">
-                <div class="allergene-pill">
-                  {{ allergene }}
+                <div class="allergene-pill" [ngClass]="{ 'Utente-allergico': allergene.isUserAllergic }">
+                  {{ allergene.nome }}
                 </div>
-                <div *ngIf="isUserAllergic(allergene)" class="allergene-warning">
-                  SEI ALLERGICO A QUESTO ALLERGENE!
+                <div *ngIf="allergene.isUserAllergic" class="allergene-warning" style="color: red; font-weight: bold;">
+                  ⚠️ SEI ALLERGICO A QUESTO ALLERGENE!
                 </div>
               </div>
             </div>
@@ -71,27 +77,27 @@
       </ion-item>
       <ion-item >
         <ion-label>
-          <h2><strong>Valori Nutrizionali</strong></h2>
+          <h2><strong>Valori Nutrizionali(per 100g)</strong></h2>
           <div class="nutrient-list">
             <div class="nutrient">
               <span class="label">Energia:</span>
-              <span class="value">{{ prodotto.nutrienti?.energia }} kcal</span>
+              <span class="value">{{ prodotto.nutrition_per_100g?.calories }} kcal</span>
             </div>
             <div class="nutrient">
               <span class="label">Carboidrati:</span>
-              <span class="value">{{ prodotto.nutrienti?.carboidrati }} g</span>
+              <span class="value">{{ prodotto.nutrition_per_100g?.carbohydrates }} g</span>
             </div>
             <div class="nutrient">
               <span class="label">Grassi:</span>
-              <span class="value">{{ prodotto.nutrienti?.grassi }} g</span>
+              <span class="value">{{ prodotto.nutrition_per_100g?.fats }} g</span>
             </div>
             <div class="nutrient">
               <span class="label">Proteine:</span>
-              <span class="value">{{ prodotto.nutrienti?.proteine }} g</span>
+              <span class="value">{{ prodotto.nutrition_per_100g?.proteins }} g</span>
             </div>
             <div class="nutrient">
               <span class="label">Sale:</span>
-              <span class="value">{{ prodotto.nutrienti?.sale }} g</span>
+              <span class="value">{{ prodotto.nutrition_per_100g?.sodium }} g</span>
             </div>
           </div>
         </ion-label>

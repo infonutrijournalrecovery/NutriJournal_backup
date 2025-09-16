@@ -455,6 +455,26 @@ export class AddMealPage implements OnInit, OnDestroy {
       // eslint-disable-next-line no-console
       console.log('[DEBUG][saveMeal] Payload inviato:', mealData);
       await this.apiService.createMeal(mealData as any).toPromise();
+  // Somma le calorie di tutti gli item
+  const totalCalories = items.reduce((sum, item) => sum + (item.totalNutrition?.calories || 0), 0);
+  // Somma le proteine di tutti gli item
+  const totalProteins = items.reduce((sum, item) => sum + (item.totalNutrition?.proteins || 0), 0);
+  // Aggiorna il counter giornaliero delle calorie assunte
+  await this.apiService.saveCalories(mealData.date, totalCalories).toPromise();
+  // Aggiorna il counter giornaliero delle proteine assunte
+  await this.apiService.saveProteins(mealData.date, totalProteins).toPromise();
+  // Somma i grassi di tutti gli item
+  const totalFats = items.reduce((sum, item) => sum + (item.totalNutrition?.fats || 0), 0);
+  // Aggiorna il counter giornaliero dei grassi assunti
+  await this.apiService.saveFats(mealData.date, totalFats).toPromise();
+  // Somma i carboidrati di tutti gli item
+  const totalCarbs = items.reduce((sum, item) => sum + (item.totalNutrition?.carbohydrates || 0), 0);
+  // Aggiorna il counter giornaliero dei carboidrati assunti
+  await this.apiService.saveCarbs(mealData.date, totalCarbs).toPromise();
+  // Somma le fibre di tutti gli item
+  const totalFiber = items.reduce((sum, item) => sum + (item.totalNutrition?.fiber || 0), 0);
+  // Aggiorna il counter giornaliero delle fibre assunte
+  await this.apiService.saveFiber(mealData.date, totalFiber).toPromise();
       this.eventBus.emitDataUpdated('meal');
       await this.showSuccessToast(
         this.isEditing ? 'Pasto aggiornato con successo' : 'Pasto salvato con successo'

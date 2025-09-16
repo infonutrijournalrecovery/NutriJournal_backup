@@ -616,6 +616,8 @@ export class AddActivityPage implements OnInit, OnDestroy {
         calories: this.calculatedCalories
       };
       await this.apiService.createActivity(activityData).toPromise();
+      // Aggiorna il counter giornaliero delle calorie bruciate
+      await this.apiService.saveCaloriesBurned(activityData.date, activityData.calories).toPromise();
       // Emit event for dashboard update
       this.eventBus.emitDataUpdated('activity');
       await this.showSuccessToast(
