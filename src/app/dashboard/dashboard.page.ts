@@ -23,7 +23,7 @@ import {
   moonOutline,
   chevronBackOutline,
   chevronForwardOutline,
-  calendarOutline, wineOutline, fastFoodOutline, barcodeOutline, scaleOutline, trashOutline } from 'ionicons/icons';
+  calendarOutline, wineOutline, fastFoodOutline, barcodeOutline, scaleOutline, trashOutline, bulbOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { DeviceService } from '../shared/services/device.service';
 import { User, DailyNutrition, Meal } from '../shared/interfaces/types';
@@ -125,7 +125,7 @@ export class DashboardPage implements OnInit, OnDestroy {
     /** Torna alla data di oggi */
     goToToday() {
       this.currentDate = new Date();
-      this.loadDashboardData();
+      this.loadUserDataAndDashboard();
     }
 
     /** Torna al giorno precedente */
@@ -133,7 +133,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       const prev = new Date(this.currentDate);
       prev.setDate(prev.getDate() - 1);
       this.currentDate = prev;
-      this.loadDashboardData();
+      this.loadUserDataAndDashboard();
     }
 
     /** Vai al giorno successivo */
@@ -144,7 +144,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       today.setHours(23, 59, 59, 999);
       if (next <= today) {
         this.currentDate = next;
-        this.loadDashboardData();
+        this.loadUserDataAndDashboard();
       }
     }
 
@@ -300,7 +300,7 @@ export class DashboardPage implements OnInit, OnDestroy {
       this.weightForm = this.fb.group({
         weightAmount: [0]
       });
-  addIcons({personOutline,chevronBackOutline,calendarOutline,chevronForwardOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,trashOutline,addOutline,barcodeOutline,fastFoodOutline,statsChartOutline,scaleOutline,cafeOutline,pizzaOutline,moonOutline,flameOutline,wineOutline,checkmarkCircleOutline,alertCircleOutline,refreshOutline,scanOutline,checkmarkCircle:checkmarkCircleOutline,alertCircle:alertCircleOutline});
+  addIcons({personOutline,chevronBackOutline,calendarOutline,chevronForwardOutline,bulbOutline,nutritionOutline,fitnessOutline,restaurantOutline,waterOutline,trendingUpOutline,trashOutline,addOutline,barcodeOutline,fastFoodOutline,statsChartOutline,scaleOutline,cafeOutline,pizzaOutline,moonOutline,flameOutline,wineOutline,checkmarkCircleOutline,alertCircleOutline,refreshOutline,scanOutline,checkmarkCircle:checkmarkCircleOutline,alertCircle:alertCircleOutline});
   }
 
   async openDatePicker() {
@@ -323,16 +323,20 @@ export class DashboardPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.initializeDeviceDetection();
-    this.loadUserData();
-    this.updateNutritionGoals();
-    this.loadDashboardData();
+    this.loadUserDataAndDashboard();
     // Aggiornamento dinamico: ascolta eventi globali
     this.subscriptions.add(
       this.eventBus.dataUpdated$.subscribe(type => {
         // Aggiorna sempre tutto per semplicità
-        this.loadDashboardData();
+        this.loadUserDataAndDashboard();
       })
     );
+  }
+
+  /** Carica user e goals, poi dashboard stats */
+  async loadUserDataAndDashboard(event?: any) {
+    await this.loadUserData();
+    await this.loadDashboardData(event);
   }
 
 
@@ -432,45 +436,18 @@ export class DashboardPage implements OnInit, OnDestroy {
     }
   }
 
-  private updateNutritionGoals() {
-    if (!this.user) return;
-    // 1. Calcolo BMR (Harris-Benedict)
-    const gender = this.user.gender || 'male';
-    const weight = this.user.weight ?? 70;
-    const height = this.user.height ?? 170;
-    const birth_date = this.user.birth_date ?? '1990-01-01';
-    const activity_level = this.user.activity_level ?? 'sedentary';
-    const nutritionGoals = this.user.nutritionGoals;
-    const age = this.getAgeFromBirthDate(birth_date);
-    let bmr = 0;
-    if (gender === 'male') {
-      bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
-    } else {
-      bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
-    }
-    // 2. Fattore attività
-    const activity = activity_level as keyof typeof this.activityFactors;
-    const activityFactor = this.activityFactors[activity] || 1.2;
-    let tdee = bmr * activityFactor;
-    // 3. Modifica per obiettivo
-    const userGoal = (nutritionGoals?.goal_type || 'maintain') as keyof typeof this.macroDistributions;
-    let calorieGoal = tdee;
-    if (userGoal === 'lose_weight') calorieGoal -= 400;
-    if (userGoal === 'gain_weight' || userGoal === 'gain_muscle') calorieGoal += 300;
-    calorieGoal = Math.round(calorieGoal);
-    // 4. Macro distribuzione
-    const macro = this.macroDistributions[userGoal] || this.macroDistributions['maintain'];
-    const proteins = Math.round((calorieGoal * macro.proteins) / 4);
-    const carbs = Math.round((calorieGoal * macro.carbs) / 4);
-    const fats = Math.round((calorieGoal * macro.fats) / 9);
-    // 5. Aggiorna dailyStats
-    this.dailyStats.calories.goal = calorieGoal;
-    this.dailyStats.calories.adjustedGoal = calorieGoal + (this.dailyStats.calories.burned || 0);
-    this.dailyStats.carbs.goal = carbs;
-    this.dailyStats.proteins.goal = proteins;
-    this.dailyStats.fats.goal = fats;
-    // Acqua: 35ml per kg peso
-    this.dailyStats.water.goal = Math.round(weight * 35);
+  /**
+   * Aggiorna i goal nutrizionali della dashboard usando l'obiettivo attivo dal backend
+   */
+  private updateNutritionGoalsFromDb(activeGoal: any) {
+    if (!activeGoal) return;
+    // Imposta i valori obiettivo dai dati del db
+    this.dailyStats.calories.goal = activeGoal.target_calories;
+    this.dailyStats.calories.adjustedGoal = activeGoal.target_calories + (this.dailyStats.calories.burned || 0);
+    this.dailyStats.proteins.goal = Math.round(activeGoal.target_calories * (activeGoal.target_protein_percent / 100) / 4);
+    this.dailyStats.carbs.goal = Math.round(activeGoal.target_calories * (activeGoal.target_carbs_percent / 100) / 4);
+    this.dailyStats.fats.goal = Math.round(activeGoal.target_calories * (activeGoal.target_fat_percent / 100) / 9);
+    this.dailyStats.water.goal = Math.round(activeGoal.target_water_liters * 1000);
     this.updateMealGoals();
     this.updateNutritionPercentages();
   }
@@ -509,8 +486,11 @@ export class DashboardPage implements OnInit, OnDestroy {
           user.nutritionGoals = (data as any).activeGoal;
         }
         this.user = user;
+        // Aggiorna i goal nutrizionali dalla tabella nutrition_goals
+        const activeGoal = (typeof data === 'object' && 'activeGoal' in data) ? data.activeGoal : user.nutritionGoals;
+        this.updateNutritionGoalsFromDb(activeGoal);
       }
-     if (event) {
+      if (event) {
         event.target.complete();
       }
     } catch (error) {

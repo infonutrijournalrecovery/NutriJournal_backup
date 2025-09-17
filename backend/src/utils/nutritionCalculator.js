@@ -145,13 +145,14 @@ class NutritionCalculator {
     const dailyCalorieChange = weeklyCalorieChange / 7;
 
     switch (goalType) {
-      case 'weight_loss':
+        case 'lose_weight':
         return Math.max(tdee - dailyCalorieChange, tdee * 0.75); // Non scendere sotto 75% TDEE
       
-      case 'weight_gain':
+        case 'gain_weight':
         return tdee + dailyCalorieChange;
       
-      case 'maintenance':
+  case 'maintain_weight':
+  case 'maintenance':
         return tdee;
       
       default:

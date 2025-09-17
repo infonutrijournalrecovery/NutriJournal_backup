@@ -62,7 +62,7 @@ async function createTables() {
   await db.schema.createTable('nutrition_goals', (table) => {
     table.increments('id').primary();
     table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE');
-    table.enum('goal_type', ['weight_loss', 'weight_gain', 'maintenance', 'muscle_gain']).notNullable();
+    table.enum('goal_type', ['weight_loss', 'weight_gain', 'maintain_weight', 'muscle_gain']).notNullable();
     table.decimal('target_weight', 5, 2).nullable();
     table.integer('target_calories').nullable();
     table.decimal('target_carbs_percent', 5, 2).defaultTo(50);

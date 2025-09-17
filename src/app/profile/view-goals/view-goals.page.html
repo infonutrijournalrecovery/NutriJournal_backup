@@ -15,7 +15,7 @@
   </div>
 
   <!-- Desktop Layout -->
-  <div *ngIf="!isLoading && calculatedGoals && isDesktop" class="desktop-goals-container">
+  <div *ngIf="!isLoading && activeGoal && isDesktop" class="desktop-goals-container">
     
     <!-- Desktop Header -->
     <div class="desktop-goals-header">
@@ -42,12 +42,12 @@
           <ion-card-content>
             <div class="goal-overview">
               <div class="goal-badge">
-                <ion-chip [color]="getGoalColor(currentGoal)" size="large">
-                  <ion-icon [name]="getGoalIcon(currentGoal)"></ion-icon>
-                  <ion-label>{{ getGoalLabel(currentGoal) }}</ion-label>
+                <ion-chip [color]="getGoalColor(activeGoal.goal_type)" size="large">
+                  <ion-icon [name]="getGoalIcon(activeGoal.goal_type)"></ion-icon>
+                  <ion-label>{{ getGoalLabel(activeGoal.goal_type) }}</ion-label>
                 </ion-chip>
               </div>
-              <p class="goal-description">{{ getGoalDescription(currentGoal) }}</p>
+              <p class="goal-description">{{ getGoalDescription(activeGoal.goal_type) }}</p>
             </div>
           </ion-card-content>
         </ion-card>
@@ -63,22 +63,22 @@
           <ion-card-content>
             <div class="calories-overview">
               <div class="main-calories">
-                <span class="calories-number">{{ calculatedGoals.dailyCalories }}</span>
+                <span class="calories-number">{{ activeGoal.target_calories }}</span>
                 <span class="calories-unit">kcal</span>
               </div>
               <div class="calories-breakdown-grid">
                 <div class="breakdown-item bmr">
                   <span class="label">Metabolismo Basale</span>
-                  <span class="value">{{ Math.round(calculatedGoals.bmr) }} kcal</span>
+                  <span class="value">{{ activeGoal.bmr || '' }} kcal</span>
                 </div>
                 <div class="breakdown-item activity">
                   <span class="label">Attività Fisica</span>
-                  <span class="value positive">+{{ Math.round(calculatedGoals.activityCalories) }} kcal</span>
+                  <span class="value positive">+{{ activeGoal.activity_calories || '' }} kcal</span>
                 </div>
                 <div class="breakdown-item goal">
                   <span class="label">Aggiustamento Obiettivo</span>
-                  <span class="value" [class.positive]="calculatedGoals.goalAdjustment > 0" [class.negative]="calculatedGoals.goalAdjustment < 0">
-                    {{ calculatedGoals.goalAdjustment > 0 ? '+' : '' }}{{ calculatedGoals.goalAdjustment }} kcal
+                  <span class="value" [class.positive]="activeGoal.goal_adjustment > 0" [class.negative]="activeGoal.goal_adjustment < 0">
+                    {{ activeGoal.goal_adjustment > 0 ? '+' : '' }}{{ activeGoal.goal_adjustment }} kcal
                   </span>
                 </div>
               </div>
@@ -97,7 +97,7 @@
           <ion-card-content>
             <div class="hydration-overview">
               <div class="water-amount">
-                <span class="amount-number">{{ calculatedGoals.waterIntake }}</span>
+                <span class="amount-number">{{ activeGoal.dailyWater || activeGoal.target_water_liters }}</span>
                 <span class="amount-unit">litri</span>
               </div>
               <p class="hydration-tip">
@@ -131,15 +131,15 @@
                     <div class="macro-icon">🥩</div>
                     <div class="macro-info">
                       <span class="macro-name">Proteine</span>
-                      <span class="macro-percentage">{{ calculatedGoals.macros.proteins.percentage }}%</span>
+                      <span class="macro-percentage">{{ activeGoal.proteinPercentage }}%</span>
                     </div>
                   </div>
                   <div class="macro-values">
-                    <span class="grams">{{ Math.round(calculatedGoals.macros.proteins.grams) }}g</span>
-                    <span class="calories">{{ Math.round(calculatedGoals.macros.proteins.calories) }} kcal</span>
+                    <span class="grams">{{ activeGoal.proteinGrams }}g</span>
+                    <span class="calories">{{ activeGoal.proteinCalories }} kcal</span>
                   </div>
                   <div class="macro-bar">
-                    <div class="bar-fill protein" [style.width.%]="calculatedGoals.macros.proteins.percentage"></div>
+                    <div class="bar-fill protein" [style.width.%]="activeGoal.proteinPercentage"></div>
                   </div>
                 </div>
                 
@@ -148,15 +148,15 @@
                     <div class="macro-icon">🍞</div>
                     <div class="macro-info">
                       <span class="macro-name">Carboidrati</span>
-                      <span class="macro-percentage">{{ calculatedGoals.macros.carbohydrates.percentage }}%</span>
+                      <span class="macro-percentage">{{ activeGoal.carbsPercentage }}%</span>
                     </div>
                   </div>
                   <div class="macro-values">
-                    <span class="grams">{{ Math.round(calculatedGoals.macros.carbohydrates.grams) }}g</span>
-                    <span class="calories">{{ Math.round(calculatedGoals.macros.carbohydrates.calories) }} kcal</span>
+                    <span class="grams">{{ activeGoal.carbsGrams }}g</span>
+                    <span class="calories">{{ activeGoal.carbsCalories }} kcal</span>
                   </div>
                   <div class="macro-bar">
-                    <div class="bar-fill carbs" [style.width.%]="calculatedGoals.macros.carbohydrates.percentage"></div>
+                    <div class="bar-fill carbs" [style.width.%]="activeGoal.carbsPercentage"></div>
                   </div>
                 </div>
                 
@@ -165,15 +165,15 @@
                     <div class="macro-icon">🥑</div>
                     <div class="macro-info">
                       <span class="macro-name">Grassi</span>
-                      <span class="macro-percentage">{{ calculatedGoals.macros.fats.percentage }}%</span>
+                      <span class="macro-percentage">{{ activeGoal.fatsPercentage }}%</span>
                     </div>
                   </div>
                   <div class="macro-values">
-                    <span class="grams">{{ Math.round(calculatedGoals.macros.fats.grams) }}g</span>
-                    <span class="calories">{{ Math.round(calculatedGoals.macros.fats.calories) }} kcal</span>
+                    <span class="grams">{{ activeGoal.fatsGrams }}g</span>
+                    <span class="calories">{{ activeGoal.fatsCalories }} kcal</span>
                   </div>
                   <div class="macro-bar">
-                    <div class="bar-fill fats" [style.width.%]="calculatedGoals.macros.fats.percentage"></div>
+                    <div class="bar-fill fats" [style.width.%]="activeGoal.fatsPercentage"></div>
                   </div>
                 </div>
               </div>
@@ -199,7 +199,7 @@
                   <p>Il tuo metabolismo basale è calcolato usando la formula Mifflin-St Jeor:</p>
                   <div class="formula">
                     <strong>Formula utilizzata:</strong><br>
-                    BMR = (10 × peso) + (6.25 × altezza) - (5 × età) {{ userGender === 'male' ? '+ 5' : '- 161' }}
+                    BMR = (10 × peso) + (6.25 × altezza) - (5 × età) {{ user?.gender === 'male' ? '+ 5' : '- 161' }}
                   </div>
                   <p>Il BMR rappresenta l'energia necessaria per le funzioni vitali di base a riposo.</p>
                 </div>
@@ -210,22 +210,22 @@
                   <ion-label>Livello di Attività</ion-label>
                 </ion-item>
                 <div class="accordion-content" slot="content">
-                  <p>Il tuo livello di attività attuale: <strong>{{ getActivityLevelLabel(userActivityLevel) }}</strong></p>
+                  <p>Il tuo livello di attività attuale: <strong>{{ getActivityLevelLabel(user?.activity_level) }}</strong></p>
                   <div class="activity-levels">
-                    <div class="activity-level" [class.current]="userActivityLevel === 'sedentary'">
+                    <div class="activity-level" [class.current]="user?.activity_level === 'sedentary'">
                       <strong>Sedentario (×1.2)</strong> - Poco o nessun esercizio
                     </div>
-                    <div class="activity-level" [class.current]="userActivityLevel === 'light'">
+                    <div class="activity-level" [class.current]="user?.activity_level === 'light'">
                       <strong>Leggermente attivo (×1.375)</strong> - Esercizio leggero 1-3 giorni/settimana
                     </div>
-                    <div class="activity-level" [class.current]="userActivityLevel === 'moderate'">
+                    <div class="activity-level" [class.current]="user?.activity_level === 'moderate'">
                       <strong>Moderatamente attivo (×1.55)</strong> - Esercizio moderato 3-5 giorni/settimana
                     </div>
-                    <div class="activity-level" [class.current]="userActivityLevel === 'very_active'">
-                      <strong>Molto attivo (×1.725)</strong> - Esercizio intenso 6-7 giorni/settimana
+                    <div class="activity-level" [class.current]="user?.activity_level === 'active'">
+                      <strong>Attivo (×1.725)</strong> - Esercizio intenso 6-7 giorni/settimana
                     </div>
-                    <div class="activity-level" [class.current]="userActivityLevel === 'extra_active'">
-                      <strong>Estremamente attivo (×1.9)</strong> - Esercizio molto intenso, lavoro fisico
+                    <div class="activity-level" [class.current]="user?.activity_level === 'very_active'">
+                      <strong>Molto attivo (×1.9)</strong> - Esercizio molto intenso, lavoro fisico
                     </div>
                   </div>
                 </div>
@@ -260,7 +260,7 @@
   </div>
 
   <!-- Mobile Layout (Original) -->
-  <div *ngIf="!isLoading && calculatedGoals && !isDesktop" class="goals-container">
+  <div *ngIf="!isLoading && activeGoal && !isDesktop" class="goals-container">
     
     <!-- Current Goal Card -->
     <ion-card class="goal-card">
@@ -268,9 +268,9 @@
         <div class="current-goal">
           <div class="goal-info">
             <h2>Il Tuo Obiettivo</h2>
-            <ion-chip [color]="getGoalColor(currentGoal)" size="large">
-              <ion-icon [name]="getGoalIcon(currentGoal)"></ion-icon>
-              <ion-label>{{ getGoalLabel(currentGoal) }}</ion-label>
+            <ion-chip [color]="getGoalColor(activeGoal.goal_type)" size="large">
+              <ion-icon [name]="getGoalIcon(activeGoal.goal_type)"></ion-icon>
+              <ion-label>{{ getGoalLabel(activeGoal.goal_type) }}</ion-label>
             </ion-chip>
           </div>
           <ion-button fill="outline" size="small" (click)="selectGoal()">
@@ -278,7 +278,7 @@
             Cambia
           </ion-button>
         </div>
-        <p class="goal-description">{{ getGoalDescription(currentGoal) }}</p>
+        <p class="goal-description">{{ getGoalDescription(activeGoal.goal_type) }}</p>
       </ion-card-content>
     </ion-card>
 
@@ -293,21 +293,21 @@
       <ion-card-content>
         <div class="calories-display">
           <div class="main-calories">
-            <span class="calories-number">{{ calculatedGoals.dailyCalories }}</span>
+            <span class="calories-number">{{ activeGoal.target_calories }}</span>
             <span class="calories-unit">kcal/giorno</span>
           </div>
           <div class="calories-breakdown">
             <div class="breakdown-item">
               <span class="label">Metabolismo Basale</span>
-              <span class="value">{{ calculatedGoals.bmr }} kcal</span>
+              <span class="value">{{ activeGoal.bmr || '' }} kcal</span>
             </div>
             <div class="breakdown-item">
               <span class="label">Attività Fisica</span>
-              <span class="value">+{{ calculatedGoals.activityCalories }} kcal</span>
+              <span class="value">+{{ activeGoal.activity_calories || '' }} kcal</span>
             </div>
-            <div class="breakdown-item" [class.positive]="calculatedGoals.goalAdjustment > 0" [class.negative]="calculatedGoals.goalAdjustment < 0">
+            <div class="breakdown-item" [class.positive]="activeGoal.goal_adjustment > 0" [class.negative]="activeGoal.goal_adjustment < 0">
               <span class="label">{{ getAdjustmentLabel() }}</span>
-              <span class="value">{{ calculatedGoals.goalAdjustment > 0 ? '+' : '' }}{{ calculatedGoals.goalAdjustment }} kcal</span>
+              <span class="value">{{ activeGoal.goal_adjustment > 0 ? '+' : '' }}{{ activeGoal.goal_adjustment }} kcal</span>
             </div>
           </div>
         </div>
@@ -331,14 +331,14 @@
             <div class="macro-header">
               <ion-icon name="fitness-outline" color="danger"></ion-icon>
               <span class="macro-name">Proteine</span>
-              <span class="macro-percentage">{{ calculatedGoals.macros.proteinPercentage }}%</span>
+              <span class="macro-percentage">{{ activeGoal.proteinPercentage || activeGoal.macros?.proteinPercentage }}%</span>
             </div>
             <div class="macro-values">
-              <span class="grams">{{ calculatedGoals.macros.proteinGrams }}g</span>
-              <span class="calories">{{ calculatedGoals.macros.proteinCalories }} kcal</span>
+              <span class="grams">{{ activeGoal.proteinGrams || activeGoal.macros?.proteinGrams }}g</span>
+              <span class="calories">{{ activeGoal.proteinCalories || activeGoal.macros?.proteinCalories }} kcal</span>
             </div>
             <div class="macro-bar">
-              <div class="bar-fill protein" [style.width.%]="calculatedGoals.macros.proteinPercentage"></div>
+              <div class="bar-fill protein" [style.width.%]="activeGoal.proteinPercentage || activeGoal.macros?.proteinPercentage"></div>
             </div>
           </div>
 
@@ -346,14 +346,14 @@
             <div class="macro-header">
               <ion-icon name="leaf-outline" color="success"></ion-icon>
               <span class="macro-name">Carboidrati</span>
-              <span class="macro-percentage">{{ calculatedGoals.macros.carbsPercentage }}%</span>
+              <span class="macro-percentage">{{ activeGoal.carbsPercentage || activeGoal.macros?.carbsPercentage }}%</span>
             </div>
             <div class="macro-values">
-              <span class="grams">{{ calculatedGoals.macros.carbsGrams }}g</span>
-              <span class="calories">{{ calculatedGoals.macros.carbsCalories }} kcal</span>
+              <span class="grams">{{ activeGoal.carbsGrams || activeGoal.macros?.carbsGrams }}g</span>
+              <span class="calories">{{ activeGoal.carbsCalories || activeGoal.macros?.carbsCalories }} kcal</span>
             </div>
             <div class="macro-bar">
-              <div class="bar-fill carbs" [style.width.%]="calculatedGoals.macros.carbsPercentage"></div>
+              <div class="bar-fill carbs" [style.width.%]="activeGoal.carbsPercentage || activeGoal.macros?.carbsPercentage"></div>
             </div>
           </div>
 
@@ -361,14 +361,14 @@
             <div class="macro-header">
               <ion-icon name="water-outline" color="warning"></ion-icon>
               <span class="macro-name">Grassi</span>
-              <span class="macro-percentage">{{ calculatedGoals.macros.fatsPercentage }}%</span>
+              <span class="macro-percentage">{{ activeGoal.fatsPercentage || activeGoal.macros?.fatsPercentage }}%</span>
             </div>
             <div class="macro-values">
-              <span class="grams">{{ calculatedGoals.macros.fatsGrams }}g</span>
-              <span class="calories">{{ calculatedGoals.macros.fatsCalories }} kcal</span>
+              <span class="grams">{{ activeGoal.fatsGrams || activeGoal.macros?.fatsGrams }}g</span>
+              <span class="calories">{{ activeGoal.fatsCalories || activeGoal.macros?.fatsCalories }} kcal</span>
             </div>
             <div class="macro-bar">
-              <div class="bar-fill fats" [style.width.%]="calculatedGoals.macros.fatsPercentage"></div>
+              <div class="bar-fill fats" [style.width.%]="activeGoal.fatsPercentage || activeGoal.macros?.fatsPercentage"></div>
             </div>
           </div>
         </div>
@@ -387,7 +387,7 @@
       <ion-card-content>
         <div class="hydration-info">
           <div class="water-amount">
-            <span class="amount-number">{{ calculatedGoals.dailyWater }}</span>
+            <span class="amount-number">{{ activeGoal.dailyWater || activeGoal.target_water_liters }}</span>
             <span class="amount-unit">litri/giorno</span>
           </div>
           <div class="water-breakdown">
@@ -396,7 +396,9 @@
               <span>Distribuisci l'assunzione durante tutta la giornata</span>
             </div>
             <div class="water-suggestion">
-              <span>💧 {{ Math.round(calculatedGoals.dailyWater * 4) }} bicchieri da 250ml</span>
+              <span>
+                💧 {{ getWaterGlasses() }} bicchieri da 250ml
+              </span>
             </div>
           </div>
         </div>
@@ -421,7 +423,7 @@
               <ion-icon name="pulse-outline" slot="start" color="danger"></ion-icon>
               <ion-label>
                 <h3>Metabolismo Basale (BMR)</h3>
-                <p>{{ calculatedGoals.bmr }} kcal</p>
+                <p>{{ activeGoal.bmr || '' }} kcal</p>
               </ion-label>
             </ion-item>
             <div class="accordion-content" slot="content">
@@ -432,10 +434,10 @@
               <div class="calculation-details">
                 <p><strong>I tuoi dati:</strong></p>
                 <ul>
-                  <li>Età: {{ userAge }} anni</li>
-                  <li>Sesso: {{ getUserGender() }}</li>
-                  <li>Peso: {{ userWeight }} kg</li>
-                  <li>Altezza: {{ userHeight }} cm</li>
+                  <li>Età: {{ user?.birthDate ? (user?.birthDate | date:'yyyy') : '' }} anni</li>
+                  <li>Sesso: {{ user?.gender === 'male' ? 'Maschio' : 'Femmina' }}</li>
+                  <li>Peso: {{ user?.weight }} kg</li>
+                  <li>Altezza: {{ user?.height }} cm</li>
                 </ul>
               </div>
             </div>
@@ -447,27 +449,13 @@
               <ion-icon name="fitness-outline" slot="start" color="success"></ion-icon>
               <ion-label>
                 <h3>Fattore di Attività</h3>
-                <p>Moltiplicatore: {{ getActivityMultiplier() }}x</p>
+                <p>Moltiplicatore: {{ activeGoal.activity_multiplier || '' }}x</p>
               </ion-label>
             </ion-item>
             <div class="accordion-content" slot="content">
               <p>Il fattore di attività tiene conto del tuo livello di movimento quotidiano.</p>
               <div class="activity-levels">
-                <div class="activity-level" [class.current]="userActivityLevel === 'sedentary'">
-                  <strong>Sedentario (1.2x):</strong> Lavoro da scrivania, poco o nessun esercizio
-                </div>
-                <div class="activity-level" [class.current]="userActivityLevel === 'light'">
-                  <strong>Leggero (1.375x):</strong> Esercizio leggero 1-3 giorni/settimana
-                </div>
-                <div class="activity-level" [class.current]="userActivityLevel === 'moderate'">
-                  <strong>Moderato (1.55x):</strong> Esercizio moderato 3-5 giorni/settimana
-                </div>
-                <div class="activity-level" [class.current]="userActivityLevel === 'active'">
-                  <strong>Attivo (1.725x):</strong> Esercizio intenso 6-7 giorni/settimana
-                </div>
-                <div class="activity-level" [class.current]="userActivityLevel === 'very_active'">
-                  <strong>Molto Attivo (1.9x):</strong> Esercizio molto intenso, lavoro fisico
-                </div>
+                <!-- Livelli attività già gestiti sopra -->
               </div>
             </div>
           </ion-accordion>
@@ -478,7 +466,7 @@
               <ion-icon name="push-outline" slot="start" color="primary"></ion-icon>
               <ion-label>
                 <h3>Aggiustamento per Obiettivo</h3>
-                <p>{{ calculatedGoals.goalAdjustment > 0 ? '+' : '' }}{{ calculatedGoals.goalAdjustment }} kcal</p>
+                <p>{{ activeGoal.goal_adjustment > 0 ? '+' : '' }}{{ activeGoal.goal_adjustment }} kcal</p>
               </ion-label>
             </ion-item>
             <div class="accordion-content" slot="content">
@@ -513,15 +501,15 @@
               <p>La distribuzione dei macronutrienti è ottimizzata per il tuo obiettivo:</p>
               <div class="macro-explanations">
                 <div class="macro-explanation">
-                  <strong>Proteine ({{ calculatedGoals.macros.proteinPercentage }}%):</strong>
+                  <strong>Proteine ({{ activeGoal.proteinPercentage }}%):</strong>
                   <p>Essenziali per riparazione muscolare e sazietà. 4 kcal per grammo.</p>
                 </div>
                 <div class="macro-explanation">
-                  <strong>Carboidrati ({{ calculatedGoals.macros.carbsPercentage }}%):</strong>
+                  <strong>Carboidrati ({{ activeGoal.carbsPercentage }}%):</strong>
                   <p>Fonte primaria di energia per cervello e muscoli. 4 kcal per grammo.</p>
                 </div>
                 <div class="macro-explanation">
-                  <strong>Grassi ({{ calculatedGoals.macros.fatsPercentage }}%):</strong>
+                  <strong>Grassi ({{ activeGoal.fatsPercentage }}%):</strong>
                   <p>Importanti per ormoni e assorbimento vitamine. 9 kcal per grammo.</p>
                 </div>
               </div>

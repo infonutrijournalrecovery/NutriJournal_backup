@@ -388,10 +388,10 @@ const mealItemSchema = Joi.object({
  */
 const nutritionGoalSchema = Joi.object({
     goal_type: Joi.string()
-        .valid('weight_loss', 'weight_gain', 'maintenance', 'muscle_gain')
+            .valid('lose_weight', 'gain_weight', 'maintain_weight', 'gain_muscle')
         .required()
         .messages({
-            'any.only': 'Il tipo di obiettivo deve essere weight_loss, weight_gain, maintenance o muscle_gain',
+            'any.only': 'Il tipo di obiettivo deve essere lose_weight, gain_weight, maintain_weight o gain_muscle',
             'any.required': 'Il tipo di obiettivo è obbligatorio'
         }),
     
@@ -411,14 +411,14 @@ const nutritionGoalSchema = Joi.object({
             'date.min': 'La data target non può essere nel passato'
         }),
     
-    daily_calories: Joi.number()
+    target_calories: Joi.number()
         .min(800)
         .max(5000)
         .required()
         .messages({
-            'number.min': 'Le calorie giornaliere devono essere almeno 800',
-            'number.max': 'Le calorie giornaliere non possono superare 5000',
-            'any.required': 'Le calorie giornaliere sono obbligatorie'
+            'number.min': 'Le calorie target devono essere almeno 800',
+            'number.max': 'Le calorie target non possono superare 5000',
+            'any.required': 'Le calorie target sono obbligatorie'
         }),
     
     daily_protein: Joi.number()

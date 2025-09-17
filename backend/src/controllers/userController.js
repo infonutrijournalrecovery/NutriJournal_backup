@@ -325,10 +325,10 @@ class UserController {
   const freshUser = await UserModel.findById(req.user.id, db);
   req.user = freshUser;
 
-      // Se sono stati aggiornati dati rilevanti per il calcolo degli obiettivi,
-      // ricalcola gli obiettivi nutrizionali
-      const nutritionRelevantFields = ['weight', 'height', 'activity_level', 'date_of_birth', 'gender'];
-      const needsRecalculation = Object.keys(updates).some(field => nutritionRelevantFields.includes(field));
+  // Se sono stati aggiornati dati rilevanti per il calcolo degli obiettivi,
+  // ricalcola gli obiettivi nutrizionali
+  const nutritionRelevantFields = ['weight', 'height', 'activity_level', 'date_of_birth', 'gender', 'goal'];
+  const needsRecalculation = Object.keys(updates).some(field => nutritionRelevantFields.includes(field));
 
       let newGoal = null;
       if (needsRecalculation) {

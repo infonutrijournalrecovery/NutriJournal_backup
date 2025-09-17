@@ -62,7 +62,8 @@ router.get('/goals', auth, UserController.getGoals);
 router.get('/goals/active', auth, UserController.getActiveGoal);
 
 // POST /api/users/goals - Crea nuovo obiettivo
-router.post('/goals', auth, validate('createGoal'), UserController.createGoal);
+const { nutritionGoalSchema } = require('../utils/validation');
+router.post('/goals', auth, validate(nutritionGoalSchema), UserController.createGoal);
 
 // PUT /api/users/goals/:goalId - Aggiorna obiettivo
 router.put('/goals/:goalId', auth, validate('updateGoal'), UserController.updateGoal);

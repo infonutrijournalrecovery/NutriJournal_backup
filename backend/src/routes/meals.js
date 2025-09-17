@@ -1,6 +1,6 @@
 const express = require('express');
 const AuthMiddleware = require('../middleware/auth');
-const { validate } = require('../middleware/validation');
+const { validate } = require('../utils/validation');
 const MealController = require('../controllers/mealController');
 
 const router = express.Router();

@@ -27,14 +27,14 @@ const NUTRITION_CONSTANTS = {
     very_active: 1.9
   },
   GOAL_MODIFIERS: {
-    weight_loss: 0.8,
+     lose_weight: 0.8,
     maintain: 1.0,
-    muscle_gain: 1.1
+     gain_muscle: 1.1
   },
   MACRO_DISTRIBUTIONS: {
-    weight_loss: { protein: 0.35, fat: 0.35, carbs: 0.30 },
+     lose_weight: { protein: 0.35, fat: 0.35, carbs: 0.30 },
     maintain: { protein: 0.30, fat: 0.30, carbs: 0.40 },
-    muscle_gain: { protein: 0.30, fat: 0.20, carbs: 0.50 }
+     gain_muscle: { protein: 0.30, fat: 0.20, carbs: 0.50 }
   }
 };
 
@@ -235,15 +235,15 @@ function calculateCaloriesForGoal(tdee, goal, rate=0.5) {
   let targetCalories, description_it;
 
   switch(goal.toLowerCase()) {
-    case 'lose': case 'weight_loss':
-      targetCalories = tdee - dailyDeficit;
+    case 'lose': case 'lose_weight':
+        targetCalories = tdee - dailyDeficit;
       description_it = `Perdita di ${rate}kg/settimana`;
       break;
-    case 'maintain': case 'maintenance':
+    case 'maintain': case 'maintain_weight': case 'maintenance':
       targetCalories = tdee;
       description_it = 'Mantenimento peso';
       break;
-    case 'gain': case 'weight_gain':
+    case 'gain': case 'gain_weight':
       targetCalories = tdee + dailyDeficit;
       description_it = `Aumento di ${rate}kg/settimana`;
       break;
