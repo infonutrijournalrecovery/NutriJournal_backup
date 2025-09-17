@@ -10,9 +10,9 @@
 <ion-content [fullscreen]="true">
   <ng-container *ngIf="prodotto; else loadingOrError">
     <!-- Messaggio di avviso allergeni/additivi pericolosi -->
-    <div *ngIf="getDangerousIngredients().length" style="color: red; font-weight: bold; margin-bottom: 1em; border: 2px solid red; padding: 0.5em; border-radius: 8px;">
+<!--    <div *ngIf="getDangerousIngredients().length" style="color: red; font-weight: bold; margin-bottom: 1em; border: 2px solid red; padding: 0.5em; border-radius: 8px;">
       ⚠️ Attenzione, il prodotto contiene traccia di {{ getDangerousIngredients().join(', ') }}
-    </div>
+    </div> -->
     <ion-list lines="none" class="product-details">
       <ion-item>
         <ion-label>
@@ -110,9 +110,9 @@
           <ion-button fill="solid" [disabled]="inPantry" (click)="addToPantry()">
             {{ inPantry ? 'Già in dispensa' : 'Aggiungi in dispensa' }}
           </ion-button>
-          <ion-button fill="solid" (click)="openMealActionSheet()">
+       <!--   <ion-button fill="solid" (click)="openMealActionSheet()">
             Aggiungi al pasto
-          </ion-button>
+          </ion-button> -->
         </div>
       </ion-item>
     </ion-list>
