@@ -69,6 +69,13 @@ ion-toolbar {
   opacity: 0.9;
 }
 
+ion-button{
+  font-weight: 900;
+  background-color: #f443364b;
+  border-radius: 12px;
+  padding: 2px;
+}
+
 // === CARDS PROFILO ===
 .profile-sections {
   display: flex;

@@ -4,11 +4,6 @@
       <ion-back-button defaultHref="/profile"></ion-back-button>
     </ion-buttons>
     <ion-title>Obiettivi Nutrizionali</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="selectGoal()">
-        <ion-icon name="push-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -103,7 +98,7 @@
             <div class="hydration-overview">
               <div class="water-amount">
                 <span class="amount-number">{{ calculatedGoals.waterIntake }}</span>
-                <span class="amount-unit">ml</span>
+                <span class="amount-unit">litri</span>
               </div>
               <p class="hydration-tip">
                 <ion-icon name="bulb-outline"></ion-icon>

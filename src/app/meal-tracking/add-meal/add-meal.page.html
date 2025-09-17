@@ -6,14 +6,6 @@
     <ion-title>
       {{ isEditing ? 'Modifica' : 'Aggiungi' }} {{ selectedMealType || 'Pasto' }}
     </ion-title>
-    <ion-buttons slot="end">
-      <ion-button 
-        [disabled]="mealItems.length === 0 || isSaving" 
-        (click)="saveMeal()"
-        >
-        <ion-icon name="checkmark-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 

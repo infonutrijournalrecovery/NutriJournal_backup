@@ -26,7 +26,15 @@ ion-item[button] {
   transition: background 0.2s;
 }
 ion-item[button]:hover {
-  background: #c0c0c0;
+  background: #75b972a3;
+  h3{
+    color: #000000;
+    font-weight: bold;
+  }
+  p{
+    color: #505050;
+    font-weight: 600;
+  }
 }
 
 .nutrienti-prodotto-tendina {
