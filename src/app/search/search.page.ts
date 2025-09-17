@@ -8,6 +8,8 @@ import { ApiService } from '../shared/services/api.service';
 import { DeviceService } from '../shared/services/device.service';
 import { ProductService, Product, normalizeProduct } from '../shared/services/product.service';
 import { AlertController, ToastController, LoadingController } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { searchOutline } from 'ionicons/icons';
 
 import {
   IonHeader,
@@ -93,7 +95,10 @@ export class SearchPage implements OnInit, OnDestroy {
   private toastController = inject(ToastController);
   private loadingController = inject(LoadingController);
 
-  constructor() {}
+  constructor() {
+    addIcons({ searchOutline });
+
+  }
 
   ngOnInit() {
     this.deviceSub = this.deviceService.getDeviceChanges().subscribe(deviceInfo => {

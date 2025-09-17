@@ -1,3 +1,8 @@
+ion-content {
+  --padding-top: 0;
+}
+
+
 // Chip filtri visibili su verde
 .search-filters ion-chip {
   background: #fff !important;
@@ -95,7 +100,7 @@ ion-toolbar {
 }
 .desktop-header {
   background: #75b972;
-  padding: 3rem 2rem;
+  padding: 7rem 2rem;
   text-align: center;
   border-radius: 0 0 24px 24px;
   margin-bottom: 2rem;
@@ -105,14 +110,15 @@ ion-toolbar {
     h1 {
       font-size: 2.5rem;
       font-weight: 300;
-      margin: 0 0 1rem 0;
+      margin: 0 0 0rem 0;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 1rem 0rem;
       gap: 1rem;
       color: #ffffff;
       ion-icon {
-        font-size: 3rem;
+        font-size: 2.5rem;
       }
     }
     p {
