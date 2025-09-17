@@ -41,13 +41,6 @@ const errorHandler = (error, req, res, next) => {
     details = error.message;
   }
   
-  // Errori di rate limiting
-  else if (error.name === 'TooManyRequestsError' || statusCode === 429) {
-    statusCode = 429;
-    message = 'Troppe richieste. Riprova più tardi';
-    errorType = 'RATE_LIMIT_EXCEEDED';
-  }
-  
   // Errori del database
   else if (error.name === 'DatabaseError' || error.code === 'SQLITE_ERROR') {
     statusCode = 500;
@@ -213,13 +206,6 @@ class ConflictError extends AppError {
   constructor(message = 'Conflitto nei dati') {
     super(message, 409, 'CONFLICT');
     this.name = 'ConflictError';
-  }
-}
-
-class RateLimitError extends AppError {
-  constructor(message = 'Troppe richieste') {
-    super(message, 429, 'RATE_LIMIT_EXCEEDED');
-    this.name = 'RateLimitError';
   }
 }
 
