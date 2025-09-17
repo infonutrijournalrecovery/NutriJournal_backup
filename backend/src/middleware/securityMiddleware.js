@@ -1,6 +1,15 @@
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
+// Rate limit base
+const rateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minuti
+    max: 100, // 100 richieste per finestra
+    message: {
+        success: false,
+        message: 'Troppe richieste. Riprova più tardi.'
+    }
+});
 
 // CORS semplificato per development
 const corsOptions = {

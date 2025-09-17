@@ -269,6 +269,5 @@ module.exports = {
   UnauthorizedError,
   ForbiddenError,
   ConflictError,
-  RateLimitError,
   ServiceUnavailableError,
 };
