@@ -410,7 +410,130 @@
           </div>
           </ion-card-content>
       </ion-card>
-      <!-- Attività -->
+
+
+      <ion-card class="desktop-meals-card desktop-meal-management">
+        <ion-card-header>
+            <ion-card-title>
+                <ion-icon name="restaurant-outline"></ion-icon>
+                Gestione Pasti
+            </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="scrollable-section">
+              <div class="meal-management-grid">
+                <div class="meal-section" *ngFor="let type of ['breakfast','lunch','snack','dinner']">
+                    <div class="meal-header" (click)="openViewMeal(type)" style="cursor:pointer;">
+                        <ion-icon [name]="getMealIcon(type)" class="meal-icon"></ion-icon>
+                        <div class="meal-info">
+                            <h4 class="meal-name">{{ getMealName(type) }}</h4>
+                        </div>
+                    </div>
+                    <div class="meal-content">
+                        <ng-container *ngIf="!mealsByDateGrouped[type] || mealsByDateGrouped[type].length === 0">
+                            <div class="empty-meal">
+                                <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
+                                <p class="empty-text">Nessun pasto aggiunto</p>
+                            </div>
+                        </ng-container>
+                        <ng-container *ngIf="mealsByDateGrouped[type] && mealsByDateGrouped[type].length > 0">
+                            <div class="meal-products-list" style="margin-top: 10px;">
+                                <ion-list lines="none">
+                                    <ng-container *ngFor="let meal of mealsByDateGrouped[type]">
+                                        <ng-container *ngIf="meal.items && meal.items.length > 0; else noProducts">
+                                            <ion-item *ngFor="let item of meal.items" class="product-item" lines="none">
+                                                <ion-label>
+                                                    {{ item.product?.display_name || item.product?.name_it || item.product?.name || 'Prodotto' }}
+                                                    <span *ngIf="item.quantity"> - {{ item.quantity }}{{ item.unit || 'g' }} 
+                                                      <span *ngIf="meal.total_calories != null" style="float: right; color: #b0b0b0; font-size: 0.98em; font-weight: 500; margin-left: 12px;">  {{ meal.total_calories }} kcal</span>
+                                                    </span>
+                                                </ion-label>
+                                            </ion-item>
+                                        </ng-container>
+                                        <ng-template #noProducts>
+                                            <ion-item lines="none">
+                                                <ion-label style="color: #c00; font-size: 0.95em;">Nessun prodotto trovato in questo pasto (id: {{ meal.id }})</ion-label>
+                                            </ion-item>
+                                        </ng-template>
+                                    </ng-container>
+                                </ion-list>
+                            </div>
+                        </ng-container>
+                        <div class="add-meal-btn-wrapper-fixed">
+                            <ion-button fill="solid" size="small" class="add-meal-btn" (click)="addMeal(type)">
+                                <ion-icon name="add-outline"></ion-icon>
+                                Aggiungi
+                            </ion-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </ion-card-content>
+    </ion-card>
+
+    <ion-card class="desktop-activities-card">
+        <ion-card-header>
+            <ion-card-title>
+                <ion-icon name="trending-up-outline"></ion-icon>
+                Attività di oggi
+            </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+              <ion-list class="desktop-activities-list">
+                  <ng-container *ngIf="activitiesToday && activitiesToday.length > 0; else noActivities">
+                    <ion-item *ngFor="let activity of activitiesToday" class="desktop-activity-item" lines="none">
+                      <ion-label class="activity-info" lines="none">
+                        <h4>{{ activity.name || getActivityLabel(activity.type || '') }}</h4>
+                        <p>
+                          {{ activity.duration_minutes || (activity.items && activity.items.length > 0 ? activity.items[0].quantity : '?') }} min
+                          {{ activity.calories_burned || activity.totalNutrition?.calories || '?' }} kcal
+                        </p>
+                      </ion-label>
+                      <ion-button class="elimina-btn" fill="outline" (click)="deleteActivity(activity)">
+                          <ion-icon name="trash-outline"></ion-icon>
+                        </ion-button>
+                    </ion-item>
+                  </ng-container>
+                
+                  <ng-template #noActivities>
+                    <ion-item class="desktop-empty-state" lines="none">
+                      <ion-icon name="trending-up-outline" slot="start" style="color: #ff0000;"></ion-icon>
+                      <ion-label>
+                        <p>Nessuna attività registrata</p>
+                      </ion-label>
+                    </ion-item>
+                  </ng-template>
+                </ion-list>
+                
+            <div class="desktop-activity-add-btn-wrapper">
+                <ion-button fill="solid" size="small" class="action-btn activity-btn desktop-activity-add-btn" style="--border-color: #1976d2; --color: #ffffff; border-color: #1976d2 !important; color: #ffffff !important; font-size: 0.95rem; font-weight: 500; border-radius: 8px; padding: 0 18px; height: 36px;" (click)="goToActivity()">
+                    <ion-icon slot="start" name="fitness-outline"></ion-icon>
+                    + Registra Attività
+                </ion-button>
+            </div>
+            <style>
+                .desktop-activities-list {
+                    position: relative;
+                    min-height: 265px;
+                    padding-bottom: 56px;
+                    overflow-y: auto;
+                }
+                .desktop-activity-add-btn-wrapper {
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    bottom: 8px;
+                    display: flex;
+                    justify-content: center;
+                    z-index: 2;
+                }
+            </style>
+        </ion-card-content>
+    </ion-card>
+
+
+      <!-- Attività 
       <ion-card class="desktop-activities-card">
           <ion-card-header>
               <ion-card-title>
@@ -445,8 +568,9 @@
               </ion-button>
           </div>
         </ion-card-content>
-      </ion-card>
-      <!-- Gestione Pasti (mobile, stile desktop) -->
+      </ion-card> -->
+
+      <!-- Gestione Pasti (mobile, stile desktop) 
       <ion-card class="desktop-meals-card desktop-meal-management">
           <ion-card-header>
               <ion-card-title>
@@ -506,7 +630,7 @@
             </div>
         </div>
      </ion-card-content>
-      </ion-card>
+      </ion-card> -->
       <!-- Azioni rapide -->
         <ion-card class="desktop-activities-card">
                     <ion-card-header>
